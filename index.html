@@ -2,21 +2,34 @@
 <html>
  <head>
   <title>Folkes folk</title>
+  <meta charset="UTF-8" />
   <script src="js/jquery-1.7.1.js"></script>
   <script src="folkesfolk.js"></script>
-  <link rel="stylesheet" type="text/css" media="screen" href="css/reset.css" />
+  <link rel="stylesheet" type="text/css" media="screen" href="css/reset.css" /> 
   <link rel="stylesheet" type="text/css" media="screen" href="css/folkesfolk.css" />
  </head>
  <body>
   <!-- 
   <h1>Folkes folk</h1>
-  -->
   <button id="switch_img">Byt bild</button>
+  -->
   <div id="container">
-    <div id="face"></div>
-    <div id="alternatives">
-	<div id="alt1" class="alt"></div>
-	<div id="alt2" class="alt"></div>
+    <div id="intro">
+	<h1>Folkes Folk!</h1>
+	<p><dfn>Folkes Folk</dfn> är ett enkelt spel för att lära sig alfabetet. Barnet får se en bild på en 
+	välkänd person och höra en röst som säger personens namn och namnets begynnelsebokstav. 
+	Sedan ska barnet trycka på rätt bokstav. Inte så komplicerat.</p>
+ 	<p><dfn>Folkes Folk</dfn> fungerar i dagsläget bara i webbläsare med fullt stöd för HTML5.
+	Jag rekommenderar <a href="http://www.mozilla.org/en-US/firefox/new/">Firefox</a>, men 
+	<a href="https://www.google.com/chrome/">Google Chrome</a> bör också fungera.</p>
+
+	<button class="bigbutton" id="start_game">Sätt igång!</button>
+	
+    </div>
+    <div id="game">
+	<img id="face">
+	<img id="correct_answer" class="answers">
+	<img id="wrong_answer" class="answers">
     </div>
  </div>
  </body>

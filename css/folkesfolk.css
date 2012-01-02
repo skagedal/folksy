@@ -1,28 +1,61 @@
 
 /* CSS for Folkes Folk */
 
+h1 {
+	margin: 1em 0px;
+	font-family: Arial, Sans;
+	font-size: x-large;
+	font-weight: bold;
+}
+
+p {
+	margin-bottom: 1em;
+}
+
+#container {
+	width: 424px;
+	margin-left: auto;
+	margin-right: auto;
+}
+#game {
+	display: none;
+       	position: relative;
+	top: 28px;
+	width: 424px;
+	height: 620px;
+	background-image: url(../themes/sunset/background.jpg);
+	z-index: 0;
+}
+
+/* A lot of the values here are also hardcoded in the JS. Ugly, I know. */
+
 #face {
-	width:	400px;
-	height:	400px;
+	display: none;
+	z-index: 1;
+	position: absolute;
+	width: 368px;
+	height: 368px;
+	top: 28px;
+	left: 28px;	
 }
-#alternatives {
-	display: -webkit-box;
-	-webkit-box-orient: horizontal;
-	-webkit-box-pack: center;
-	-webkit-box-align: center;
-
-	display: -moz-box;
-	-moz-box-orient: horizontal;
-	-moz-box-pack: center;
-	-moz-box-align: center;
-
-	display: box;
-	box-orient: horizontal;
-	box-pack: center;
-	box-align: center;
+.answers {
+	display: none;
+	z-index: 1;
+	position: absolute;
+	width: 164px;
+	height: 164px;
+	top: 424px;
 }
-.alt {
-	width: 200px;
-	height: 200px;
+#correct_answer {
+	left: 28px
+}
+#wrong_answer {
+	left: 232px;
 }
 
+.bigbutton {
+	margin: 1em auto; 	/* Why can't I get it centered? */
+	font-size: large;
+	font-weight: bold;
+	padding: 1em;	
+}

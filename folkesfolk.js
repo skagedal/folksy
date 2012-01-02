@@ -48,7 +48,9 @@ kortversion = false;
 if (kortversion) {
 	ff.questions = [
 		"A_amanda", 
-		"A_anna"
+		"F_folke", 
+		"S_soeren", 
+		"I_ida", 
 	];
 }
 
@@ -141,6 +143,33 @@ function get_answer(s) {
 	return /^([A-Z]+)/.exec(s)[0];
 }
 
+function correct_answer() {
+	if (ff.is_in_question) {
+		ff.is_in_question = false;
+		$("#wrong_answer").fadeOut()
+		$("#correct_answer").animate({
+			top: 28, 
+			left: 28,
+			width: 368,
+			height: 368,
+			opacity: 0.5},
+			1000, function() {
+				$("#correct_answer").fadeOut(function() {
+					$("#correct_answer").css({top: 424, width: 164, height: 164, opacity: 1.0});
+					next_question();
+				});
+			});
+		console.log("Whoohooo!");
+	
+	}
+}
+
+function wrong_answer() {
+	if (ff.is_in_question) {
+		console.log("Wrong...");
+	}
+}
+
 function next_question() {
 	if (ff.order.length < 1) {
 		alert("Bra jobbat!");
@@ -152,30 +181,45 @@ function next_question() {
 
 	add_new_image = function() {
 		play_sound(ff.audios[q]);
-		$("#face").empty();
+
 		ff.current_image = ff.images[q];
-		$("#face").append(ff.current_image);
-		$(ff.current_image).fadeIn();
+		var correct_image = ff.letter_images[answer_i];
+		var wrong_image = random_pick_except(ff.letter_images, correct_image);
 
-		// Set up correct answer image
-		$("#alt1").empty();
-		var answer_image = ff.letter_images[answer_i];
-		$("#alt1").append(answer_image);
-		$(answer_image).fadeIn();
 
-		$("#alt2").empty();
-		var wrong_image = random_pick_except(ff.letter_images, answer_image);
-		$("#alt2").append(wrong_image);
-		$(wrong_image).fadeIn();
+		$("#face")[0].src = ff.current_image.src;
+		$("#face").fadeIn();		
 
+		var x_position = shuffle(["28px", "232px"]);
+		$("#correct_answer").css({left: x_position[0]});
+		$("#wrong_answer").css({left: x_position[1]});
+		$("#correct_answer")[0].src = correct_image.src;
+		$("#wrong_answer")[0].src = wrong_image.src;
+		$(".answers").fadeIn();
+		ff.is_in_question = true;
 	}
 
 	if (ff.current_image) {
 		console.log("Fading out..");
-		$(ff.current_image).fadeOut("slow", add_new_image);
+		$("#face").fadeOut("slow", add_new_image);
 	} else {
 		add_new_image();
 	}
+}
+
+function start_game() {
+	$("#correct_answer").click(correct_answer);
+	$("#wrong_answer").click(wrong_answer);
+/*	$(".answers").hover(function() {
+				$(this).css({opacity:0.7});
+			   },
+			   function() {
+				$(this).css({opacity:1.0});
+			   });
+*/
+	$("#intro").slideUp("slow", function() { 
+		$("#game").fadeIn("slow", next_question); 	
+	});
 }
 
 // Init function - run when the DOM is ready
@@ -187,8 +231,12 @@ $(function() {
 	load_audios();
 
 	ff.order = shuffle(range(ff.questions.length));
+	ff.is_in_question = false;		// is true when we're waiting for a click on a letter 
+
+	$("#start_game").click(start_game);
 
 	$("#switch_img").click(next_question);
+
 });
 
 
