@@ -29,24 +29,32 @@ ff.questions = [
 	"L_lina", 
 	"M_majken", 
 	"N_nisse", 
+	"N_noam",
+	"N_nova",
 	"O_otis", 
 	"P_paer", 
 	"S_sigrid", 
 	"S_simon", 
 	"S_sixten", 
+	"S_stella",
 	"S_soeren", 
 	"S_svea", 
 	"U_uno", 
 	"V_vera", 
 	"W_wilhelm", 
 	"Z_zackari",
-	"AA_aasa"
+	"AA_aasa",
+	"AE_aerlebrand",
 ];
 
 kortversion = false;
 //kortversion = true;
 if (kortversion) {
 	ff.questions = [
+		"S_stella",
+		"AE_aerlebrand",
+		"N_noam",
+		"N_nova",
 		"A_amanda", 
 		"F_folke", 
 		"S_soeren", 
