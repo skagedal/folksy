@@ -11,6 +11,12 @@ h1 {
 p {
 	margin-bottom: 1em;
 }
+footer {
+	font-size: x-small;
+	border-top-style: solid;
+	border-color: black;
+	background-color: gray;
+}
 
 #container {
 	width: 424px;

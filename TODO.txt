@@ -3,10 +3,12 @@ Folkes Folk - TO DO list
 Simon Kågedal Reimer <simon@kagedal.org>
 
 * Clean separation of _game engine_, _games_ and _themes_
-* Use http://www.schillmania.com/projects/soundmanager2/[SoundManager 2] for sound, supporting more platforms
-* Use http://ffmpeg.org/[ffmpeg] for converting sound files
+* Scripts that automate game installation, use http://ffmpeg.org/[ffmpeg] for converting sound files
 * Link to README from game
+* Record better sound
 * Nice animated effects on correct answers, sound effect on wrong answer
+* Versions with three or more letters. 
+* Full alphabet version using Fish Eye!
 * Mouse-over highlighting for letters
 * Make the letters a bit nicer
 * General game sets, such as "A for apple, B for banana..." -- in English and Swedish.
