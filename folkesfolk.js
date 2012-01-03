@@ -39,6 +39,7 @@ ff.questions = [
 	"S_stella",
 	"S_soeren", 
 	"S_svea", 
+	"T_tord",
 	"U_uno", 
 	"V_vera", 
 	"W_wilhelm", 

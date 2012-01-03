@@ -3,6 +3,8 @@ Folkes Folk - TO DO list
 Simon Kågedal Reimer <simon@kagedal.org>
 
 * Clean separation of _game engine_, _games_ and _themes_
+* Use http://www.schillmania.com/projects/soundmanager2/[SoundManager 2] for sound
+* Use [http://ffmpeg.org/]ffmpeg for converting sounds
 * Nice animated effects on correct answers, sound effect on wrong answer
 * Mouse-over highlighting for letters
 * Make the letters a bit nicer
