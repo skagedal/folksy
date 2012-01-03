@@ -3,8 +3,9 @@ Folkes Folk - TO DO list
 Simon Kågedal Reimer <simon@kagedal.org>
 
 * Clean separation of _game engine_, _games_ and _themes_
-* Use http://www.schillmania.com/projects/soundmanager2/[SoundManager 2] for sound
-* Use [http://ffmpeg.org/]ffmpeg for converting sounds
+* Use http://www.schillmania.com/projects/soundmanager2/[SoundManager 2] for sound, supporting more platforms
+* Use http://ffmpeg.org/[ffmpeg] for converting sound files
+* Link to README from game
 * Nice animated effects on correct answers, sound effect on wrong answer
 * Mouse-over highlighting for letters
 * Make the letters a bit nicer
@@ -12,5 +13,4 @@ Simon Kågedal Reimer <simon@kagedal.org>
 * Android game engine
 * iPhone game engine
 * Web application where you can design your own games 
-* Support for Internet Explorer (possibly through http://jplayer.org[Jplayer])
 * Nicer formatting of AsciiDoc generated html
