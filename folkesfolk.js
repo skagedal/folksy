@@ -1,5 +1,8 @@
 // Folkes folk
 
+soundManager.url = '/simon/folkesfolk/swf/';		// HARDCODE
+
+
 document.folkesfolk = {};	// App object
 ff = document.folkesfolk;
 
@@ -98,13 +101,17 @@ function load_images() {
 function load_audios() {
 	ff.audios = [];
 	for (var i in ff.questions) {
-		var filename = "sound/" + ff.questions[i] + ".ogg";
-		ff.audios.push(new Audio(filename));
+		var s = ff.questions[i];
+		var sound = soundManager.createSound({
+			id: s,
+			url: ['sound/' + s + '.mp3', 
+			      'sound/' + s + '.ogg']});
+		ff.audios.push(sound);
 	}
 }
 
 function play_sound(audio) {
-	audio.currentTime = 0;
+//	audio.currentTime = 0;
 	audio.play();
 }
 
@@ -219,13 +226,6 @@ function next_question() {
 function start_game() {
 	$("#correct_answer").click(correct_answer);
 	$("#wrong_answer").click(wrong_answer);
-/*	$(".answers").hover(function() {
-				$(this).css({opacity:0.7});
-			   },
-			   function() {
-				$(this).css({opacity:1.0});
-			   });
-*/
 	$("#intro").slideUp("slow", function() { 
 		$("#game").fadeIn("slow", next_question); 	
 	});
@@ -237,7 +237,7 @@ $(function() {
 	// Should start by loading in the game metadata using $.get('something.json', callback)
 
 	load_images();
-	load_audios();
+//	load_audios();
 
 	ff.order = shuffle(range(ff.questions.length));
 	ff.is_in_question = false;		// is true when we're waiting for a click on a letter 
@@ -248,4 +248,9 @@ $(function() {
 
 });
 
+// Run when soundManager is ready
+
+soundManager.onready(function() {
+	load_audios();
+});
 
