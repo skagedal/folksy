@@ -1,0 +1,113 @@
+# This is a Folkes Folk game file
+
+name: The Letter Game
+gametype: whatletter
+theme: sunset
+
+items:
+ - id: A_apple
+   title: A for apple
+   blurb: An apple a day keeps the doctor away!
+   source: http://openclipart.org/detail/137929/apple-by-jgm104
+ - id: B_banana
+   # or ball?
+   title: B for banana
+   blurb: Yummy!
+   source: http://openclipart.org/detail/84217/banana-by-doofi
+ - id: C_cat
+   title: C for cat
+   blurb: 
+   source: http://openclipart.org/detail/134137/tabby-cat-by-nadenka1
+ - id: D_dog
+   title: D for dog
+   blurb: What a cute little spaniel. 
+   source: http://openclipart.org/detail/124003/spaniel-2-by-papapishu
+ - id: E_elephant
+   title: E for elephant
+   blurb: This is an Indian elephant.
+   source: http://openclipart.org/detail/120799/indian-elephant-by-papapishu
+ - id: F_frog
+   title: F for frog
+   blurb: Ribbit!
+   source: http://openclipart.org/detail/496/frog-by-theresaknott
+ - id: G_goat
+   title: G for goat
+   blurb: 
+   source: http://openclipart.org/detail/124255/goat-2-by-papapishu
+ - id: H_hat
+   title: H for hat
+   blurb: 
+   source: http://openclipart.org/detail/14831/adventurer-hat-by-nicubunu
+ - id: I_ice
+   title: I for ice
+   blurb: 
+   source: http://openclipart.org/detail/4028/ice-cube-by-sarasara
+ - id: J_jackal
+   title: J for jackal
+   blurb: 
+   source: http://openclipart.org/detail/120805/jackal-by-papapishu
+ - id: K_kite
+   # alt: king
+   title: K for kite
+   blurb: 
+   source: http://openclipart.org/detail/23391/blue-kite-by-adam_lowe
+ - id: L_lion
+   title: L for lion
+   blurb: 
+   source: http://openclipart.org/detail/1461/lion-by-johnny_automatic
+ - id: M_mango
+   title: M for mango
+   blurb: 
+   source: http://openclipart.org/detail/131485/mango-fruit-by-netalloy
+ - id: N_nest
+   title: N for nest
+   blurb: 
+   source: http://openclipart.org/detail/6185/man-in-a-birds-nest-by-johnny_automatic-6185
+ - id: O_owl
+   title: O for owl
+   blurb: 
+   source: http://openclipart.org/detail/26695/screech-owl-by-oksmith
+ - id: P_parrot
+   title: P for parrot
+   blurb: 
+   source: http://openclipart.org/detail/121105/parrot-by-papapishu
+ - id: Q_queen
+   title: Q for queen
+   blurb: 
+   source: http://openclipart.org/detail/18663/-by--18663
+ - id: R_rabbit
+   title: R for rabbit
+   blurb: A French rabbit.
+   source: http://openclipart.org/detail/124231/french-rabbit-by-papapishu
+ - id: S_ship
+   title: S for ship
+   blurb: 
+   source: http://openclipart.org/detail/26413/ship-of-the-line-by-oksmith
+ - id: T_tomato
+   title: T for tomato
+   blurb: 
+   source: http://openclipart.org/detail/4783/tomato-by-chrisdesign-4783
+ - id: U_umbrella
+   title: U for umbrella
+   blurb: 
+   source: http://openclipart.org/detail/125809/tattered-umbrella-in-rain-by-laurianne
+ - id: V_van
+   title: V for van
+   blurb: 
+   source: http://openclipart.org/detail/73705/van-by-netalloy
+ - id: W_watch
+   title: W for watch
+   blurb: 
+   source: http://openclipart.org/detail/76501/arm-watch-by-inky2010
+ - id: X_xylophone
+   title: X for xylophone
+   blurb: 
+   source: http://openclipart.org/detail/8238/xylophone-(colourful)-by-gerald_g-8238
+ - id: Y_yarn
+   title: Y for yarn
+   blurb: 
+   source: http://openclipart.org/detail/23398/pink-ball-of-yarn-by-adam_lowe
+ - id: Z_zebra
+   title: Z for zebra
+   blurb: 
+   source: http://openclipart.org/detail/124153/zebra-by-papapishu

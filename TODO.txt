@@ -4,15 +4,24 @@ Simon Kågedal Reimer <simon@kagedal.org>
 
 * Clean separation of _game engine_, _games_ and _themes_
 * Scripts that automate game installation, use http://ffmpeg.org/[ffmpeg] for converting sound files
-* Link to README from game
+* Link to README from game; maybe a nice http://www.cssstickyfooter.com/[sticky footer]?
 * Record better sound
 * Nice animated effects on correct answers, sound effect on wrong answer
 * Versions with three or more letters. 
 * Full alphabet version using Fish Eye!
 * Mouse-over highlighting for letters
+** Use jQuery's `mouseEnter`, `mouseLeave` events
+** Set CSS element `cursor` to http://www.quirksmode.org/css/cursor.html[pointer].
 * Make the letters a bit nicer
 * General game sets, such as "A for apple, B for banana..." -- in English and Swedish.
 * Android game engine
-* iPhone game engine
+* iPhone/iPad game engine
 * Web application where you can design your own games 
 * Nicer formatting of AsciiDoc generated html
+* Other sets: 
+** http://openclipart.org/user-cliparts/mazeo?page=2
+** http://en.wikibooks.org/wiki/Wikijunior:Alphabet
+** http://en.wikibooks.org/wiki/Wikijunior:Animal_Alphabet
+** http://en.wikibooks.org/wiki/Wikijunior:Flower_Alphabet
+** http://en.wikibooks.org/wiki/Wikijunior:Food_Alphabet
+
