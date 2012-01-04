@@ -66,17 +66,54 @@ if (kortversion) {
 	];
 }
 
+
+// Compatibility - from https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/IndexOf
+if (!Array.prototype.indexOf) {
+    Array.prototype.indexOf = function (searchElement /*, fromIndex */ ) {
+        "use strict";
+        if (this == null) {
+            throw new TypeError();
+        }
+        var t = Object(this);
+        var len = t.length >>> 0;
+        if (len === 0) {
+            return -1;
+        }
+        var n = 0;
+        if (arguments.length > 0) {
+            n = Number(arguments[1]);
+            if (n != n) { // shortcut for verifying if it's NaN
+                n = 0;
+            } else if (n != 0 && n != Infinity && n != -Infinity) {
+                n = (n > 0 || -1) * Math.floor(Math.abs(n));
+            }
+        }
+        if (n >= len) {
+            return -1;
+        }
+        var k = n >= 0 ? n : Math.max(len - Math.abs(n), 0);
+        for (; k < len; k++) {
+            if (k in t && t[k] === searchElement) {
+                return k;
+            }
+        }
+        return -1;
+    }
+}
+
+// Folkes Folk code
+
 function load_image(filename) {
-	console.log("Let's load " + filename + "...");
+	ff.log("Let's load " + filename + "...");
 	var img = new Image();
 	$(img)
 		.load(function() {
 			$(this).hide();
-			console.log("Have now loaded " + filename);
+			ff.log("Have now loaded " + filename);
 		})
 		
 		.error(function() {
-			console.log("Could not load " + filename + "!");
+			ff.log("Could not load " + filename + "!");
 		})
 		
 		.attr('src', filename);
@@ -175,14 +212,14 @@ function correct_answer() {
 					next_question();
 				});
 			});
-		console.log("Whoohooo!");
+		ff.log("Whoohooo!");
 	
 	}
 }
 
 function wrong_answer() {
 	if (ff.is_in_question) {
-		console.log("Wrong...");
+		ff.log("Wrong...");
 	}
 }
 
@@ -216,7 +253,7 @@ function next_question() {
 	}
 
 	if (ff.current_image) {
-		console.log("Fading out..");
+		ff.log("Fading out..");
 		$("#face").fadeOut("slow", add_new_image);
 	} else {
 		add_new_image();
@@ -231,13 +268,28 @@ function start_game() {
 	});
 }
 
+function init_debug() {
+    if (typeof folkeDebug === 'undefined') {
+	ff.debugMode = false;
+    } else {
+	ff.debugMode = folkeDebug;
+    }
+    if (ff.debugMode && console && console.log) {
+	ff.log = function(s) { console.log(s); } 
+    } else { 
+	ff.log = function(s) { }
+    }
+    soundManager.debugMode = ff.debugMode;
+}
+
 // Init function - run when the DOM is ready
 
 $(function() {
+	init_debug();
+
 	// Should start by loading in the game metadata using $.get('something.json', callback)
 
 	load_images();
-//	load_audios();
 
 	ff.order = shuffle(range(ff.questions.length));
 	ff.is_in_question = false;		// is true when we're waiting for a click on a letter 
