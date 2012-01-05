@@ -2,26 +2,36 @@ Folkes Folk - TO DO list
 ========================
 Simon Kågedal Reimer <simon@kagedal.org>
 
+.General 
 * Clean separation of _game engine_, _games_ and _themes_
-* Scripts that automate game installation, use http://ffmpeg.org/[ffmpeg] for converting sound files
 * Link to README from game; maybe a nice http://www.cssstickyfooter.com/[sticky footer]?
-* Record better sound
+* Web application where you can design your own games 
+** Use https://code.google.com/p/wami-recorder/[wami-recorder] to record audio
+* Nicer formatting of AsciiDoc generated html
+
+.Game engine
 * Nice animated effects on correct answers, sound effect on wrong answer
 * Versions with three or more letters. 
 * Full alphabet version using Fish Eye!
 * Mouse-over highlighting for letters
 ** Use jQuery's `mouseEnter`, `mouseLeave` events
 ** Set CSS element `cursor` to http://www.quirksmode.org/css/cursor.html[pointer].
-* Make the letters a bit nicer
-* General game sets, such as "A for apple, B for banana..." -- in English and Swedish.
 * Android game engine
 * iPhone/iPad game engine
-* Web application where you can design your own games 
-* Nicer formatting of AsciiDoc generated html
-* Other sets: 
+
+.Game tool
+* Written in Python
+* Prepare games (JSON file + media) from YAML file (or from just a bunch of media files, Wikipedia page...)
+* Use http://ffmpeg.org/[ffmpeg] for converting sound files (possibly using http://code.google.com/p/pyffmpeg/[PyFFmpeg], but shell call might be simpler)
+* http://www.pythonware.com/products/pil/[Python Imaging Library] for image info
+
+.Data
+* Record better sound
+* General game sets, such as "A for apple, B for banana..." -- in English and Swedish.
 ** http://openclipart.org/user-cliparts/mazeo?page=2
 ** http://en.wikibooks.org/wiki/Wikijunior:Alphabet
 ** http://en.wikibooks.org/wiki/Wikijunior:Animal_Alphabet
 ** http://en.wikibooks.org/wiki/Wikijunior:Flower_Alphabet
 ** http://en.wikibooks.org/wiki/Wikijunior:Food_Alphabet
-
+* Improve letters, provide alternatives 
+** Maybe render images programatically using http://cairographics.org/pycairo/[Pycairo]? See http://cairographics.org/samples/[samples]

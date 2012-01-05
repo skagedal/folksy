@@ -1,73 +1,21 @@
-// Folkes folk
+// Folksy - game engine 
+//
+
+/***********************************************************************
+ * SETTINGS
+ ***********************************************************************/
 
 soundManager.url = '/simon/folkesfolk/swf/';		// HARDCODE
 
-
-document.folkesfolk = {};	// App object
-ff = document.folkesfolk;
-
-ff.letters = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", 
-	      "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", 
-	      "AA", "AE", "OE"];
-
-ff.questions = [
-	"A_amanda", 
-	"A_anna", 
-	"A_arvid", 
-	"A_astrid", 
-	"B_britta", 
-	"D_daniel", 
-	"E_elias_k", 
-	"E_ellen", 
-	"E_emilia", 
-	"E_erik", 
-	"E_ester", 
-	"F_folke", 
-	"F_frej", 
-	"G_guje", 
-	"I_ida", 
-	"J_johan", 
-	"J_jonas", 
-	"J_jon", 
-	"L_lina", 
-	"M_majken", 
-	"N_nisse", 
-	"N_noam",
-	"N_nova",
-	"O_otis", 
-	"P_paer", 
-	"S_sigrid", 
-	"S_simon", 
-	"S_sixten", 
-	"S_stella",
-	"S_soeren", 
-	"S_svea", 
-	"T_tord",
-	"U_uno", 
-	"V_vera", 
-	"W_wilhelm", 
-	"Z_zackari",
-	"AA_aasa",
-	"AE_aerlebrand",
-];
-
 kortversion = false;
 //kortversion = true;
-if (kortversion) {
-	ff.questions = [
-		"S_stella",
-		"AE_aerlebrand",
-		"N_noam",
-		"N_nova",
-		"A_amanda", 
-		"F_folke", 
-		"S_soeren", 
-		"I_ida", 
-	];
-}
 
+/***********************************************************************
+ * COMPATIBILITY CODE
+ ***********************************************************************/
 
-// Compatibility - from https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/IndexOf
+// From https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/IndexOf
+
 if (!Array.prototype.indexOf) {
     Array.prototype.indexOf = function (searchElement /*, fromIndex */ ) {
         "use strict";
@@ -101,58 +49,9 @@ if (!Array.prototype.indexOf) {
     }
 }
 
-// Folkes Folk code
-
-function load_image(filename) {
-	ff.log("Let's load " + filename + "...");
-	var img = new Image();
-	$(img)
-		.load(function() {
-			$(this).hide();
-			ff.log("Have now loaded " + filename);
-		})
-		
-		.error(function() {
-			ff.log("Could not load " + filename + "!");
-		})
-		
-		.attr('src', filename);
-
-	return img;
-}
-
-function load_images() {
-	ff.images = [];
-	for (var i = 0; i < ff.questions.length; i++) {
-		ff.images.push(load_image("images/" + ff.questions[i] + ".jpg"));
-	}
-
-	ff.letter_images = [];
-	ff.letter_select_images = [];
-	for (var i = 0; i < ff.letters.length; i++) {
-		ff.letter_images.push(load_image("images/letters/" + ff.letters[i] + ".png"));
-		ff.letter_select_images.push(load_image("images/letters/" + ff.letters[i] + "_select.png"));
-	}
-}
-
-function load_audios() {
-	ff.audios = [];
-	for (var i in ff.questions) {
-		var s = ff.questions[i];
-		var sound = soundManager.createSound({
-			id: s,
-			url: ['sound/' + s + '.mp3', 
-			      'sound/' + s + '.ogg']});
-		ff.audios.push(sound);
-	}
-}
-
-function play_sound(audio) {
-//	audio.currentTime = 0;
-	audio.play();
-}
-
-// Various pure javascript helpers
+/***********************************************************************
+ * HELPER FUNCTIONS
+ ***********************************************************************/ 
 
 function random_int(max_val) {
 	// Return a random integer 0 <= i < max_val
@@ -160,16 +59,13 @@ function random_int(max_val) {
 }
 
 function random_pick(a) {
-	// Returns a random element from the array 
+	// Returns a random element from an array 
 	// ASSUMES that the array has indices 0, 1, 2, ..., n-1
 	return a[random_int(a.length)];
 }
 
 function random_pick_except(a, except) {
-	// should really check that the array a does not only consist of "except"
-	var p;
-	while ((p = random_pick(a)) == except);
-	return p;
+	return random_pick($.grep(a, function (el, i) { return el != except; }));
 }
 
 function shuffle(a) {
@@ -191,12 +87,107 @@ function range(max) {
 	return a;
 }
 
-function get_answer(s) {
-	// "A_amanda" => "A"; "AA_asa" => "AA"
-	return /^([A-Z]+)/.exec(s)[0];
-}
+/***********************************************************************
+ * THE FOLKSY CLASS 
+ ***********************************************************************/
 
-function correct_answer() {
+function Folksy(game_url) {
+	var _maxItems = 50;
+	var _isInQuestion = false;
+	var privateVar  =  "foo";
+	this.publicVar = "foo";
+
+	// TODO should come with the game 
+	this.letters = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", 
+			"N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", 
+			"AA", "AE", "OE"];
+
+	this.questions = [];
+
+
+
+ 	function log( s ) {
+ 		// TODO: copy ff.log
+	}
+
+	function setMaxItems(n) {
+		_max_items = Number(n);
+	}
+
+	function load_image(filename) {
+		var ff = this;
+		this.log("Let's load " + filename + "...");
+		var img = new Image();
+
+		$(img)
+			.load(function() {
+					$(this).hide();
+					ff.log("Have now loaded " + filename);
+				})
+		
+			.error(function() {
+					ff.log("Could not load " + filename + "!");
+				})
+		
+			.attr('src', filename);
+
+		return img;
+	}
+
+	function load_images() {
+		this.images = [];
+		for (var i = 0; i < this.questions.length; i++) {
+			this.images.push(load_image("images/" + this.questions[i] + ".jpg"));
+		}
+
+		this.letter_images = [];
+		this.letter_select_images = [];
+		for (var i = 0; i < this.letters.length; i++) {
+			this.letter_images.push(load_image("images/letters/" + this.letters[i] + ".png"));
+			this.letter_select_images.push(load_image("images/letters/" + this.letters[i] + "_select.png"));
+		}
+	}
+
+	function load_audios() {
+		this.audios = [];
+		for (var i in this.questions) {
+			var s = this.questions[i];
+			var sound = soundManager.createSound({
+				id: s,
+				url: ['sound/' + s + '.mp3', 
+				      'sound/' + s + '.ogg']});
+			this.audios.push(sound);
+		}
+	}
+
+	function play_sound(audio) {
+		//	audio.currentTime = 0;
+		audio.play();
+	}
+
+
+	function get_answer(s) {
+		// "A_amanda" => "A"; "AA_asa" => "AA"
+		return /^([A-Z]+)/.exec(s)[0];
+	}
+
+
+
+	function initWithJSON(jsonData) {
+      		// this.log(jsonData.gameTitle);
+		
+		// This isn't actually json yet. 
+		this.questions = jsonData;
+
+		// Start loading images and stuff. 
+		// Respect max_items.
+	}
+
+	function initWithURL(url) {
+   		$.getJSON(url, this.initWithJSON);
+	}
+
+	function correct_answer() {
 	if (ff.is_in_question) {
 		ff.is_in_question = false;
 		$("#wrong_answer").fadeOut()
@@ -306,3 +297,32 @@ soundManager.onready(function() {
 	load_audios();
 });
 
+
+
+	if (game_url !== undefined) {
+		initWithURL(game_url);
+   	}
+
+
+}
+
+/***********************************************************************
+ * TEST STUFF
+ ***********************************************************************/
+
+folksy = new Folksy();
+if (kortversion) 
+	folksy.setMaxItems(5);
+folksy.initWithJSON(["A_amanda", "A_anna", "A_arvid", "A_astrid", "B_britta", 
+		     "D_daniel", "E_elias_k", "E_ellen", "E_emilia", "E_erik", 
+		     "E_ester", "F_folke", "F_frej", "G_guje", "I_ida", "J_johan", 
+		     "J_jonas", "J_jon", "L_lina", "M_majken", "N_nisse", 
+		     "N_noam", "N_nova", "O_otis", "P_paer", "S_sigrid", 
+		     "S_simon", "S_sixten", "S_stella", "S_soeren", "S_svea", 
+		     "T_tord", "U_uno", "V_vera", "W_wilhelm", "Z_zackari",
+		     "AA_aasa", "AE_aerlebrand"]);
+
+
+/***********************************************************************
+ * OLD SHIT - MOVE INTO FOLKSY CLASS
+ ***********************************************************************/
