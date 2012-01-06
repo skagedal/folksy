@@ -197,6 +197,9 @@ function Folksy(gameURL) {
 		}
 	}
 
+//	this.currentItemNumber = null;		// index in questions
+//	this.currentItemAnswer = 
+
 	function nextQuestion() {
 		if (folksy._itemOrder.length < 1) {
 			alert("Bra jobbat!");
@@ -205,23 +208,33 @@ function Folksy(gameURL) {
 		var q = folksy._itemOrder.shift();
 		var answer = getAnswer(folksy.questions[q]);
 		var answer_i = folksy.letters.indexOf(answer);
+		var wrongAnswer = random_pick_except(folksy.letters, answer);
+		var wrongAnswer_i = folksy.letters.indexOf(wrongAnswer);
 
 		add_new_image = function() {
 			playSound(folksy.audios[q]);
 
+			// Set up face
 			folksy.current_image = folksy.images[q];
-			var correct_image = folksy.letter_images[answer_i];
-			var wrong_image = random_pick_except(folksy.letter_images, correct_image);
-
-
 			$("#face")[0].src = folksy.current_image.src;
 			$("#face").fadeIn();		
+
+			// Set up letters
+			var correct_image = folksy.letter_images[answer_i];
+			var correct_image_select = folksy.letter_select_images[answer_i];
+			var wrong_image = folksy.letter_images[wrongAnswer_i];
+			var wrong_image_select = folksy.letter_select_images[wrongAnswer_i];	
+
 
 			var x_position = shuffle(["28px", "232px"]);
 			$("#correct_answer").css({left: x_position[0]});
 			$("#wrong_answer").css({left: x_position[1]});
 			$("#correct_answer")[0].src = correct_image.src;
 			$("#wrong_answer")[0].src = wrong_image.src;
+			$("#correct_answer").hover(function () { this.src = correct_image_select.src; },
+						   function () { this.src = correct_image.src; });
+			$("#wrong_answer").hover  (function () { this.src = wrong_image_select.src; },
+						   function () { this.src = wrong_image.src; });
 			$(".answers").fadeIn();
 			folksy._isInQuestion = true;
 		}
