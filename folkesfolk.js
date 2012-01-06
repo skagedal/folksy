@@ -91,11 +91,14 @@ function range(max) {
  * THE FOLKSY CLASS 
  ***********************************************************************/
 
-function Folksy(game_url) {
-	var _maxItems = 50;
-	var _isInQuestion = false;
-	var privateVar  =  "foo";
-	this.publicVar = "foo";
+function Folksy(gameURL) {
+	var folksy = this;
+
+	// Private items are marked with _. We make them "public" anyway, for ease of debugging .
+	this.maxItems = 50;
+	this._isInQuestion = false;
+	this._gameURL = null;
+	this.itemOrder = []
 
 	// TODO should come with the game 
 	this.letters = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", 
@@ -104,29 +107,24 @@ function Folksy(game_url) {
 
 	this.questions = [];
 
-
-
- 	function log( s ) {
- 		// TODO: copy ff.log
+	this.setMaxItems = function(n) {
+		this._maxItems = Number(n);
 	}
+	
+	// PRIVATE FUNCTIONS
 
-	function setMaxItems(n) {
-		_max_items = Number(n);
-	}
-
-	function load_image(filename) {
-		var ff = this;
-		this.log("Let's load " + filename + "...");
+	function loadImage(filename) {
+		folksy.log("Let's load " + filename + "...");
 		var img = new Image();
 
 		$(img)
 			.load(function() {
 					$(this).hide();
-					ff.log("Have now loaded " + filename);
+					folksy.log("Have now loaded " + filename);
 				})
 		
 			.error(function() {
-					ff.log("Could not load " + filename + "!");
+					folksy.log("Could not load " + filename + "!");
 				})
 		
 			.attr('src', filename);
@@ -134,177 +132,174 @@ function Folksy(game_url) {
 		return img;
 	}
 
-	function load_images() {
-		this.images = [];
-		for (var i = 0; i < this.questions.length; i++) {
-			this.images.push(load_image("images/" + this.questions[i] + ".jpg"));
+	function loadImages() {
+		folksy.images = [];
+		for (var i = 0; i < folksy.questions.length; i++) {
+			folksy.images.push(loadImage("images/" + folksy.questions[i] + ".jpg"));
 		}
 
-		this.letter_images = [];
-		this.letter_select_images = [];
-		for (var i = 0; i < this.letters.length; i++) {
-			this.letter_images.push(load_image("images/letters/" + this.letters[i] + ".png"));
-			this.letter_select_images.push(load_image("images/letters/" + this.letters[i] + "_select.png"));
+		folksy.letter_images = [];
+		folksy.letter_select_images = [];
+		for (var i = 0; i < folksy.letters.length; i++) {
+			folksy.letter_images.push(loadImage("images/letters/" + folksy.letters[i] + ".png"));
+			folksy.letter_select_images.push(loadImage("images/letters/" + folksy.letters[i] + "_select.png"));
 		}
 	}
 
-	function load_audios() {
-		this.audios = [];
-		for (var i in this.questions) {
-			var s = this.questions[i];
+	function loadAudios() {
+		folksy.audios = [];
+		for (var i in folksy.questions) {
+			var s = folksy.questions[i];
 			var sound = soundManager.createSound({
 				id: s,
 				url: ['sound/' + s + '.mp3', 
-				      'sound/' + s + '.ogg']});
-			this.audios.push(sound);
+				      'sound/' + s + '.ogg'],
+				autoLoad: true});
+			folksy.audios.push(sound);
 		}
 	}
 
-	function play_sound(audio) {
+	function playSound(audio) {
 		//	audio.currentTime = 0;
 		audio.play();
 	}
 
 
-	function get_answer(s) {
+	function getAnswer(s) {
 		// "A_amanda" => "A"; "AA_asa" => "AA"
 		return /^([A-Z]+)/.exec(s)[0];
 	}
 
+	function correctAnswer() {
+		if (folksy._isInQuestion) {
+			folksy._isInQuestion = false;
+			$("#wrong_answer").fadeOut()
+			$("#correct_answer").animate({
+				top: 28, 
+				left: 28,
+				width: 368,
+				height: 368,
+				opacity: 0.5},
+				1000, function() {
+					$("#correct_answer").fadeOut(function() {
+						$("#correct_answer").css({top: 424, width: 164, height: 164, opacity: 1.0});
+						nextQuestion();
+					});
+				});
+			folksy.log("Whoohooo!");
+		}
+	}
+
+	function wrongAnswer() {
+		if (folksy._isInQuestion) {
+			// TODO: sound effect for wrong answer
+			folksy.log("Wrong...");
+		}
+	}
+
+	function nextQuestion() {
+		if (folksy._itemOrder.length < 1) {
+			alert("Bra jobbat!");
+			return;
+		}
+		var q = folksy._itemOrder.shift();
+		var answer = getAnswer(folksy.questions[q]);
+		var answer_i = folksy.letters.indexOf(answer);
+
+		add_new_image = function() {
+			playSound(folksy.audios[q]);
+
+			folksy.current_image = folksy.images[q];
+			var correct_image = folksy.letter_images[answer_i];
+			var wrong_image = random_pick_except(folksy.letter_images, correct_image);
 
 
-	function initWithJSON(jsonData) {
+			$("#face")[0].src = folksy.current_image.src;
+			$("#face").fadeIn();		
+
+			var x_position = shuffle(["28px", "232px"]);
+			$("#correct_answer").css({left: x_position[0]});
+			$("#wrong_answer").css({left: x_position[1]});
+			$("#correct_answer")[0].src = correct_image.src;
+			$("#wrong_answer")[0].src = wrong_image.src;
+			$(".answers").fadeIn();
+			folksy._isInQuestion = true;
+		}
+
+		if (folksy.current_image) {
+			folksy.log("Fading out..");
+			$("#face").fadeOut("slow", add_new_image);
+		} else {
+			add_new_image();
+		}
+	}
+
+	function start_game() {
+		$("#correct_answer").click(correctAnswer);
+		$("#wrong_answer").click(wrongAnswer);
+		$("#intro").slideUp("slow", function() { 
+			$("#game").fadeIn("slow", nextQuestion); 	
+		});
+	}
+
+	var _debugMode = false;
+	this.setDebugMode = function(b) {
+		_debugMode = Boolean(b);
+		soundManager.debugMode = _debugMode;
+	}
+	this.getDebugMode = function() { return _debugMode; }
+	this.log = function(s) {
+		if (_debugMode) {
+			console.log(s);
+		}
+	}
+	
+	this.initWithJSON = function(jsonData) {
       		// this.log(jsonData.gameTitle);
 		
 		// This isn't actually json yet. 
 		this.questions = jsonData;
+		this._itemOrder = shuffle(range(folksy.questions.length));
+
+		$(document).ready(function() {
+			loadImages();
+			// TODO: should wait until images (and sound, if possible) are loaded
+			$("#start_game").click(start_game);
+			$("#switch_img").click(nextQuestion);
+		});
+		soundManager.onready(function() {
+			loadAudios();
+		});
 
 		// Start loading images and stuff. 
 		// Respect max_items.
 	}
 
-	function initWithURL(url) {
-   		$.getJSON(url, this.initWithJSON);
+	this.initWithURL = function(url) {
+		$(document).ready(function() {
+	   		$.getJSON(url, this.initWithJSON);
+		});
 	}
 
-	function correct_answer() {
-	if (ff.is_in_question) {
-		ff.is_in_question = false;
-		$("#wrong_answer").fadeOut()
-		$("#correct_answer").animate({
-			top: 28, 
-			left: 28,
-			width: 368,
-			height: 368,
-			opacity: 0.5},
-			1000, function() {
-				$("#correct_answer").fadeOut(function() {
-					$("#correct_answer").css({top: 424, width: 164, height: 164, opacity: 1.0});
-					next_question();
-				});
-			});
-		ff.log("Whoohooo!");
-	
+	// Either we specify the game URL at the constructor, in which case things start to happen
+	// immediately. Otherwise, the user calles initWithURL or initWithJSON directly.
+	if (gameURL !== undefined) {
+		this.initWithURL(gameURL);
 	}
 }
 
-function wrong_answer() {
-	if (ff.is_in_question) {
-		ff.log("Wrong...");
-	}
-}
+/* 
+ * Example usage from HTML head:
+ * 
 
-function next_question() {
-	if (ff.order.length < 1) {
-		alert("Bra jobbat!");
-		return;
-	}
-	var q = ff.order.shift();
-	var answer = get_answer(ff.questions[q]);
-	var answer_i = ff.letters.indexOf(answer);
-
-	add_new_image = function() {
-		play_sound(ff.audios[q]);
-
-		ff.current_image = ff.images[q];
-		var correct_image = ff.letter_images[answer_i];
-		var wrong_image = random_pick_except(ff.letter_images, correct_image);
-
-
-		$("#face")[0].src = ff.current_image.src;
-		$("#face").fadeIn();		
-
-		var x_position = shuffle(["28px", "232px"]);
-		$("#correct_answer").css({left: x_position[0]});
-		$("#wrong_answer").css({left: x_position[1]});
-		$("#correct_answer")[0].src = correct_image.src;
-		$("#wrong_answer")[0].src = wrong_image.src;
-		$(".answers").fadeIn();
-		ff.is_in_question = true;
-	}
-
-	if (ff.current_image) {
-		ff.log("Fading out..");
-		$("#face").fadeOut("slow", add_new_image);
-	} else {
-		add_new_image();
-	}
-}
-
-function start_game() {
-	$("#correct_answer").click(correct_answer);
-	$("#wrong_answer").click(wrong_answer);
-	$("#intro").slideUp("slow", function() { 
-		$("#game").fadeIn("slow", next_question); 	
-	});
-}
-
-function init_debug() {
-    if (typeof folkeDebug === 'undefined') {
-	ff.debugMode = false;
-    } else {
-	ff.debugMode = folkeDebug;
-    }
-    if (ff.debugMode && console && console.log) {
-	ff.log = function(s) { console.log(s); } 
-    } else { 
-	ff.log = function(s) { }
-    }
-    soundManager.debugMode = ff.debugMode;
-}
-
-// Init function - run when the DOM is ready
-
-$(function() {
-	init_debug();
-
-	// Should start by loading in the game metadata using $.get('something.json', callback)
-
-	load_images();
-
-	ff.order = shuffle(range(ff.questions.length));
-	ff.is_in_question = false;		// is true when we're waiting for a click on a letter 
-
-	$("#start_game").click(start_game);
-
-	$("#switch_img").click(next_question);
-
-});
-
-// Run when soundManager is ready
-
-soundManager.onready(function() {
-	load_audios();
-});
-
-
-
-	if (game_url !== undefined) {
-		initWithURL(game_url);
-   	}
-
-
-}
+  <script src="js/soundmanager2.js"></script>
+  <script src="js/jquery-1.7.1.js"></script>
+  <script src="folkesfolk.js"></script>
+  <script type="text/javascript">
+     $.ready(function() { new Folksy("mygame.json); }
+  </script>
+ 
+ */
 
 /***********************************************************************
  * TEST STUFF
@@ -323,6 +318,4 @@ folksy.initWithJSON(["A_amanda", "A_anna", "A_arvid", "A_astrid", "B_britta",
 		     "AA_aasa", "AE_aerlebrand"]);
 
 
-/***********************************************************************
- * OLD SHIT - MOVE INTO FOLKSY CLASS
- ***********************************************************************/
+

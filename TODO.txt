@@ -10,6 +10,8 @@ Simon Kågedal Reimer <simon@kagedal.org>
 * Nicer formatting of AsciiDoc generated html
 
 .Game engine
+* Force the kid to move the cursor away from letter between questions, like "click on me for next question"
+* Allow use of keyboard
 * Nice animated effects on correct answers, sound effect on wrong answer
 * Versions with three or more letters. 
 * Full alphabet version using Fish Eye!
@@ -18,6 +20,8 @@ Simon Kågedal Reimer <simon@kagedal.org>
 ** Set CSS element `cursor` to http://www.quirksmode.org/css/cursor.html[pointer].
 * Android game engine
 * iPhone/iPad game engine
+* Separate _game logic_ in platform independent JavaScript! Can JavaScript be embedded in Android/iPhone apps?
+* Use http://phonegap.com/[PhoneGap]?!
 
 .Game tool
 * Written in Python
