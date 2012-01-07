@@ -97,13 +97,25 @@ function Folksy(gameURL) {
 	// Private items are marked with _. We make them "public" anyway, for ease of debugging .
 	this.maxItems = 50;
 	this._isInQuestion = false;
+	this._isInClickReward = false;
 	this._gameURL = null;
 	this.itemOrder = []
+
+	this.images = [];		// faces
+	this.audios = [];		// corresponding sound
+
+	this.letter_images = [];
+	this.letter_select_images = [];
+
+	this.animalImages = [];
+	this.soundFXaudios = [];
 
 	// TODO should come with the game 
 	this.letters = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", 
 			"N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", 
 			"AA", "AE", "OE"];
+	this.animals = ["cat", "monkey", "panda", "penguin", "pig", "sheep", "walrus"];
+	this.soundFX = ["bra_jobbat", "ja_det_var_raett", "fel", "yippie"];
 
 	this.questions = [];
 
@@ -133,21 +145,20 @@ function Folksy(gameURL) {
 	}
 
 	function loadImages() {
-		folksy.images = [];
 		for (var i = 0; i < folksy.questions.length; i++) {
 			folksy.images.push(loadImage("images/" + folksy.questions[i] + ".jpg"));
 		}
 
-		folksy.letter_images = [];
-		folksy.letter_select_images = [];
 		for (var i = 0; i < folksy.letters.length; i++) {
 			folksy.letter_images.push(loadImage("images/letters/" + folksy.letters[i] + ".png"));
 			folksy.letter_select_images.push(loadImage("images/letters/" + folksy.letters[i] + "_select.png"));
 		}
+		for (var i = 0; i < folksy.animals.length; i++) {
+			folksy.animalImages.push(loadImage("rewards/images/" + folksy.animals[i] + ".png"));
+		}
 	}
 
 	function loadAudios() {
-		folksy.audios = [];
 		for (var i in folksy.questions) {
 			var s = folksy.questions[i];
 			var sound = soundManager.createSound({
@@ -156,6 +167,15 @@ function Folksy(gameURL) {
 				      'sound/' + s + '.ogg'],
 				autoLoad: true});
 			folksy.audios.push(sound);
+		}
+		for (var i in folksy.soundFX) {
+			var s = folksy.soundFX[i];
+			var sound = soundManager.createSound({
+				id: s,
+				url: ['rewards/sound/' + s + '.mp3',
+				      'rewards/sound/' + s + '.ogg'],
+				autoLoad: true});
+			folksy.soundFXaudios.push(sound);
 		}
 	}
 
@@ -170,10 +190,32 @@ function Folksy(gameURL) {
 		return /^([A-Z]+)/.exec(s)[0];
 	}
 
+	function positiveReinforcement() {
+		var reward = $("#reward");
+		reward.css({top: 212, left: 212, width: 0, height: 0, opacity: 1.0});
+		reward[0].src = random_pick(folksy.animalImages).src;
+		reward.show();
+		reward.animate({top: 62, left: 62, width: 300, height: 300}, 
+			       function() { 
+					folksy._isInClickReward = true; 
+					soundManager.play(random_pick(["bra_jobbat", "ja_det_var_raett"]));
+				});
+		$("#tip").fadeIn();
+	}
+	function clickReward() {
+		folksy.log("We here");
+		if (folksy._isInClickReward) {
+			folksy._isInClickReward = false;
+			$("#tip").fadeOut();
+			$("#reward").fadeOut(nextQuestion);
+		}
+	}
+
 	function correctAnswer() {
 		if (folksy._isInQuestion) {
 			folksy._isInQuestion = false;
-			$("#wrong_answer").fadeOut()
+			soundManager.play("yippie");
+			$("#wrong_answer").fadeOut();
 			$("#correct_answer").animate({
 				top: 28, 
 				left: 28,
@@ -181,9 +223,10 @@ function Folksy(gameURL) {
 				height: 368,
 				opacity: 0.5},
 				1000, function() {
+					$("#face").fadeOut();
 					$("#correct_answer").fadeOut(function() {
 						$("#correct_answer").css({top: 424, width: 164, height: 164, opacity: 1.0});
-						nextQuestion();
+						positiveReinforcement();
 					});
 				});
 			folksy.log("Whoohooo!");
@@ -193,6 +236,7 @@ function Folksy(gameURL) {
 	function wrongAnswer() {
 		if (folksy._isInQuestion) {
 			// TODO: sound effect for wrong answer
+			soundManager.play('fel');
 			folksy.log("Wrong...");
 		}
 	}
@@ -239,17 +283,14 @@ function Folksy(gameURL) {
 			folksy._isInQuestion = true;
 		}
 
-		if (folksy.current_image) {
-			folksy.log("Fading out..");
-			$("#face").fadeOut("slow", add_new_image);
-		} else {
-			add_new_image();
-		}
+		add_new_image();
+
 	}
 
 	function start_game() {
 		$("#correct_answer").click(correctAnswer);
 		$("#wrong_answer").click(wrongAnswer);
+		$("#reward").click(clickReward);
 		$("#intro").slideUp("slow", function() { 
 			$("#game").fadeIn("slow", nextQuestion); 	
 		});
@@ -258,7 +299,7 @@ function Folksy(gameURL) {
 	var _debugMode = false;
 	this.setDebugMode = function(b) {
 		_debugMode = Boolean(b);
-		soundManager.debugMode = _debugMode;
+		//soundManager.debugMode = _debugMode;
 	}
 	this.getDebugMode = function() { return _debugMode; }
 	this.log = function(s) {
@@ -318,7 +359,10 @@ function Folksy(gameURL) {
  * TEST STUFF
  ***********************************************************************/
 
+//soundManager.debugMode = false;
+soundManager.useHTML5Audio = true;
 folksy = new Folksy();
+folksy.setDebugMode(true);
 if (kortversion) 
 	folksy.setMaxItems(5);
 folksy.initWithJSON(["A_amanda", "A_anna", "A_arvid", "A_astrid", "B_britta", 

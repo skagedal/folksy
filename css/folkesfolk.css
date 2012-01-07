@@ -52,11 +52,32 @@ footer {
 	height: 164px;
 	top: 424px;
 }
+.answers:hover {
+	cursor: pointer; 
+}
 #correct_answer {
 	left: 28px
 }
 #wrong_answer {
 	left: 232px;
+}
+#reward {
+	display: none;
+	z-index: 2;
+	position: absolute;
+	top: 212px;
+	left: 212px;
+	width: 0px;
+	height: 0px;
+}
+#reward:hover {
+	cursor: pointer;
+}
+
+#tip {
+	margin-top: 40px;	
+	font-size: small;
+	display: none;
 }
 
 .bigbutton {
