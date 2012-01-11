@@ -11,6 +11,29 @@ kortversion = false;
 //kortversion = true;
 
 /***********************************************************************
+ * INTERNATIONALIZATION
+ ***********************************************************************/
+
+window.FolksyResources = {
+	'en': {
+		'loading_images':	'Loading images... (%(count)s of %(total)s)'
+	},
+	'sv': {
+		'loading_images':	'Laddar bilder... (%(count)s av %(total)s)'
+	}
+}
+
+function folksyGetResource(s) {
+	var cascade = ['sv', 'en'];
+	var res = window.FolksyResources;
+	for (i in cascade) { 
+		if (s in res[cascade[i]])
+			return res[cascade[i]][s];
+	}
+	return null;
+}
+
+/***********************************************************************
  * COMPATIBILITY CODE
  ***********************************************************************/
 
@@ -93,6 +116,7 @@ function range(max) {
 
 function Folksy(gameURL) {
 	var folksy = this;
+	var F_ = folksyGetResource;
 
 	// Private items are marked with _. We make them "public" anyway, for ease of debugging .
 	this.maxItems = 50;
@@ -122,16 +146,24 @@ function Folksy(gameURL) {
 	this.setMaxItems = function(n) {
 		this._maxItems = Number(n);
 	}
+
+	this._loadImagesCount = 0;
+	this._loadImagesTotal = 0;
 	
 	// PRIVATE FUNCTIONS
 
 	function loadImage(filename) {
+		folksy._loadImagesTotal++;
+		folksy.updateLoading();
+
 		folksy.log("Let's load " + filename + "...");
 		var img = new Image();
 
 		$(img)
 			.load(function() {
 					$(this).hide();
+					folksy._loadImagesCount++;
+					folksy.updateLoading();
 					folksy.log("Have now loaded " + filename);
 				})
 		
@@ -144,7 +176,18 @@ function Folksy(gameURL) {
 		return img;
 	}
 
+	this.updateLoading = function() { 
+		$("#img_count").text(String(this._loadImagesCount));
+		$("#img_total").text(String(this._loadImagesTotal));
+	}
+
 	function loadImages() {
+		// $("#load_progress").html(F_("loading_images"));
+		var progress = sprintf(F_("loading_images"), {'count': '<span id="img_count"></span>',
+							      'total': '<span id="img_total"></span>'});
+		$("#load_progress").append(progress);
+		folksy.updateLoading();
+
 		for (var i = 0; i < folksy.questions.length; i++) {
 			folksy.images.push(loadImage("images/" + folksy.questions[i] + ".jpg"));
 		}
@@ -304,7 +347,8 @@ function Folksy(gameURL) {
 	this.getDebugMode = function() { return _debugMode; }
 	this.log = function(s) {
 		if (_debugMode) {
-			console.log(s);
+			if (typeof console !== "undefined" && typeof (console.log) !== "undefined")
+				console.log(s);
 		}
 	}
 	

@@ -6,7 +6,6 @@ Simon Kågedal Reimer <simon@kagedal.org>
 * Clean separation of _game engine_, _games_ and _themes_
 * Link to README from game; maybe a nice http://www.cssstickyfooter.com/[sticky footer]?
 * Web application where you can design your own games 
-** Use https://code.google.com/p/wami-recorder/[wami-recorder] to record audio
 * Nicer formatting of AsciiDoc generated html
 
 .Game engine
@@ -21,7 +20,7 @@ Simon Kågedal Reimer <simon@kagedal.org>
 * Android game engine
 * iPhone/iPad game engine
 * Separate _game logic_ in platform independent JavaScript! Can JavaScript be embedded in Android/iPhone apps?
-* Use http://phonegap.com/[PhoneGap]?!
+* Using local or CDN hosted jQuery should maybe be a setting? The former can be good for debugging purposes.
 
 .Game tool
 * Written in Python
