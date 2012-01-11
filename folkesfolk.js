@@ -1,4 +1,4 @@
-// Folksy - game engine 
+	// Folksy - game engine 
 //
 
 /***********************************************************************
@@ -16,19 +16,23 @@ kortversion = false;
 
 window.FolksyResources = {
 	'en': {
-		'loading_images':	'Loading images... (%(count)s of %(total)s)'
+		'loading_images':	'Loading images... (%(count)s of %(total)s)',
+		'error_load_image':	"Couldn't load image file <tt>%(file)s</tt>. ",
+		'error_report':		'Please report this error to <a href="simon@kagedal.org">Simon</a>.'
 	},
 	'sv': {
 		'loading_images':	'Laddar bilder... (%(count)s av %(total)s)'
 	}
 }
 
-function folksyGetResource(s) {
+function folksyGetResource(s, args) {
 	var cascade = ['sv', 'en'];
 	var res = window.FolksyResources;
 	for (i in cascade) { 
-		if (s in res[cascade[i]])
-			return res[cascade[i]][s];
+		if (s in res[cascade[i]]) {
+			var fmt = res[cascade[i]][s];
+			return args ? sprintf(fmt, args) : fmt;
+		}
 	}
 	return null;
 }
@@ -169,6 +173,11 @@ function Folksy(gameURL) {
 	
 	// PRIVATE FUNCTIONS
 
+	function loadImageError(event) {
+		folksy.abortLoad(F_("error_load_image", {file: event.data}));
+		folksy.log("Could not load " + event.data + "!");
+	}
+
 	function loadImage(filename) {
 		folksy._loadImagesTotal++;
 		folksy.updateLoading();
@@ -184,13 +193,20 @@ function Folksy(gameURL) {
 					folksy.log("Have now loaded " + filename);
 				})
 		
-			.error(function() {
-					folksy.log("Could not load " + filename + "!");
-				})
+			.error(filename, loadImageError)
 		
 			.attr('src', filename);
 
 		return img;
+	}
+
+	this._loadingAborted = false;	
+	this.abortLoad = function(s) {
+		if (!this._loadingAborted) {
+			this._loadingAborted = true;
+			s += F_("error_report");
+			$("#info").append('<div class="error">' + s + '</div>');
+		}
 	}
 
 	this.updateLoading = function() { 
@@ -199,6 +215,8 @@ function Folksy(gameURL) {
 	}
 
 	function loadImages() {
+		if (folksy._loadingAborted) return;
+
 		// $("#load_progress").html(F_("loading_images"));
 		var progress = sprintf(F_("loading_images"), {'count': '<span id="img_count"></span>',
 							      'total': '<span id="img_total"></span>'});
@@ -219,6 +237,8 @@ function Folksy(gameURL) {
 	}
 
 	function loadAudios() {
+		if (folksy._loadingAborted) return;
+
 		for (var i in folksy.questions) {
 			var s = folksy.questions[i];
 			var sound = soundManager.createSound({

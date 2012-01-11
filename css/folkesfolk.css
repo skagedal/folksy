@@ -80,9 +80,19 @@ footer {
 	display: none;
 }
 
+.error {
+	border: 1px solid black;
+	background-color: #ff3333;
+	margin: 1em;
+	padding: 1em;
+}
+
 .bigbutton {
 	margin: 1em auto; 	/* Why can't I get it centered? */
 	font-size: large;
 	font-weight: bold;
 	padding: 1em;	
+}
+#start_game {
+	display: none;
 }
