@@ -1,0 +1,85 @@
+Folksy specification
+====================
+Simon Kågedal Reimer <simon@kagedal.org>
+
+_Folksy_ is a framework for educational games. 
+
+== Introduction == 
+The idea is to develop a simple framework to run graphical educational
+games on a variety of platforms. The first priority is the web, then
+smartphones.
+
+The games should be easily modified and personalized. For example, you
+should be able to create an alphabet learning game for your kid with
+images and sounds of relatives, "A for Amanda" etc. 
+
+== Game == 
+What we mean with a _game_. 
+
+=== Game Logic ===
+Different games use the same _game logic_. These are written in
+JavaScript using a platform independent interface.
+
+=== Themes ===
+Graphical and auditive themes in common for many games.
+
+Typsnittet som används för bokstavsbilderna är
+http://www.gnu.org/software/freefont/[GNU FreeFont Sans], som är
+licensierad med GNU GPL, men tillåter valfri licens för dokument där
+typsnittet används.
+
+== Game engines ==
+There are game engines.
+
+=== The web game engine ===
+
+:jQuery:		http://jquery.com/[jQuery]
+:SoundManager 2:	http://www.schillmania.com/projects/soundmanager2/[SoundManager 2]
+
+The game engine for the web is written in JavaScript using {jQuery}.
+Audio on the web is hard to get right. We're using 
+{SoundManager 2} which uses HTML5 audio or Flash. 
+
+* http://dev.w3.org/html5/spec/Overview.html#the-audio-element[W3 HTML5 spec for audio] -- http://www.whatwg.org/specs/web-apps/current-work/multipage/the-video-element.html#the-audio-element[WHATWG spec]
+* type for ogg is type='audio/ogg; codecs=vorbis' (http://tools.ietf.org/html/rfc4281[spec for codes]
+* http://www.speex.org/[Speex] is a free codec specifically designed
+  for speech. Probably no browsers support this though...
+
+=== Mobile game engine ===
+Possibly using http://phonegap.com/[PhoneGap]!
+
+
+== Game tools ==
+
+Verktyg för att hantera spel, skrivet i Python. Använder http://pyyaml.org/wiki/PyYAML[PyYAML] för spelfilerna. 
+
+.PyYAML 3.10
+Ladda ner `PyYAML-3.10.tar.gz` från http://pyyaml.org/wiki/PyYAML[PyYAML], packa upp och kör:
+
+ python setup.py --without-libyaml install --user
+
+Detta installerar PyYAML på enklast möjliga sätt. 
+
+== Game designer == 
+A web application where you can design your own games.
+
+* Use https://code.google.com/p/wami-recorder/[wami-recorder] to record audio
+
+== Appendix A: Internationalization ==
+
+In many ways, the games are localized in themselves. A game is usually
+in one specific language. There are messages from the game engines
+that need to be translated.
+
+What's a good way to handle internationalization in JavaScript? 
+
+* http://code.google.com/p/jquery-i18n-properties/[jquery-i18n-properties]
+  is a "lightweight jQuery plugin for providing internationalization
+  to javascript from ‘.properties’ files, just like in Java Resource
+  Bundles". 
+* http://stackoverflow.com/questions/48726/best-javascript-i18n-techniques-ajax-dates-times-numbers-currency[Stack
+  Overflow question] with some good thoughts.
+* http://24ways.org/2007/javascript-internationalisation[A blog entry]
+  describing a simple method. I'll go for something like this. Just
+  need a good sprintf!
+** http://www.diveintojavascript.com/projects/javascript-sprintf[JavaScript sprintf()].
