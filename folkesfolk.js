@@ -110,6 +110,23 @@ function range(max) {
 	return a;
 }
 
+function setup_soundManager() {
+	soundManager.debugMode = true;
+	soundManager.useHTML5Audio = true;
+	/*soundManager.preferFlash = false;
+	soundManager.audioFormats = {
+		'mp3': {
+			'type': ['audio/mpeg; codecs="mp3"', 'audio/mpeg', 'audio/mp3', 'audio/MPA', 'audio/mpa-robust'],
+			'required': false
+		},
+		'ogg': {
+			'type': ['audio/ogg; codecs=vorbis'],
+			'required': false
+		}
+	};*/
+	
+}
+
 /***********************************************************************
  * THE FOLKSY CLASS 
  ***********************************************************************/
@@ -339,7 +356,7 @@ function Folksy(gameURL) {
 		});
 	}
 
-	var _debugMode = false;
+	var _debugMode = true;
 	this.setDebugMode = function(b) {
 		_debugMode = Boolean(b);
 		//soundManager.debugMode = _debugMode;
@@ -355,11 +372,12 @@ function Folksy(gameURL) {
 	this.initWithJSON = function(jsonData) {
       		// this.log(jsonData.gameTitle);
 		
-		// This isn't actually json yet. 
+		// As of yet, this JSON data is just an array of question id:s. 
 		this.questions = jsonData;
 		this._itemOrder = shuffle(range(folksy.questions.length));
 
 		$(document).ready(function() {
+			// TODO> Respect max_items.
 			loadImages();
 			// TODO: should wait until images (and sound, if possible) are loaded
 			$("#start_game").click(start_game);
@@ -370,7 +388,7 @@ function Folksy(gameURL) {
 		});
 
 		// Start loading images and stuff. 
-		// Respect max_items.
+		// 
 	}
 
 	this.initWithURL = function(url) {
@@ -378,6 +396,8 @@ function Folksy(gameURL) {
 	   		$.getJSON(url, this.initWithJSON);
 		});
 	}
+
+	setup_soundManager();
 
 	// Either we specify the game URL at the constructor, in which case things start to happen
 	// immediately. Otherwise, the user calles initWithURL or initWithJSON directly.
@@ -403,8 +423,7 @@ function Folksy(gameURL) {
  * TEST STUFF
  ***********************************************************************/
 
-//soundManager.debugMode = false;
-soundManager.useHTML5Audio = true;
+setup_soundManager();
 folksy = new Folksy();
 folksy.setDebugMode(true);
 if (kortversion) 
