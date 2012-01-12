@@ -1,4 +1,18 @@
-	// Folksy - game engine 
+//
+//   This file is part of Folksy, the game engine.
+//
+//   Folksy is free software: you can redistribute it and/or modify
+//   it under the terms of the GNU General Public License as published by
+//   the Free Software Foundation, either version 3 of the License, or
+//   (at your option) any later version.
+//
+//   Folksy is distributed in the hope that it will be useful,
+//   but WITHOUT ANY WARRANTY; without even the implied warranty of
+//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//   GNU General Public License for more details.
+//
+//   You should have received a copy of the GNU General Public License
+//   along with Folksy.  If not, see <http://www.gnu.org/licenses/>.
 //
 
 /***********************************************************************
@@ -25,12 +39,13 @@ window.FolksyResources = {
 	}
 }
 
-function folksyGetResource(s, args) {
+function folksyGetResource(index, args) {
 	var cascade = ['sv', 'en'];
 	var res = window.FolksyResources;
-	for (i in cascade) { 
-		if (s in res[cascade[i]]) {
-			var fmt = res[cascade[i]][s];
+	for (var i = 0; i < cascade.length; i++) { 
+		var lang = cascade[i];
+		if (index in res[lang]) {
+			var fmt = res[lang][index];
 			return args ? sprintf(fmt, args) : fmt;
 		}
 	}
@@ -80,30 +95,42 @@ if (!Array.prototype.indexOf) {
  * HELPER FUNCTIONS
  ***********************************************************************/ 
 
-function random_int(max_val) {
+function randomInt(max_val) {
 	// Return a random integer 0 <= i < max_val
 	return Math.floor(Math.random() * max_val);
 }
 
-function random_pick(a) {
-	// Returns a random element from an array 
-	// ASSUMES that the array has indices 0, 1, 2, ..., n-1
-	return a[random_int(a.length)];
+function randomPick(a, n) {
+	// Returns one or many random element from an array.
+	// If n is specified, return an array with `n` random uniquely indexed elements  from `a`
+	// If n is not specified, return just one random element.
+
+	if (typeof n === "undefined")
+		return randomPick(a, 1)[0];
+	return a.shuffle().slice(0, n);
 }
 
-function random_pick_except(a, except) {
-	return random_pick($.grep(a, function (el, i) { return el != except; }));
+function randomPickExcept(a, except) {
+	return randomPick($.grep(a, function (el, i) { return el != except; }));
 }
+
+// From http://stackoverflow.com/questions/962802/is-it-correct-to-use-javascript-array-sort-method-for-shuffling
+function shuffleInPlace(array) {
+	// Shuffle an array in-place (i.e., mutate the array).
+	var tmp, current, top = array.length;      
+	if(top) 
+		while(--top) {
+			current = Math.floor(Math.random() * (top + 1));         
+			tmp = array[current];         
+			array[current] = array[top];         
+			array[top] = tmp;     
+		}      
+	return array; 
+} 
 
 function shuffle(a) {
 	// Returns a shuffled version of the array.
-	var a2 = a.slice(0);
-	var a3 = [];
-	while (a2.length > 0) {
-		var i = random_int(a2.length);
-		a3.push(a2.splice(i, 1)[0]);
-	}
-	return a3;
+	return shuffleInPlace(a.slice(0));
 }
 
 function range(max) {
@@ -273,12 +300,12 @@ function Folksy(gameURL) {
 	function positiveReinforcement() {
 		var reward = $("#reward");
 		reward.css({top: 212, left: 212, width: 0, height: 0, opacity: 1.0});
-		reward[0].src = random_pick(folksy.animalImages).src;
+		reward[0].src = randomPick(folksy.animalImages).src;
 		reward.show();
 		reward.animate({top: 62, left: 62, width: 300, height: 300}, 
 			       function() { 
 					folksy._isInClickReward = true; 
-					soundManager.play(random_pick(["bra_jobbat", "ja_det_var_raett"]));
+					soundManager.play(randomPick(["bra_jobbat", "ja_det_var_raett"]));
 				});
 		$("#tip").fadeIn();
 	}
@@ -332,7 +359,7 @@ function Folksy(gameURL) {
 		var q = folksy._itemOrder.shift();
 		var answer = getAnswer(folksy.questions[q]);
 		var answer_i = folksy.letters.indexOf(answer);
-		var wrongAnswer = random_pick_except(folksy.letters, answer);
+		var wrongAnswer = randomPickExcept(folksy.letters, answer);
 		var wrongAnswer_i = folksy.letters.indexOf(wrongAnswer);
 
 		add_new_image = function() {
