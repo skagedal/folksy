@@ -18,7 +18,7 @@ window.FolksyResources = {
 	'en': {
 		'loading_images':	'Loading images... (%(count)s of %(total)s)',
 		'error_load_image':	"Couldn't load image file <tt>%(file)s</tt>. ",
-		'error_report':		'Please report this error to <a href="simon@kagedal.org">Simon</a>.'
+		'error_report':		'Please report this error to <a href="mailto:simon@kagedal.org">Simon</a>.'
 	},
 	'sv': {
 		'loading_images':	'Laddar bilder... (%(count)s av %(total)s)'

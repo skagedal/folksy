@@ -12,9 +12,11 @@ h1 {
 	font-size: x-large;
 	font-weight: bold;
 }
-
 p {
 	margin-bottom: 1em;
+}
+tt {
+	font-family: monospae;
 }
 footer {
 	font-size: x-small;
