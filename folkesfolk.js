@@ -95,25 +95,6 @@ if (!Array.prototype.indexOf) {
  * HELPER FUNCTIONS
  ***********************************************************************/ 
 
-function randomInt(max_val) {
-	// Return a random integer 0 <= i < max_val
-	return Math.floor(Math.random() * max_val);
-}
-
-function randomPick(a, n) {
-	// Returns one or many random element from an array.
-	// If n is specified, return an array with `n` random uniquely indexed elements  from `a`
-	// If n is not specified, return just one random element.
-
-	if (typeof n === "undefined")
-		return randomPick(a, 1)[0];
-	return a.shuffle().slice(0, n);
-}
-
-function randomPickExcept(a, except) {
-	return randomPick($.grep(a, function (el, i) { return el != except; }));
-}
-
 // From http://stackoverflow.com/questions/962802/is-it-correct-to-use-javascript-array-sort-method-for-shuffling
 function shuffleInPlace(array) {
 	// Shuffle an array in-place (i.e., mutate the array).
@@ -133,6 +114,25 @@ function shuffle(a) {
 	return shuffleInPlace(a.slice(0));
 }
 
+function randomInt(max_val) {
+	// Return a random integer 0 <= i < max_val
+	return Math.floor(Math.random() * max_val);
+}
+
+function randomPick(a, n) {
+	// Returns one or many random element from an array.
+	// If n is specified, return an array with `n` random uniquely indexed elements  from `a`
+	// If n is not specified, return just one random element.
+
+	if (typeof n === "undefined")
+		return randomPick(a, 1)[0];
+	return shuffle(a).slice(0, n);
+}
+
+function randomPickExcept(a, except) {
+	return randomPick($.grep(a, function (el, i) { return el != except; }));
+}
+
 function range(max) {
 	a = [];
 	for (var i = 0; i < max; i++) {
@@ -142,7 +142,7 @@ function range(max) {
 }
 
 function setup_soundManager() {
-	soundManager.debugMode = true;
+	// soundManager.debugMode = true;
 	soundManager.useHTML5Audio = true;
 	/*soundManager.preferFlash = false;
 	soundManager.audioFormats = {
@@ -207,15 +207,15 @@ function Folksy(gameURL) {
 		this._loadImagesTotal++;
 		this.updateLoading();
 
-		this.log("Let's load " + filename + "...");
+		//this.log("Let's load " + filename + "...");
 		var img = new Image();
 
 		$(img)
 			.load(function() {
 					$(this).hide();
+					//folksy.log("Have now loaded " + filename);
 					folksy._loadImagesCount++;
 					folksy.updateLoading();
-					folksy.log("Have now loaded " + filename);
 				})
 		
 			.error(filename, loadImageError)
@@ -237,6 +237,10 @@ function Folksy(gameURL) {
 	this.updateLoading = function() { 
 		$("#img_count").text(String(this._loadImagesCount));
 		$("#img_total").text(String(this._loadImagesTotal));
+		if (this._loadImagesCount == this._loadImagesTotal) {
+			this.log("Run!");
+			$("#start_game").show();
+		}
 	}
 
 	this.loadImages = function() {
