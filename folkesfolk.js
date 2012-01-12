@@ -252,11 +252,12 @@ function Folksy(gameURL) {
 		}
 
 		for (var i = 0; i < this.letters.length; i++) {
-			this.letter_images.push(this.loadImage("images/letters/" + this.letters[i] + ".png"));
-			this.letter_select_images.push(this.loadImage("images/letters/" + this.letters[i] + "_select.png"));
+			this.letter_images.push(this.loadImage("themes/sunset/letters/" + this.letters[i] + ".png"));
+			this.letter_select_images.push(this.loadImage("themes/sunset/letters/" + this.letters[i] + "_select.png"));
 		}
+
 		for (var i = 0; i < this.animals.length; i++) {
-			this.animalImages.push(this.loadImage("rewards/images/" + this.animals[i] + ".png"));
+			this.animalImages.push(this.loadImage("themes/sunset/rewards/images/" + this.animals[i] + ".png"));
 		}
 	}
 
@@ -276,8 +277,8 @@ function Folksy(gameURL) {
 			var s = this.soundFX[i];
 			var sound = soundManager.createSound({
 				id: s,
-				url: ['rewards/sound/' + s + '.mp3',
-				      'rewards/sound/' + s + '.ogg'],
+				url: ['themes/sunset/rewards/sound/' + s + '.mp3',
+				      'themes/sunset/rewards/sound/' + s + '.ogg'],
 				autoLoad: true});
 			this.soundFXaudios.push(sound);
 		}

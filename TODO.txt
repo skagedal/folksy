@@ -34,3 +34,6 @@ Simon Kågedal Reimer <simon@kagedal.org>
 ** http://en.wikibooks.org/wiki/Wikijunior:Food_Alphabet
 * Improve letters, provide alternatives 
 ** Maybe render images programatically using http://cairographics.org/pycairo/[Pycairo]? See http://cairographics.org/samples/[samples]
+
+.Other stuff
+* http://patik.com/blog/complete-cross-browser-console-log/[Complete cross browser console.log]
