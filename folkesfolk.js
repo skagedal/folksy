@@ -1,5 +1,5 @@
 //
-//   This file is part of Folksy, the game engine.
+//   This file is part of Folksy, a framework for educational games.
 //
 //   Folksy is free software: you can redistribute it and/or modify
 //   it under the terms of the GNU General Public License as published by
@@ -198,18 +198,16 @@ function Folksy(gameURL) {
 	this._loadImagesCount = 0;
 	this._loadImagesTotal = 0;
 	
-	// PRIVATE FUNCTIONS
-
 	function loadImageError(event) {
 		folksy.abortLoad(F_("error_load_image", {file: event.data}));
 		folksy.log("Could not load " + event.data + "!");
 	}
 
-	function loadImage(filename) {
-		folksy._loadImagesTotal++;
-		folksy.updateLoading();
+	this.loadImage = function(filename) {
+		this._loadImagesTotal++;
+		this.updateLoading();
 
-		folksy.log("Let's load " + filename + "...");
+		this.log("Let's load " + filename + "...");
 		var img = new Image();
 
 		$(img)
@@ -241,48 +239,47 @@ function Folksy(gameURL) {
 		$("#img_total").text(String(this._loadImagesTotal));
 	}
 
-	function loadImages() {
-		if (folksy._loadingAborted) return;
+	this.loadImages = function() {
+		if (this._loadingAborted) return;
 
-		// $("#load_progress").html(F_("loading_images"));
 		var progress = sprintf(F_("loading_images"), {'count': '<span id="img_count"></span>',
 							      'total': '<span id="img_total"></span>'});
 		$("#load_progress").append(progress);
-		folksy.updateLoading();
+		this.updateLoading();
 
-		for (var i = 0; i < folksy.questions.length; i++) {
-			folksy.images.push(loadImage("images/" + folksy.questions[i] + ".jpg"));
+		for (var i = 0; i < this.questions.length; i++) {
+			this.images.push(this.loadImage("images/" + this.questions[i] + ".jpg"));
 		}
 
-		for (var i = 0; i < folksy.letters.length; i++) {
-			folksy.letter_images.push(loadImage("images/letters/" + folksy.letters[i] + ".png"));
-			folksy.letter_select_images.push(loadImage("images/letters/" + folksy.letters[i] + "_select.png"));
+		for (var i = 0; i < this.letters.length; i++) {
+			this.letter_images.push(this.loadImage("images/letters/" + this.letters[i] + ".png"));
+			this.letter_select_images.push(this.loadImage("images/letters/" + this.letters[i] + "_select.png"));
 		}
-		for (var i = 0; i < folksy.animals.length; i++) {
-			folksy.animalImages.push(loadImage("rewards/images/" + folksy.animals[i] + ".png"));
+		for (var i = 0; i < this.animals.length; i++) {
+			this.animalImages.push(this.loadImage("rewards/images/" + this.animals[i] + ".png"));
 		}
 	}
 
-	function loadAudios() {
-		if (folksy._loadingAborted) return;
+	this.loadAudios = function() {
+		if (this._loadingAborted) return;
 
-		for (var i in folksy.questions) {
-			var s = folksy.questions[i];
+		for (var i in this.questions) {
+			var s = this.questions[i];
 			var sound = soundManager.createSound({
 				id: s,
 				url: ['sound/' + s + '.mp3', 
 				      'sound/' + s + '.ogg'],
 				autoLoad: true});
-			folksy.audios.push(sound);
+			this.audios.push(sound);
 		}
-		for (var i in folksy.soundFX) {
-			var s = folksy.soundFX[i];
+		for (var i in this.soundFX) {
+			var s = this.soundFX[i];
 			var sound = soundManager.createSound({
 				id: s,
 				url: ['rewards/sound/' + s + '.mp3',
 				      'rewards/sound/' + s + '.ogg'],
 				autoLoad: true});
-			folksy.soundFXaudios.push(sound);
+			this.soundFXaudios.push(sound);
 		}
 	}
 
@@ -362,36 +359,30 @@ function Folksy(gameURL) {
 		var wrongAnswer = randomPickExcept(folksy.letters, answer);
 		var wrongAnswer_i = folksy.letters.indexOf(wrongAnswer);
 
-		add_new_image = function() {
-			playSound(folksy.audios[q]);
+		playSound(folksy.audios[q]);
 
-			// Set up face
-			folksy.current_image = folksy.images[q];
-			$("#face")[0].src = folksy.current_image.src;
-			$("#face").fadeIn();		
+		// Set up face
+		folksy.current_image = folksy.images[q];
+		$("#face")[0].src = folksy.current_image.src;
+		$("#face").fadeIn();		
 
-			// Set up letters
-			var correct_image = folksy.letter_images[answer_i];
-			var correct_image_select = folksy.letter_select_images[answer_i];
-			var wrong_image = folksy.letter_images[wrongAnswer_i];
-			var wrong_image_select = folksy.letter_select_images[wrongAnswer_i];	
+		// Set up letters
+		var correct_image = folksy.letter_images[answer_i];
+		var correct_image_select = folksy.letter_select_images[answer_i];
+		var wrong_image = folksy.letter_images[wrongAnswer_i];
+		var wrong_image_select = folksy.letter_select_images[wrongAnswer_i];	
 
-
-			var x_position = shuffle(["28px", "232px"]);
-			$("#correct_answer").css({left: x_position[0]});
-			$("#wrong_answer").css({left: x_position[1]});
-			$("#correct_answer")[0].src = correct_image.src;
-			$("#wrong_answer")[0].src = wrong_image.src;
-			$("#correct_answer").hover(function () { this.src = correct_image_select.src; },
-						   function () { this.src = correct_image.src; });
-			$("#wrong_answer").hover  (function () { this.src = wrong_image_select.src; },
-						   function () { this.src = wrong_image.src; });
-			$(".answers").fadeIn();
-			folksy._isInQuestion = true;
-		}
-
-		add_new_image();
-
+		var x_position = shuffle(["28px", "232px"]);
+		$("#correct_answer").css({left: x_position[0]});
+		$("#wrong_answer").css({left: x_position[1]});
+		$("#correct_answer")[0].src = correct_image.src;
+		$("#wrong_answer")[0].src = wrong_image.src;
+		$("#correct_answer").hover(function () { this.src = correct_image_select.src; },
+					   function () { this.src = correct_image.src; });
+		$("#wrong_answer").hover  (function () { this.src = wrong_image_select.src; },
+					   function () { this.src = wrong_image.src; });
+		$(".answers").fadeIn();
+		folksy._isInQuestion = true;
 	}
 
 	function start_game() {
@@ -425,13 +416,13 @@ function Folksy(gameURL) {
 
 		$(document).ready(function() {
 			// TODO> Respect max_items.
-			loadImages();
+			folksy.loadImages();
 			// TODO: should wait until images (and sound, if possible) are loaded
 			$("#start_game").click(start_game);
 			$("#switch_img").click(nextQuestion);
 		});
 		soundManager.onready(function() {
-			loadAudios();
+			folksy.loadAudios();
 		});
 
 		// Start loading images and stuff. 
