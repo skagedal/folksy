@@ -48,6 +48,9 @@ class FolksyTool:
             for (game, path) in self.games_list:
                 print (game)
 
+    def compile_game(self, game_name):
+        pass
+
     def main(self):
         parser = OptionParser()
 
@@ -68,7 +71,7 @@ class FolksyTool:
                 print ("HERE: compile a game")
                 if (len(args) > 0):
                     game = pop_first(args)
-                    compile_game(game)
+                    self.compile_game(game)
             else:
                 print ("Unknown command: " + command)
         else:
