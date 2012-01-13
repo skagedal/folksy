@@ -16,30 +16,82 @@
 #   along with Folksy.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+import os
+import os.path
 from optparse import OptionParser
 
-def main():
-    parser = OptionParser()
+class FolksyTool:
+    paths_list = []
+    games_list = []
 
-    parser.add_option("-h", "--help", help="get help")
-    parser.add_option("-d", "--set-game-dir", help="set game directory to DIR",
-                      dest="game_dir", metavar="DIR")
+    def __init__(self):
+        self.setup_gamepaths()
 
-    (options, args) = parser.parse_args()
+    def setup_gamepaths(self):
+        # There should also be some default paths
+        if(os.environ.has_key("FOLKSY_GAMEPATH")):
+            self.paths_list += os.environ["FOLKSY_GAMEPATH"].split(os.pathsep)
 
-    if (len(args) > 0):
-        command = args[0]
-        del (args[0])
-        if (command == "help"):
-            print ("HERE: list all commmands");
-        elif (command == "list"):
-            print ("HERE: list all games")
-        elif (command == "compile"):
-            print ("HERE: compila a game")
+        for path in self.paths_list:
+            try:
+                for game in subdirectories(path):
+                    if not game.startswith("."):
+                        self.games_list.append((game, path))
+            except OSError as e:
+                warning("%s: %s", e.filename, e.strerror)
+
+
+    def list_games(self):
+        if (len(self.games_list) == 0):
+            print ("There are no games.")
         else:
-            print ("Unknown command: " + command)
-    else:
-        print ("Nothing to do. :-(");
+            for (game, path) in self.games_list:
+                print (game)
+
+    def main(self):
+        parser = OptionParser()
+
+        #parser.add_option("-h", "--help", help="get help")
+        parser.add_option("-d", "--set-game-dir", help="set game directory to DIR",
+                          dest="game_dir", metavar="DIR")
+
+        (options, args) = parser.parse_args()
+
+        if (len(args) > 0):
+            command = pop_first(args)
+
+            if (command == "help"):
+                print ("HERE: list all commmands");
+            elif (command == "list"):
+                self.list_games()
+            elif (command == "compile"):
+                print ("HERE: compile a game")
+                if (len(args) > 0):
+                    game = pop_first(args)
+                    compile_game(game)
+            else:
+                print ("Unknown command: " + command)
+        else:
+            print ("Nothing to do. :-(");
+
+    def compile_game(self, game):
+        pass
+#
+# Utility functions.
+#
+
+def pop_first(array):
+    element = array[0]
+    del array[0]
+    return element
+
+def warning(s):
+    sys.stderr.write(s)
+
+def subdirectories(dir):
+    for entry in os.listdir(dir):
+        if os.path.isdir(os.path.join(dir, entry)):
+            yield entry
 
 if __name__ == "__main__":
-    main()
+    FolksyTool().main()
