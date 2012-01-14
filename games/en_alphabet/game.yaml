@@ -32,7 +32,7 @@ items:
    source: http://commons.wikimedia.org/wiki/File:Lemin_u0.gif
  - id: G_gate
    title: G is for gate
-   blurb: Hargimont, Belgium: the Jemeppe Castle (XVIth century) and its keep (XIIIth century).
+   blurb: "Hargimont, Belgium: the Jemeppe Castle (XVIth century) and its keep (XIIIth century)."
    source: http://commons.wikimedia.org/wiki/File:Hargimont_051030_(5).JPG
  - id: H_horse
    title: H is for horse
