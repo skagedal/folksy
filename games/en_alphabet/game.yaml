@@ -1,9 +1,11 @@
-# This is a Folkes Folk game file
+# This is a Folksy game file
 
-name: Fruit Alphabet 
+name: English Alphabet 
 gametype: whatletter
 theme: sunset
 lang: en
+
+comment: This is a Folksy game version of the WikiBook http://en.wikibooks.org/wiki/Wikijunior:Alphabet
 
 items:
  - id: A_apple

@@ -14,11 +14,21 @@ should be able to create an alphabet learning game for your kid with
 images and sounds of relatives, "A for Amanda" etc. 
 
 == Game == 
-What we mean with a _game_. 
 
-=== Game Logic ===
-Different games use the same _game logic_. These are written in
-JavaScript using a platform independent interface.
+A _game_ is a complete game of some _game type_ with images, sounds
+etc. 
+
+=== Game types ===
+
+There is currently only one game type:
+
+`whatletter`:: 
+	The game consists of a set of images (of faces, objects...)
+	with corresponding sounds, typically voices that say: "A is
+	for apple", and so on. The player then has to click on the
+	right letter.
+
+One idea is to separate the game logic into platform independent JavaScript.
 
 === Themes ===
 Graphical and auditive themes in common for many games.
@@ -46,19 +56,32 @@ Audio on the web is hard to get right. We're using
   for speech. Probably no browsers support this though...
 
 === Mobile game engine ===
-Possibly using http://phonegap.com/[PhoneGap]!
+* Possibly using http://phonegap.com/[PhoneGap]!
+* Possibly also http://jquerymobile.com/[jQuery Mobile]!
 
 
 == Game tools ==
 
-Verktyg för att hantera spel, skrivet i Python. Använder http://pyyaml.org/wiki/PyYAML[PyYAML] för spelfilerna. 
+:yaml:	      http://www.yaml.org/[YAML]
+:PyYAML:      http://pyyaml.org/wiki/PyYAML[PyYAML]
+:pycountry:   http://pypi.python.org/pypi/pycountry/[pycountry]
+
+This is (supposed to be) a tool to generate games from source files,
+written in Python. Here we use the very readable and editable file
+format {yaml}.
+
+Libraries used:
+
+* {PyYAML} 3.10 (Debian/Ubuntu package: `python-yaml`)
+* {pycountry} (Debian/Ubuntu package: `python-pycountry`) *[not used at the moment]*
 
 .PyYAML 3.10
-Ladda ner `PyYAML-3.10.tar.gz` från http://pyyaml.org/wiki/PyYAML[PyYAML], packa upp och kör:
+On a Ubuntu system, run `sudo apt-get install python-yaml` to install.
+
+On a system where you're not root, download `PyYAML-3.10.tar.gz` from
+the {PyYAML}, unpack it and install with:
 
  python setup.py --without-libyaml install --user
-
-Detta installerar PyYAML på enklast möjliga sätt. 
 
 == Game designer == 
 A web application where you can design your own games.

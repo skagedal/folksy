@@ -29,7 +29,7 @@ endif
 updoc: doc
 	cp README.html TODO.html ~/public_html/folkesfolk/
 
-doc: README.html TODO.html
+doc: README.html
 
 %.html: %.txt
 	asciidoc $<

@@ -23,6 +23,7 @@ Simon Kågedal Reimer <simon@kagedal.org>
 * Prepare games (JSON file + media) from YAML file (or from just a bunch of media files, Wikipedia page...)
 * Use http://ffmpeg.org/[ffmpeg] for converting sound files (possibly using http://code.google.com/p/pyffmpeg/[PyFFmpeg], but shell call might be simpler)
 * http://www.pythonware.com/products/pil/[Python Imaging Library] for image info
+* http://docs.python.org/library/gettext.html#module-gettext
 
 .Data
 * Record better sound
