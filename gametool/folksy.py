@@ -31,7 +31,9 @@ import yaml
 import PIL.Image
 #import pycountry
 
-
+FolksyOptions = {
+    "image_extensions": [".jpg", ".jpeg", ".JPG", ".png", ".PNG", ".gif"]
+}
 
 class GameTypeError(Exception):
     def __init__(self, value):
@@ -100,7 +102,8 @@ class Game:
         self.json['gametype'] = str(self.gametype)
         self.json['lang'] = self.lang
 
-        # Process items.
+        # Process items. This code is really specific for gametype == "whatletter".
+        # We'll see what happens.
         self.json['items'] = []
         for y_item in self.yaml["items"]:
             j_item = {}
@@ -109,6 +112,20 @@ class Game:
             except KeyError:
                 warning("item without an id in YAML file; skipping")
                 continue
+
+            
+            (filename, image) = (None, None)
+            for extension in FolksyOptions.image_extensions:
+                try:
+                    filename = os.path.join("images", j_item["id"] + extension)
+                    image = PIL.Image.open(os.path.join(self.path, filename))
+                except IOError:
+                    continue
+                else:
+                    break
+
+            if image is None:
+                warning("no image file for item %s" % 
 
             # (self.json["width"], self.json["height"]) = PIL.Image.open(image_filename).size
             
