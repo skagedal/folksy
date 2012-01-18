@@ -33,6 +33,7 @@ import PIL.Image
 
 FolksyOptions = {
     "image_extensions": [".jpg", ".jpeg", ".JPG", ".png", ".PNG", ".gif"]
+    "sound_extensions": [".flac", ".wav", ".ogg". ".mp3"]
 }
 
 class GameTypeError(Exception):
@@ -86,6 +87,19 @@ class Game:
         print ("theme:        " + self.theme)
         print ("lang:         " + self.lang)
 
+    def do_if_needed(self, cmd, src, dest):
+        #fixme
+        pass
+        #os.path.getmtime()
+        #trivial version: always do cmd
+
+    def find_media_file(self, base, extensions):
+        for ext in extensions:
+            if os.path.isfile(os.path.join(self.path, base + ext)):
+                 return base + ext
+        return None
+
+
     def build(self):
         # This is the stuff that will get dumped to the json file.
         self.json = {}
@@ -113,22 +127,34 @@ class Game:
                 warning("item without an id in YAML file; skipping")
                 continue
 
-            
-            (filename, image) = (None, None)
-            for extension in FolksyOptions.image_extensions:
+            # Find image file.
+            img_filename = self.find_media_file(y_item["id"], FolksyOptions.image_extensions
+            if not img_filename is None:
+                img_src_filepath = os.path.join(self.path, img_filename)
                 try:
-                    filename = os.path.join("images", j_item["id"] + extension)
-                    image = PIL.Image.open(os.path.join(self.path, filename))
-                except IOError:
+                    image = PIL.Image.open(img_src_filepath)
+                except SomePILError: #fixme
+                    warning("invalid image file: %s; skipping item" % img_src_filepath)
                     continue
-                else:
-                    break
 
-            if image is None:
-                warning("no image file for item %s" % 
+                try:
+                    do_if_needed("cp $SRC $DEST", img_src_filepath, os.path.join(self.buildpath, img_filename)
+                except SomeCmdError as e: #fixme
+                    warning("execution of command failed; skipping item") #fixme lousy error message
+                    continue
+                j_item["image"] = img_filename
+                (j_item["width"], j_item["height"]) = image.size
+            else:
+                warning("no image file for item %s; skipping" % y_item["id"])
+                continue
 
-            # (self.json["width"], self.json["height"]) = PIL.Image.open(image_filename).size
             
+            # Find sound.
+            sound = None
+            for extension in FolksyOptions.sound_extensions:
+                #fixme
+
+            # All done with the item. Add it to JSON output.
             self.json['items'].append(j_item)
 
         # Dump JSON.
