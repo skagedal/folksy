@@ -18,12 +18,7 @@
 
 # Want this to keep working with both Python 2.6 and Python 2.7.
 
-import sys
-import os
-import os.path
-import json
-import locale
-import distutils.dir_util
+import sys, os, os.path, subprocess, json, locale, re, distutils.dir_util
 from optparse import OptionParser
 
 # non-standard libraries
@@ -32,9 +27,14 @@ import PIL.Image
 #import pycountry
 
 FolksyOptions = {
-    "image_extensions": [".jpg", ".jpeg", ".JPG", ".png", ".PNG", ".gif"]
-    "sound_extensions": [".flac", ".wav", ".ogg". ".mp3"]
+    "image_extensions": [".jpg", ".jpeg", ".JPG", ".png", ".PNG", ".gif"],
+    "sound_extensions": [".flac", ".wav", ".ogg", ".mp3"]
 }
+
+
+#
+# Exceptions
+#
 
 class GameTypeError(Exception):
     def __init__(self, value):
@@ -47,6 +47,10 @@ class GameLoadError(Exception):
         self.value = value
     def __str__(self):
         return repr(self.value)
+
+#
+# Classes
+#
 
 class Game:
     def __init__(self, _folksy, _game_id, _path):
@@ -88,10 +92,11 @@ class Game:
         print ("lang:         " + self.lang)
 
     def do_if_needed(self, cmd, src, dest):
+        # Trivial version: always do cmd
+        shell_command(cmd, {"SRC": src, "DEST": dest})
         #fixme
-        pass
         #os.path.getmtime()
-        #trivial version: always do cmd
+
 
     def find_media_file(self, base, extensions):
         for ext in extensions:
@@ -128,8 +133,8 @@ class Game:
                 continue
 
             # Find image file.
-            img_filename = self.find_media_file(y_item["id"], FolksyOptions.image_extensions
-            if not img_filename is None:
+            img_filename = self.find_media_file(y_item["id"], FolksyOptions.image_extensions)
+            if img_filename is not None:
                 img_src_filepath = os.path.join(self.path, img_filename)
                 try:
                     image = PIL.Image.open(img_src_filepath)
@@ -138,7 +143,11 @@ class Game:
                     continue
 
                 try:
-                    do_if_needed("cp $SRC $DEST", img_src_filepath, os.path.join(self.buildpath, img_filename)
+                    # PIL.Image operations we could do:
+                    # image.crop((left, upper, right, lower))
+                    # image.resize((width, height))
+                    # image.save(some_other_format_filename)
+                    do_if_needed("cp $SRC $DEST", img_src_filepath, os.path.join(self.buildpath, img_filename))
                 except SomeCmdError as e: #fixme
                     warning("execution of command failed; skipping item") #fixme lousy error message
                     continue
@@ -152,7 +161,14 @@ class Game:
             # Find sound.
             sound = None
             for extension in FolksyOptions.sound_extensions:
+                pass
                 #fixme
+
+            # if re.search(r"\.mp3$", filename): 
+            #     copy
+            # else:
+            #     ffmpeg -y -i $SRC $DEST
+            # if re.search(r"\.ogg$", filename):
 
             # All done with the item. Add it to JSON output.
             self.json['items'].append(j_item)
@@ -303,6 +319,12 @@ def subdirectories(dir):
     for entry in os.listdir(dir):
         if os.path.isdir(os.path.join(dir, entry)):
             yield entry
+
+def shell_command(cmd, extra_env):
+    """Run a shell command. Extend environment with extra_env."""
+    new_env = os.environ.copy()
+    new_env.update(extra_env)
+    return subprocess.call(cmd, env = new_env, shell = True)
 
 if __name__ == "__main__":
     FolksyTool().main()
