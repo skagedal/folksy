@@ -19,7 +19,9 @@
 # Want this to keep working with both Python 2.6 and Python 2.7.
 
 import sys, os, os.path, subprocess, json, locale, re, distutils.dir_util
+import shutil
 from optparse import OptionParser
+mkpath = distutils.dir_util.mkpath
 
 # non-standard libraries
 import yaml
@@ -51,6 +53,76 @@ class GameLoadError(Exception):
 #
 # Classes
 #
+
+class BuildRule:
+    """This is a tiny "make" system. A subclass of this class
+    defines a recipe to build a type of file."""
+    def __init__(self, game, sources, target):
+        """`sources` should be a list of prerequisites and `target` the
+        file to update. Full paths to files.
+
+        Sometimes many files should be checked as prerequisites but
+        only file is the "source". That should then be the first element
+        of the list.
+        """
+        self.game = game
+        self.sources = sources
+        self.target = target
+
+    def run(self):
+        """Override this!"""
+        pass
+
+    def needs_rebuild(self):
+        try:
+            target_mtime = os.path.getmtime(self.target)
+        except OSError:
+            return True
+        for src in self.sources:
+            if (os.path.getmtime(src) > target_mtime):
+                return True
+        return False
+
+    def run_if_needed(self):
+        mkpath(os.path.dirname(self.target))
+        if (self.needs_rebuild()):
+            self.run()
+
+class CopyBuildRule(BuildRule):
+    def __init__(self, game, sources, target):
+        BuildRule.__init__(self, game, sources, target)
+
+    def run(self):
+        shutil.copyfile(self.sources[0], self.target)
+
+class ImageBuildRule(BuildRule):
+    def __init__(self, game, sources, target, crop=None, scale=None, image=None):
+        """`crop`, if given, should be a 4-tuple, (left, upper, right, lower)
+        `resize`, if given, should be a 2-tuple, (width, height)"""
+        BuildRule.__init__(self, game, sources, target)
+        self.crop = crop
+        self.scale = scale
+        self.image = image
+
+    def run(self):
+        if self.image is None:
+            self.image = PIL.Image.open(sources[0])
+        if self.crop is not None:
+            self.image.crop(self.crop)
+        if self.scale is not None:
+            self.image.resize(self.scale)
+        image.save(self.target)
+
+class SoundBuildRule(BuildRule):
+    def __init__(self, game, sources, target):
+        BuildRule.__init__(self, game, sources, target)
+
+    def run(self):
+        target_ext = get_ext(self.target).lower()
+        if (get_ext(sources[0]).lower() == target_ext):
+            shutil.copyfile(self.sources[0], self.target)
+        else:
+            subprocess.call(["ffmpeg", "-y", "-i", self.sources[0], self.target)
 
 class Game:
     def __init__(self, _folksy, _game_id, _path):
@@ -112,7 +184,7 @@ class Game:
         self.buildpath = os.path.join(self.folksy.buildpath, self.game_id)
         print("building in:   " + self.buildpath)
         try:
-            distutils.dir_util.mkpath(self.buildpath)
+            mkpath(self.buildpath)
         except distutils.DistutilsFileError as e:
             raise GameBuildError("couldn't create build path " + self.buildpath)
 
@@ -163,12 +235,6 @@ class Game:
             for extension in FolksyOptions.sound_extensions:
                 pass
                 #fixme
-
-            # if re.search(r"\.mp3$", filename): 
-            #     copy
-            # else:
-            #     ffmpeg -y -i $SRC $DEST
-            # if re.search(r"\.ogg$", filename):
 
             # All done with the item. Add it to JSON output.
             self.json['items'].append(j_item)
@@ -325,6 +391,9 @@ def shell_command(cmd, extra_env):
     new_env = os.environ.copy()
     new_env.update(extra_env)
     return subprocess.call(cmd, env = new_env, shell = True)
+
+def get_ext(s):
+    return os.path.splitext(s)[1]
 
 if __name__ == "__main__":
     FolksyTool().main()
