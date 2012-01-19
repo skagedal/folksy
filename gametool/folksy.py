@@ -58,20 +58,24 @@ class BuildRule:
     """This is a tiny "make" system. A subclass of this class
     defines a recipe to build a type of file."""
     def __init__(self, game, sources, target):
-        """`sources` should be a list of prerequisites and `target` the
-        file to update. Full paths to files.
+        """`sources` should be either a list of prerequisites or just 
+        one prerequisite as a string. `target` is the the file to update. 
+        Files should be given with full paths.
 
         Sometimes many files should be checked as prerequisites but
         only file is the "source". That should then be the first element
         of the list.
         """
         self.game = game
-        self.sources = sources
+        if (isinstance (sources, str)):
+            self.sources = [sources]
+        else:
+            self.sources = sources
         self.target = target
 
     def run(self):
         """Override this!"""
-        pass
+        raise Exception("need to subclass BuildRule")
 
     def needs_rebuild(self):
         try:
@@ -83,7 +87,8 @@ class BuildRule:
                 return True
         return False
 
-    def run_if_needed(self):
+    def rebuild(self):
+        """Run the build rule if necessary"""
         mkpath(os.path.dirname(self.target))
         if (self.needs_rebuild()):
             self.run()
@@ -122,7 +127,7 @@ class SoundBuildRule(BuildRule):
         if (get_ext(sources[0]).lower() == target_ext):
             shutil.copyfile(self.sources[0], self.target)
         else:
-            subprocess.call(["ffmpeg", "-y", "-i", self.sources[0], self.target)
+            subprocess.call(["ffmpeg", "-y", "-i", self.sources[0], self.target])
 
 class Game:
     def __init__(self, _folksy, _game_id, _path):
@@ -163,17 +168,10 @@ class Game:
         print ("theme:        " + self.theme)
         print ("lang:         " + self.lang)
 
-    def do_if_needed(self, cmd, src, dest):
-        # Trivial version: always do cmd
-        shell_command(cmd, {"SRC": src, "DEST": dest})
-        #fixme
-        #os.path.getmtime()
-
-
-    def find_media_file(self, base, extensions):
+    def find_media_file(self, subdir, base, extensions):
         for ext in extensions:
-            if os.path.isfile(os.path.join(self.path, base + ext)):
-                 return base + ext
+            if os.path.isfile(os.path.join(self.path, subdir, base + ext)):
+                 return os.path.join(subdir, base + ext)
         return None
 
 
@@ -204,35 +202,34 @@ class Game:
                 warning("item without an id in YAML file; skipping")
                 continue
 
-            # Find image file.
-            img_filename = self.find_media_file(y_item["id"], FolksyOptions.image_extensions)
+            # Find image file. #fixme: if specified in YAML, use that!
+            img_filename = self.find_media_file("images", y_item["id"], FolksyOptions["image_extensions"])
             if img_filename is not None:
                 img_src_filepath = os.path.join(self.path, img_filename)
                 try:
                     image = PIL.Image.open(img_src_filepath)
-                except SomePILError: #fixme
-                    warning("invalid image file: %s; skipping item" % img_src_filepath)
+                except IOError as e:
+                    msg = e.message if e.message else "invalid image file" 
+                    warning("%(msg)s: %(file)s; skipping item" % {"msg": msg, "file":img_src_filepath})
                     continue
 
                 try:
-                    # PIL.Image operations we could do:
-                    # image.crop((left, upper, right, lower))
-                    # image.resize((width, height))
-                    # image.save(some_other_format_filename)
-                    do_if_needed("cp $SRC $DEST", img_src_filepath, os.path.join(self.buildpath, img_filename))
-                except SomeCmdError as e: #fixme
-                    warning("execution of command failed; skipping item") #fixme lousy error message
+                    # Should later use ImageBuildRule
+                    CopyBuildRule(self, img_src_filepath, os.path.join(self.buildpath, img_filename)).rebuild()
+                except IOError as e:
+                    warning("%s: %s; skipping item" % (e.filename, e.strerror)) #fixme lousy error message
                     continue
                 j_item["image"] = img_filename
                 (j_item["width"], j_item["height"]) = image.size
             else:
                 warning("no image file for item %s; skipping" % y_item["id"])
                 continue
-
             
             # Find sound.
-            sound = None
-            for extension in FolksyOptions.sound_extensions:
+            snd_filename = self.find_media_file("sounds", y_item["id"], FolksyOptions["sound_extensions"])
+            if snd_filename is not None:
+#                 try:
+#                    SoundBuildRule(
                 pass
                 #fixme
 
@@ -372,7 +369,7 @@ def pop_first(array):
     return element
 
 def warning(s):
-    sys.stderr.write(s + "\n")
+    sys.stderr.write("WARNING: " + s + "\n")
 
 Folksy_exit_code = 0
 def error(s):
