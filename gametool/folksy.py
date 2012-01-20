@@ -188,7 +188,9 @@ class Game:
 
         self.json['id'] = self.game_id
         self.json['name'] = self.name
+        self.json['format'] = 1
         self.json['gametype'] = str(self.gametype)
+        self.json['gametype_format'] = 1
         self.json['lang'] = self.lang
 
         # Process items. This code is really specific for gametype == "whatletter".
@@ -228,13 +230,27 @@ class Game:
             # Find sound.
             snd_filename = self.find_media_file("sounds", y_item["id"], FolksyOptions["sound_extensions"])
             if snd_filename is not None:
-#                 try:
-#                    SoundBuildRule(
-                pass
-                #fixme
-
+                snd_src_filepath = os.path.join(self.path, snd_filename)
+                snd_dest_base = path.splitext(path.join(self.buildpath, snd_filename))[1]
+                oggpath = snd_dest_base + ".ogg"
+                mp3path = snd_dest_base + ".mp3"
+                try:
+                    SoundBuildRule(self, snd_src_filepath, oggpath).rebuild()
+                    SoundBuildRule(self, snd_src_filepath, mp3path).rebuild()
+                except IOError as e:
+                    warning("%s: %s; skipping item" % (e.filename, e.strerror)) #fixme lousy error message
+                    continue
+                j_item["sound_ogg"] = oggpath
+                j_item["sound_mp3'] = mp3path
+            else:
+                warning("no sound file for item %s; skipping" % y_item["id"])
+                continue
+            
             # All done with the item. Add it to JSON output.
             self.json['items'].append(j_item)
+
+        # Letter images. From theme.
+
 
         # Dump JSON.
         filename = os.path.join(self.buildpath, "%s.json" % self.game_id)
