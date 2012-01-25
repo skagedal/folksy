@@ -21,9 +21,6 @@
 
 soundManager.url = '/simon/folkesfolk/swf/';		// HARDCODE
 
-kortversion = false;
-//kortversion = true;
-
 /***********************************************************************
  * INTERNATIONALIZATION
  ***********************************************************************/
@@ -450,35 +447,15 @@ function Folksy(gameURL) {
 }
 
 /* 
- * Example usage from HTML head:
+ * Example usage from HTML head - but use the folksyhtml.py templating instead; this is incomplete:
  * 
 
   <script src="js/soundmanager2.js"></script>
   <script src="js/jquery-1.7.1.js"></script>
   <script src="folkesfolk.js"></script>
   <script type="text/javascript">
-     $.ready(function() { new Folksy("mygame.json); }
+     f = new Folksy("mygame.json");
   </script>
  
  */
-
-/***********************************************************************
- * TEST STUFF
- ***********************************************************************/
-
-setup_soundManager();
-folksy = new Folksy();
-folksy.setDebugMode(true);
-if (kortversion) 
-	folksy.setMaxItems(5);
-folksy.initWithJSON(["A_amanda", "A_anna", "A_arvid", "A_astrid", "B_britta", 
-		     "D_daniel", "E_elias_k", "E_ellen", "E_emilia", "E_erik", 
-		     "E_ester", "F_folke", "F_frej", "G_guje", "I_ida", "J_johan", 
-		     "J_jonas", "J_jon", "L_lina", "M_majken", "N_nisse", 
-		     "N_noam", "N_nova", "O_otis", "P_paer", "S_sigrid", 
-		     "S_simon", "S_sixten", "S_stella", "S_soeren", "S_svea", 
-		     "T_tord", "U_uno", "V_vera", "W_wilhelm", "Z_zackari",
-		     "AA_aasa", "AE_aerlebrand"]);
-
-
 

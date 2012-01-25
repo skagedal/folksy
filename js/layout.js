@@ -1,13 +1,35 @@
+//
+//   This file is part of Folksy, a framework for educational games.
+//
+//   Folksy is free software: you can redistribute it and/or modify
+//   it under the terms of the GNU General Public License as published by
+//   the Free Software Foundation, either version 3 of the License, or
+//   (at your option) any later version.
+//
+//   Folksy is distributed in the hope that it will be useful,
+//   but WITHOUT ANY WARRANTY; without even the implied warranty of
+//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//   GNU General Public License for more details.
+//
+//   You should have received a copy of the GNU General Public License
+//   along with Folksy.  If not, see <http://www.gnu.org/licenses/>.
+//
+
 /*
- * layout (box, items, padding).
+ * layout (box, items, options).
  *
- * You get a box, a bunch of items and a padding value. 
+ * You get a box, a bunch of items and (optionally) some options. 
  * The box, and each of the items, have a width and a height, accessible with
  * .getWidth()/.getHeight(). 
  * Your mission, should you choose to accept it, is to put all the items 
- * nicely in the box. You may even scale them. There should be at least
- * `padding` pixels between each item. 
- * Place the items with item.place(top, left, width, height). 
+ * nicely in the box. You may even scale them. 
+ * Each item is placed with item.place(top, left, width, height). 
+ * 
+ * This layout engine handles the following options:
+ *   padding:  Put at least `options.padding` pixels between each item. 
+ *   h_align:  horizontal alignment. "left", "right", "center" or "justify".
+ *   v_align:  vertical alignment. "left", "right", "center" or "justify". 
+ *   shuffle:  If true, shuffle items within rows and shuffle the rows. 
  *
  */
 
@@ -15,7 +37,7 @@
 // COMPATIBILITY CODE
 
 // From  https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/map
-// (removed production steps comments and rename some variables)
+// (removed production steps comments and renamed some variables)
 // Reference: http://es5.github.com/#x15.4.4.19
 if (!Array.prototype.map) {
 	Array.prototype.map = function(callback, thisArg) {
@@ -102,8 +124,6 @@ function layoutRows(box, sortedObjects, padding, n_rows) {
 	console.log("LET'S TRY this with %d rows...", n_rows);
 	// Try a layout with 'n_rows' rows.
 
-	// Create a bunch of bins where we put the objects.
-	// The list is kept sorted from heaviest to lightest.
 	function createBin() {
 		var b = [];
 		b.weight = 0;
@@ -112,10 +132,11 @@ function layoutRows(box, sortedObjects, padding, n_rows) {
 	function updateBin(b) {
 		b.weight = 0;
 		for (var i = 0; i < b.length; i++) {
-			console.log("Weight of ith item: ", b[i].weight);
 			b.weight += b[i].weight;
 		}
 	}
+	// Create a bunch of bins where we put the objects.
+	// The list is kept sorted from heaviest to lightest.
 	var bins = [];
 	while (bins.push(createBin()) < n_rows);
 
@@ -146,21 +167,11 @@ function layoutRows(box, sortedObjects, padding, n_rows) {
 		var xPaddingTotal = nItems * padding;
 		var widthItemsTotal = bin.weight * rowHeight;
 
-		console.log("offset: ", offsetX, offsetY);
-		console.log("rowsLeft: ", rowsLeft);
-		console.log("heightLeft: ", heightLeft);
-		console.log("rowHeight: ", rowHeight);
-		console.log("nItems: ", nItems);
-		console.log("xPaddingTotal: ", xPaddingTotal);
-		console.log("bin.weight: ", bin.weight);
-		console.log("widthItemsTotal: ", widthItemsTotal);
-
 		if (offsetX + widthItemsTotal + xPaddingTotal > boxWidth) {
 			widthItemsTotal = boxWidth - xPaddingTotal - offsetX;
 			rowHeight = widthItemsTotal / bin.weight;
 		}
 		var emptyX = boxWidth - widthItemsTotal;
-		console.log("emptyX: ", emptyX);
 
 		emptySpace += emptyX * rowHeight + padding * boxWidth;
 		offsetY += rowHeight + padding;
@@ -168,13 +179,17 @@ function layoutRows(box, sortedObjects, padding, n_rows) {
 	}
 	emptySpace += (boxHeight - offsetY) * (boxWidth);
 
-	console.log("...EMPTY SPACE: ", emptySpace);
-
 	return {bins:  bins, emptySpace: emptySpace};
 }
 
-function layout(box, objects, padding) 
+function layout(box, objects, options) 
 {
+	var padding;
+	if ("padding" in options)
+		padding = options["padding"];
+	else
+		padding = 0;
+	
 	var numRows;
 	var wrappedObjects = objects.map(wrapObject);
 

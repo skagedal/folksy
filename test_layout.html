@@ -133,7 +133,8 @@ function addTableRow(layobjs) {
 
 function reLayout() {
   var objs = $.grep($.ME.objs, function(o) { return o.active; });
-  layout($.ME.box, objs, $.ME.padding);
+
+  layout($.ME.box, objs, {padding: $.ME.padding});
 }
 
 function randVal() { 

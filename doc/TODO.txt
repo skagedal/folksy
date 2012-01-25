@@ -34,6 +34,10 @@ Simon Kågedal Reimer <simon@kagedal.org>
 ** http://en.wikibooks.org/wiki/Wikijunior:Animal_Alphabet
 ** http://en.wikibooks.org/wiki/Wikijunior:Flower_Alphabet
 ** http://en.wikibooks.org/wiki/Wikijunior:Food_Alphabet
+** Deutsch: http://de.wikibooks.org/wiki/Wikijunior_Tieralphabet
+** Turkish: http://tr.wikibooks.org/wiki/Viki%C3%A7ocuk:Alfabe
+** Portugese: http://pt.wikibooks.org/wiki/Alfabeto_dos_animais
+
 * Improve letters, provide alternatives 
 ** Maybe render images programatically using http://cairographics.org/pycairo/[Pycairo]? See http://cairographics.org/samples/[samples]
 

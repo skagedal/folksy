@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
 #
 #   This file is part of Folksy, a framework for educational games.
 #
@@ -18,7 +19,7 @@
 
 # Want this to keep working with both Python 2.6 and Python 2.7.
 
-import sys, os, os.path, subprocess, json, locale, re, distutils.dir_util
+import sys, os, os.path as path, subprocess, json, locale, re, distutils.dir_util
 import shutil
 from optparse import OptionParser
 mkpath = distutils.dir_util.mkpath
@@ -79,17 +80,17 @@ class BuildRule:
 
     def needs_rebuild(self):
         try:
-            target_mtime = os.path.getmtime(self.target)
+            target_mtime = path.getmtime(self.target)
         except OSError:
             return True
         for src in self.sources:
-            if (os.path.getmtime(src) > target_mtime):
+            if (path.getmtime(src) > target_mtime):
                 return True
         return False
 
     def rebuild(self):
         """Run the build rule if necessary"""
-        mkpath(os.path.dirname(self.target))
+        mkpath(path.dirname(self.target))
         if (self.needs_rebuild()):
             self.run()
 
@@ -124,10 +125,10 @@ class SoundBuildRule(BuildRule):
 
     def run(self):
         target_ext = get_ext(self.target).lower()
-        if (get_ext(sources[0]).lower() == target_ext):
+        if (get_ext(self.sources[0]).lower() == target_ext):
             shutil.copyfile(self.sources[0], self.target)
         else:
-            subprocess.call(["ffmpeg", "-y", "-i", self.sources[0], self.target])
+            subprocess.call(["ffmpeg", "-y", "-i", self.sources[0], "-acodec", "libvorbis", self.target])
 
 class Game:
     def __init__(self, _folksy, _game_id, _path):
@@ -138,7 +139,7 @@ class Game:
 
     def load(self):
         try:
-            self.yaml = yaml.load(open(os.path.join(self.path, "game.yaml")).read())
+            self.yaml = yaml.load(open(path.join(self.path, "game.yaml")).read())
         except IOError as e:
             raise GameLoadError("couldn't open game.yaml file: " + str(e))
         except yaml.YAMLError as e:
@@ -170,8 +171,8 @@ class Game:
 
     def find_media_file(self, subdir, base, extensions):
         for ext in extensions:
-            if os.path.isfile(os.path.join(self.path, subdir, base + ext)):
-                 return os.path.join(subdir, base + ext)
+            if path.isfile(path.join(self.path, subdir, base + ext)):
+                 return path.join(subdir, base + ext)
         return None
 
 
@@ -179,7 +180,7 @@ class Game:
         # This is the stuff that will get dumped to the json file.
         self.json = {}
 
-        self.buildpath = os.path.join(self.folksy.buildpath, self.game_id)
+        self.buildpath = path.join(self.folksy.buildpath, self.game_id)
         print("building in:   " + self.buildpath)
         try:
             mkpath(self.buildpath)
@@ -207,7 +208,7 @@ class Game:
             # Find image file. #fixme: if specified in YAML, use that!
             img_filename = self.find_media_file("images", y_item["id"], FolksyOptions["image_extensions"])
             if img_filename is not None:
-                img_src_filepath = os.path.join(self.path, img_filename)
+                img_src_filepath = path.join(self.path, img_filename)
                 try:
                     image = PIL.Image.open(img_src_filepath)
                 except IOError as e:
@@ -217,7 +218,7 @@ class Game:
 
                 try:
                     # Should later use ImageBuildRule
-                    CopyBuildRule(self, img_src_filepath, os.path.join(self.buildpath, img_filename)).rebuild()
+                    CopyBuildRule(self, img_src_filepath, path.join(self.buildpath, img_filename)).rebuild()
                 except IOError as e:
                     warning("%s: %s; skipping item" % (e.filename, e.strerror)) #fixme lousy error message
                     continue
@@ -229,19 +230,21 @@ class Game:
             
             # Find sound.
             snd_filename = self.find_media_file("sounds", y_item["id"], FolksyOptions["sound_extensions"])
+            debug(snd_filename)
             if snd_filename is not None:
-                snd_src_filepath = os.path.join(self.path, snd_filename)
-                snd_dest_base = path.splitext(path.join(self.buildpath, snd_filename))[1]
-                oggpath = snd_dest_base + ".ogg"
-                mp3path = snd_dest_base + ".mp3"
+                snd_src_filepath = path.join(self.path, snd_filename)
+                snd_dest_base = path.splitext(snd_filename)[0]
+                oggpath = path.join(self.buildpath, snd_dest_base + ".ogg")
+                mp3path = path.join(self.buildpath, snd_dest_base + ".mp3")
                 try:
+                    debug("Build %s to %s and %s" % (snd_src_filepath, oggpath, mp3path))
                     SoundBuildRule(self, snd_src_filepath, oggpath).rebuild()
                     SoundBuildRule(self, snd_src_filepath, mp3path).rebuild()
                 except IOError as e:
                     warning("%s: %s; skipping item" % (e.filename, e.strerror)) #fixme lousy error message
                     continue
-                j_item["sound_ogg"] = oggpath
-                j_item["sound_mp3'] = mp3path
+                j_item["sound_ogg"] = snd_dest_base + ".ogg"
+                j_item["sound_mp3"] = snd_dest_base + ".mp3"
             else:
                 warning("no sound file for item %s; skipping" % y_item["id"])
                 continue
@@ -253,7 +256,7 @@ class Game:
 
 
         # Dump JSON.
-        filename = os.path.join(self.buildpath, "%s.json" % self.game_id)
+        filename = path.join(self.buildpath, "%s.json" % self.game_id)
         json.dump(self.json, open(filename, "w"))
 
 class GameType:
@@ -309,17 +312,17 @@ class FolksyTool:
         if(os.environ.has_key("FOLKSY_GAMEPATH")):
             self.paths_list += os.environ["FOLKSY_GAMEPATH"].split(os.pathsep)
 
-        for path in self.paths_list:
+        for p in self.paths_list:
             try:
-                for game in subdirectories(path):
+                for game in subdirectories(p):
                     if not game.startswith("."):
-                        self.games[game] = Game(self, game, os.path.join(path, game))
+                        self.games[game] = Game(self, game, path.join(p, game))
             except OSError as e:
                 warning("%s: %s" % (e.filename, e.strerror))
 
     def setup_buildpath(self):
         # TODO: should of course be settable in all kinds of ways.
-        self.buildpath = os.path.expanduser("~/.folksy/build")
+        self.buildpath = path.expanduser("~/.folksy/build")
 
     def list_games(self):
         if (len(self.games) == 0):
@@ -393,10 +396,12 @@ def error(s):
     Folksy_exit_code = 1
     sys.stderr.write(s + "\n")
     
+def debug(s):
+    sys.stderr.write("DEBUG: " + str(s) + "\n")
 
 def subdirectories(dir):
     for entry in os.listdir(dir):
-        if os.path.isdir(os.path.join(dir, entry)):
+        if path.isdir(path.join(dir, entry)):
             yield entry
 
 def shell_command(cmd, extra_env):
@@ -406,7 +411,7 @@ def shell_command(cmd, extra_env):
     return subprocess.call(cmd, env = new_env, shell = True)
 
 def get_ext(s):
-    return os.path.splitext(s)[1]
+    return path.splitext(s)[1]
 
 if __name__ == "__main__":
     FolksyTool().main()
