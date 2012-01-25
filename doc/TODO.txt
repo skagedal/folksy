@@ -17,6 +17,7 @@ Simon Kågedal Reimer <simon@kagedal.org>
 * iPhone/iPad game engine
 * Separate _game logic_ in platform independent JavaScript! Can JavaScript be embedded in Android/iPhone apps?
 * Using local or CDN hosted jQuery should maybe be a setting? The former can be good for debugging purposes.
+* "use strict";
 
 .Game tool
 * Written in Python
