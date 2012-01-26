@@ -57,11 +57,10 @@ function LayObj(w, h, bg) {
     console.log("Getting placed: ", X, Y, W, H);
     console.log("bg: ", this.bg);
     this.div.css({"background-color": this.bg});
-    if(this.isPlaced) {
-	this.div.animate({ left: X, top: Y, width: W, height: H, });
-    } else {
-	this.div.css({ left: X, top: Y, width: W, height: H, }).fadeIn();
-    }
+    if(!this.isPlaced)
+	this.div.css({opacity: 0}).show();
+
+    this.div.animate({ left: X, top: Y, width: W, height: H, opacity: 1.0});
     this.isPlaced = true;
   }
 }
@@ -73,10 +72,13 @@ function updateActive(evObject) {
 	LO.active = evObject.target.checked;
 	console.log("Update active ", LO.active);
 	if (doFadeInOut) {
-		if (LO.active)
-			LO.div.fadeIn();
+		if (!LO.active)
+			LO.div.animate({opacity: 0});
+/*		if (LO.active)
+			LO.div.animate({opacity: 1});
 		else
-			LO.div.fadeOut();
+			LO.div.animate({opacity: 0});
+*/
 	}
         reLayout();
 }
@@ -102,19 +104,17 @@ function updateBG(evObject) {
 function clickPlus(evObj) {
 	var input = $(evObj.target).parent().parent().find('input');
 	input.val(parseInt(input.val()) + 10)
-//	reLayout();
 	input.change();
 }
 function clickMinus(evObj) {
 	var input = $(evObj.target).parent().parent().find('input');
 	input.val(parseInt(input.val()) - 10)
-//	reLayout();
 	input.change();
 }
 function plusMinus(LO) {
 	var buttonPlus = $('<button>+</button>').click(LO, clickPlus);
 	var buttonMinus = $('<button>&minus;</button>').click(LO, clickMinus);
-	return $('<div style="float:right" />').append(buttonPlus, buttonMinus);
+	return $('<div style="float:right"/>').append(buttonPlus, buttonMinus);
 }
 
 function addTableRow(layobjs) {
@@ -123,12 +123,12 @@ function addTableRow(layobjs) {
   for (var i = 0; i < layobjs.length; i++) {
     var tr = tbody.append($('<tr>'));
     var LO = layobjs[i];
+    // this is the kind of code that could - should - make you either love or hate jQuery. or both.
     tr.append($('<td>').append($('<input type="checkbox">').prop("checked", LO.active).change(LO, updateActive)));
-    tr.append($('<td>').append(b(LO), $('<input type="text">').val(LO.w).change(LO, updateWidth)));		    
-    tr.append($('<td>').append(b(LO), $('<input type="text">').val(LO.h).change(LO, updateHeight)));		    
+    tr.append($('<td>').append(b(LO), $('<input type="text">').val(LO.w).change(LO, updateWidth))); 
+    tr.append($('<td>').append(b(LO), $('<input type="text">').val(LO.h).change(LO, updateHeight)));
     tr.append($('<td>').append($('<input type="text">').val(LO.bg).change(LO, updateBG)));		    
   }
-//      tr.append("<td>foo</td><td>bar</td><td>fuz</td><td>bla</td>");
 }
 
 function reLayout() {
@@ -142,14 +142,15 @@ function randVal() {
 }
 
 $(function() {
+  // some examples - not used currently
   var o1 = [[10, 10, "red"], [10, 10, "blue"]];
   var o2 = [[20, 10, "#f00"], [10, 10, "#0f0"], [10, 10, "#00f"]];
   var o3 = [[10, 10, "red"], [10, 10, "blue"], [500, 10, "#ff0"]];
-  var o = o3;
+  var greedyFail = [[80, 50, "red"], [70, 50, "blue"], [20, 50, "red"], [15, 50, "blue"], [15, 50, "blue"]];
+  // The above example should place the red objects on one row and the blue on the other. But it doesn't.
 
-  colors = ["aqua", "black", "blue", "fuchsia", "gray", "grey", "green", "lime", "maroon", "navy", "olive", "purple", "red", "silver", "teal", "white", "yellow"]
+  colors = ["aqua", "black", "blue", "fuchsia", "grey", "green", "lime", "maroon", "navy", "olive", "purple", "red", "silver", "teal", "white", "yellow"]
 
-//  objs = o.map(function(a) { return new LayObj(a[0], a[1], a[2]); });
   var objs = []
   for (var i = 0; i < colors.length; i++) {
     var lo = new LayObj(randVal(), randVal(), colors[i]);
@@ -163,12 +164,17 @@ $(function() {
   reLayout();
 
       addTableRow(objs);
+
+	/* We could use jQuery's .data(key, value) to connect the
+	 * model and the views, so to speak. */
+
 });
 
 </script>
 </head>
 <body>
 <div id="control">
+(note: decimals are silently ignored)
 <table id="ctable">
 <tr><th>Active</th><th>Width</th><th>Height</th><th>Color</th></tr>
 <tbody>

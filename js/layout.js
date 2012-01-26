@@ -25,11 +25,12 @@
  * nicely in the box. You may even scale them. 
  * Each item is placed with item.place(top, left, width, height). 
  * 
- * This layout engine handles the following options:
- *   padding:  Put at least `options.padding` pixels between each item. 
- *   h_align:  horizontal alignment. "left", "right", "center" or "justify".
- *   v_align:  vertical alignment. "left", "right", "center" or "justify". 
- *   shuffle:  If true, shuffle items within rows and shuffle the rows. 
+ * This layout engine should handle the following options:
+ *   padding:       Put at least this amount of pixels between each item. Defaults to 10.
+ *   h_align:       horizontal alignment. "left", "right", "center" or "justify". Defaults to "center".
+ *   v_align:       vertical alignment. "left", "right", "center" or "justify". Defaults to "center".
+ *   shuffle:       If true, shuffle items within rows and shuffle the rows. Defaults to true.
+ *   equal_height:  If true, force all rows to be as high as the lowest one. Defaults to true. 
  *
  */
 
@@ -182,9 +183,21 @@ function layoutRows(box, sortedObjects, padding, n_rows) {
 	return {bins:  bins, emptySpace: emptySpace};
 }
 
-function layout(box, objects, options) 
+function layout(box, objects, userOptions) 
 {
-	var padding;
+	options = {
+		padding:	10,
+		h_align:	"center",
+		v_align:	"center",
+		shuffle:	true,
+		equal_heights:	true
+	};
+	for (key in userOptions) {
+		if (userOptions.hasOwnProperty(key)) {
+			options[key] = userOptions[key];
+		}
+	}
+	
 	if ("padding" in options)
 		padding = options["padding"];
 	else

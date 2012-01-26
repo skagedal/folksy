@@ -84,20 +84,24 @@ Audio on the web is hard to get right. We're using
 * Possibly also http://jquerymobile.com/[jQuery Mobile]!
 
 
-== Game tools ==
+== Game tool ==
 
 :yaml:	      http://www.yaml.org/[YAML]
 :PyYAML:      http://pyyaml.org/wiki/PyYAML[PyYAML]
 :pycountry:   http://pypi.python.org/pypi/pycountry/[pycountry]
+:ffmpeg:      http://ffmpeg.org/[ffmpeg]
+:PIL:	      http://www.pythonware.com/products/pil/[Python Imaging Library]
 
-This is (supposed to be) a tool to generate games from source files,
-written in Python. Here we use the very readable and editable file
-format {yaml}.
+The game tool is a tool to generate games from source files, written
+in Python. Here we use the very readable and editable file format
+{yaml}.
 
-Libraries used:
+Libraries and other tools used:
 
-* {PyYAML} 3.10 (Debian/Ubuntu package: `python-yaml`)
-* {pycountry} (Debian/Ubuntu package: `python-pycountry`) *[not used at the moment]*
+* {PIL} for image manipulations
+* {PyYAML} 3.10 -- Ubuntu package: `python-yaml`
+* {pycountry} -- Ubuntu package: `python-pycountry` *[not used at the moment]*
+* {ffmpeg} -- Ubuntu packages: `ffmpeg` `libavcodec-extra-53` (there is a Python wrapper called PyFFmpeg, but shell calls suffice)
 
 .PyYAML 3.10
 On a Ubuntu system, run `sudo apt-get install python-yaml` to install.

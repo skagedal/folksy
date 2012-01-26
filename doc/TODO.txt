@@ -7,6 +7,7 @@ Simon Kågedal Reimer <simon@kagedal.org>
 * Link to README from game; maybe a nice http://www.cssstickyfooter.com/[sticky footer]?
 * Web application where you can design your own games 
 * Nicer formatting of AsciiDoc generated html
+* Use some kind of automatic documentation system 
 
 .Game engine
 * Allow use of keyboard
@@ -18,13 +19,15 @@ Simon Kågedal Reimer <simon@kagedal.org>
 * Separate _game logic_ in platform independent JavaScript! Can JavaScript be embedded in Android/iPhone apps?
 * Using local or CDN hosted jQuery should maybe be a setting? The former can be good for debugging purposes.
 * "use strict";
+* Follow these code conventions: http://javascript.crockford.com/code.html
+* Use Google Closure Compiler: http://code.google.com/closure/compiler/
+* Use Google Closure Linter: http://code.google.com/closure/utilities/
 
 .Game tool
-* Written in Python
 * Prepare games (JSON file + media) from YAML file (or from just a bunch of media files, Wikipedia page...)
-* Use http://ffmpeg.org/[ffmpeg] for converting sound files (possibly using http://code.google.com/p/pyffmpeg/[PyFFmpeg], but shell call might be simpler)
-* http://www.pythonware.com/products/pil/[Python Imaging Library] for image info
 * http://docs.python.org/library/gettext.html#module-gettext
+
+* Use http://pychecker.sourceforge.net/
 
 .Data
 * Record better sound
@@ -37,7 +40,6 @@ Simon Kågedal Reimer <simon@kagedal.org>
 ** Deutsch: http://de.wikibooks.org/wiki/Wikijunior_Tieralphabet
 ** Turkish: http://tr.wikibooks.org/wiki/Viki%C3%A7ocuk:Alfabe
 ** Portugese: http://pt.wikibooks.org/wiki/Alfabeto_dos_animais
-
 * Improve letters, provide alternatives 
 ** Maybe render images programatically using http://cairographics.org/pycairo/[Pycairo]? See http://cairographics.org/samples/[samples]
 
