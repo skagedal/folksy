@@ -29,6 +29,9 @@ import yaml
 import PIL.Image
 #import pycountry
 
+# own libraries
+from folksyhtml import FolksyHtml
+
 FolksyOptions = {
     "image_extensions": [".jpg", ".jpeg", ".JPG", ".png", ".PNG", ".gif"],
     "sound_extensions": [".flac", ".wav", ".ogg", ".mp3"]
@@ -112,7 +115,7 @@ class ImageBuildRule(BuildRule):
 
     def run(self):
         if self.image is None:
-            self.image = PIL.Image.open(sources[0])
+            self.image = PIL.Image.open(self.sources[0])
         if self.crop is not None:
             self.image.crop(self.crop)
         if self.scale is not None:
@@ -129,6 +132,17 @@ class SoundBuildRule(BuildRule):
             shutil.copyfile(self.sources[0], self.target)
         else:
             subprocess.call(["ffmpeg", "-y", "-i", self.sources[0], "-acodec", "libvorbis", self.target])
+
+class HtmlBuildRule(BuildRule):
+    """Build a index.html from a template file"""
+    def __init__(self, game, sources, target):
+        BuildRule.__init__(self, game, sources, target)
+
+    def run(self):
+        fhtml = FolksyHtml(self.game.lang, {"name": self.game.name, "json_loc": self.game.json_loc})
+        content = unicode(open(self.sources[0], "r").read(), "utf-8")
+        open(self.target, "w").write(fhtml.substitute(content).encode("utf-8"))
+        debug("wrote html file")
 
 class Game:
     def __init__(self, _folksy, _game_id, _path):
@@ -256,8 +270,13 @@ class Game:
 
 
         # Dump JSON.
-        filename = path.join(self.buildpath, "%s.json" % self.game_id)
+        self.json_loc = "%s.json" % self.game_id                # also used for html template 
+        filename = path.join(self.buildpath, self.json_loc)
         json.dump(self.json, open(filename, "w"))
+
+        # Build html
+        if "template" in self.yaml:
+            HtmlBuildRule(self, path.join(self.path, self.yaml["template"]), path.join(self.buildpath, "index.html")).rebuild()
 
 class GameType:
     def __init__(self, _id):

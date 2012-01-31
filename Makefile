@@ -1,5 +1,5 @@
-root_files =  index.html folkesfolk.js 
-js_files := $(addprefix js/,soundmanager2.js sprintf-0.7-beta1.js jquery-1.7.1.js firebug-fallback.js)
+root_files =  index.html 
+js_files := $(addprefix js/,folksy.js soundmanager2.js underscore-1.3.1.js sprintf-0.7-beta1.js jquery-1.7.1.js firebug-fallback.js)
 swf_files := $(addprefix swf/,soundmanager2.swf soundmanager2_debug.swf soundmanager2_flash9.swf soundmanager2_flash9_debug.swf)
 css_files := $(addprefix css/,folkesfolk.css reset.css)
 themes_files := themes/sunset/background.jpg 

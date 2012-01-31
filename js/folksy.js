@@ -22,10 +22,16 @@
 soundManager.url = '/simon/folkesfolk/swf/';		// HARDCODE
 
 /***********************************************************************
+ * MODULE
+ ***********************************************************************/
+
+folksy = {}
+
+/***********************************************************************
  * INTERNATIONALIZATION
  ***********************************************************************/
 
-window.FolksyResources = {
+folksy.RESOURCES = {
 	'en': {
 		'loading_images':	'Loading images... (%(count)s of %(total)s)',
 		'error_load_image':	"Couldn't load image file <tt>%(file)s</tt>. ",
@@ -36,9 +42,9 @@ window.FolksyResources = {
 	}
 }
 
-function folksyGetResource(index, args) {
+folksy.getResource = function (index, args) {
 	var cascade = ['sv', 'en'];
-	var res = window.FolksyResources;
+	var res = folksy.RESOURCES;
 	for (var i = 0; i < cascade.length; i++) { 
 		var lang = cascade[i];
 		if (index in res[lang]) {
@@ -50,95 +56,64 @@ function folksyGetResource(index, args) {
 }
 
 /***********************************************************************
- * COMPATIBILITY CODE
- ***********************************************************************/
-
-// From https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/IndexOf
-
-if (!Array.prototype.indexOf) {
-    Array.prototype.indexOf = function (searchElement /*, fromIndex */ ) {
-        "use strict";
-        if (this == null) {
-            throw new TypeError();
-        }
-        var t = Object(this);
-        var len = t.length >>> 0;
-        if (len === 0) {
-            return -1;
-        }
-        var n = 0;
-        if (arguments.length > 0) {
-            n = Number(arguments[1]);
-            if (n != n) { // shortcut for verifying if it's NaN
-                n = 0;
-            } else if (n != 0 && n != Infinity && n != -Infinity) {
-                n = (n > 0 || -1) * Math.floor(Math.abs(n));
-            }
-        }
-        if (n >= len) {
-            return -1;
-        }
-        var k = n >= 0 ? n : Math.max(len - Math.abs(n), 0);
-        for (; k < len; k++) {
-            if (k in t && t[k] === searchElement) {
-                return k;
-            }
-        }
-        return -1;
-    }
-}
-
-/***********************************************************************
  * HELPER FUNCTIONS
+ * Some are added as "mixins" to underscore, when it feels like they
+ * fit there.
  ***********************************************************************/ 
 
-// From http://stackoverflow.com/questions/962802/is-it-correct-to-use-javascript-array-sort-method-for-shuffling
-function shuffleInPlace(array) {
-	// Shuffle an array in-place (i.e., mutate the array).
-	var tmp, current, top = array.length;      
-	if(top) 
-		while(--top) {
-			current = Math.floor(Math.random() * (top + 1));         
-			tmp = array[current];         
-			array[current] = array[top];         
-			array[top] = tmp;     
-		}      
-	return array; 
-} 
 
-function shuffle(a) {
-	// Returns a shuffled version of the array.
-	return shuffleInPlace(a.slice(0));
-}
+// _.pickRandom - a mixin for underscore.js. 
+//
+// Pick random elements from an array. Works similar to 
+// `_.first(_.shuffle(array, n))`, but is more efficient -- operates 
+// in time proportional to `n` rather than the length of the whole 
+// array. 
+//
+// If the argument `n` is given, an array is returned.
+// If no `n` is specified, only the one element is returned. This also
+// happens if three or more arguments are specified -- this is so that
+// _.map(array, _.pickRandom) will work as expected. This behavior is
+// similar to other underscore functions, such as `_.first`. 
+//
+// The algorithms mutates the input array while working, but restores 
+// everything before returning. This provides for an optimally
+// efficient algorithm in all situations.  
 
-function randomInt(max_val) {
-	// Return a random integer 0 <= i < max_val
-	return Math.floor(Math.random() * max_val);
-}
+_.mixin({pickRandom: function(array, n, guard) {
+	  if (n == null  || guard)
+		  return array[Math.floor(Math.random() * array.length)];
+	  n = Math.max(0, Math.min(array.length, n));
 
-function randomPick(a, n) {
-	// Returns one or many random element from an array.
-	// If n is specified, return an array with `n` random uniquely indexed elements  from `a`
-	// If n is not specified, return just one random element.
+	  return (function pickR(array, n, length) {
+		  var i, picked, rest, hasIndex;
 
-	if (typeof n === "undefined")
-		return randomPick(a, 1)[0];
-	return shuffle(a).slice(0, n);
-}
+		  if (n === 0) {
+			  return [];
+		  }
 
-function randomPickExcept(a, except) {
-	return randomPick($.grep(a, function (el, i) { return el != except; }));
-}
+		  i = Math.floor(Math.random() * length);
+		  hasIndex = array.hasOwnProperty(i);	// This is needed for restoration of dense arrays
+		  picked = array[i];
+		  array[i] = array[length - 1];
+		  rest = pickR(array, n - 1, length - 1);
+		  // Restore array
+		  if (hasIndex) {
+			  array[i] = picked;
+		  } else {
+			  delete array[i];
+		  }
+		  rest.push(picked);
+		  return rest;
+	  }) (array, n, array.length);
+}});
 
-function range(max) {
-	a = [];
-	for (var i = 0; i < max; i++) {
-		a.push(i);
+_.mixin({isEqualTo: function(a) {
+	return function (b) {
+		return (a === b); 
 	}
-	return a;
-}
+}});
 
-function setup_soundManager() {
+folksy.setupSoundManager = function () {
 	// soundManager.debugMode = true;
 	soundManager.useHTML5Audio = true;
 	/*soundManager.preferFlash = false;
@@ -156,12 +131,18 @@ function setup_soundManager() {
 }
 
 /***********************************************************************
- * THE FOLKSY CLASS 
+ * THE FOLKSY CLASSES
  ***********************************************************************/
 
+// This class holds the game data.
+function FolksyGame(json) {
+	this.id = json.id || "<noname>";
+	this.name = json.name || "<noname>";
+}
+
 function Folksy(gameURL) {
-	var folksy = this;
-	var F_ = folksyGetResource;
+	var that = this;
+	var F_ = folksy.getResource;
 
 	// Private items are marked with _. We make them "public" anyway, for ease of debugging .
 	this.maxItems = 50;
@@ -196,8 +177,8 @@ function Folksy(gameURL) {
 	this._loadImagesTotal = 0;
 	
 	function loadImageError(event) {
-		folksy.abortLoad(F_("error_load_image", {file: event.data}));
-		folksy.log("Could not load " + event.data + "!");
+		that.abortLoad(F_("error_load_image", {file: event.data}));
+		that.log("Could not load " + event.data + "!");
 	}
 
 	this.loadImage = function(filename) {
@@ -210,9 +191,9 @@ function Folksy(gameURL) {
 		$(img)
 			.load(function() {
 					$(this).hide();
-					//folksy.log("Have now loaded " + filename);
-					folksy._loadImagesCount++;
-					folksy.updateLoading();
+					//that.log("Have now loaded " + filename);
+					that._loadImagesCount++;
+					that.updateLoading();
 				})
 		
 			.error(filename, loadImageError)
@@ -299,27 +280,27 @@ function Folksy(gameURL) {
 	function positiveReinforcement() {
 		var reward = $("#reward");
 		reward.css({top: 212, left: 212, width: 0, height: 0, opacity: 1.0});
-		reward[0].src = randomPick(folksy.animalImages).src;
+		reward[0].src = _.pickRandom(that.animalImages).src;
 		reward.show();
 		reward.animate({top: 62, left: 62, width: 300, height: 300}, 
 			       function() { 
-					folksy._isInClickReward = true; 
-					soundManager.play(randomPick(["bra_jobbat", "ja_det_var_raett"]));
+					that._isInClickReward = true; 
+					soundManager.play(_.pickRandom(["bra_jobbat", "ja_det_var_raett"]));
 				});
 		$("#tip").fadeIn();
 	}
 	function clickReward() {
-		folksy.log("We here");
-		if (folksy._isInClickReward) {
-			folksy._isInClickReward = false;
+		that.log("We here");
+		if (that._isInClickReward) {
+			that._isInClickReward = false;
 			$("#tip").fadeOut();
 			$("#reward").fadeOut(nextQuestion);
 		}
 	}
 
 	function correctAnswer() {
-		if (folksy._isInQuestion) {
-			folksy._isInQuestion = false;
+		if (that._isInQuestion) {
+			that._isInQuestion = false;
 			soundManager.play("yippie");
 			$("#wrong_answer").fadeOut();
 			$("#correct_answer").animate({
@@ -335,15 +316,15 @@ function Folksy(gameURL) {
 						positiveReinforcement();
 					});
 				});
-			folksy.log("Whoohooo!");
+			that.log("Whoohooo!");
 		}
 	}
 
 	function wrongAnswer() {
-		if (folksy._isInQuestion) {
+		if (that._isInQuestion) {
 			// TODO: sound effect for wrong answer
 			soundManager.play('fel');
-			folksy.log("Wrong...");
+			that.log("Wrong...");
 		}
 	}
 
@@ -351,30 +332,30 @@ function Folksy(gameURL) {
 //	this.currentItemAnswer = 
 
 	function nextQuestion() {
-		if (folksy._itemOrder.length < 1) {
+		if (that._itemOrder.length < 1) {
 			alert("Bra jobbat!");
 			return;
 		}
-		var q = folksy._itemOrder.shift();
-		var answer = getAnswer(folksy.questions[q]);
-		var answer_i = folksy.letters.indexOf(answer);
-		var wrongAnswer = randomPickExcept(folksy.letters, answer);
-		var wrongAnswer_i = folksy.letters.indexOf(wrongAnswer);
+		var q = that._itemOrder.shift();
+		var answer = getAnswer(that.questions[q]);
+		var answer_i = _.indexOf(that.letters, answer);
+		var wrongAnswer = _.pickRandom(_.reject(that.letters, _.isEqualTo(answer)));
+		var wrongAnswer_i = _.indexOf(that.letters, wrongAnswer);
 
-		playSound(folksy.audios[q]);
+		playSound(that.audios[q]);
 
 		// Set up face
-		folksy.current_image = folksy.images[q];
-		$("#face")[0].src = folksy.current_image.src;
+		that.current_image = that.images[q];
+		$("#face")[0].src = that.current_image.src;
 		$("#face").fadeIn();		
 
 		// Set up letters
-		var correct_image = folksy.letter_images[answer_i];
-		var correct_image_select = folksy.letter_select_images[answer_i];
-		var wrong_image = folksy.letter_images[wrongAnswer_i];
-		var wrong_image_select = folksy.letter_select_images[wrongAnswer_i];	
+		var correct_image = that.letter_images[answer_i];
+		var correct_image_select = that.letter_select_images[answer_i];
+		var wrong_image = that.letter_images[wrongAnswer_i];
+		var wrong_image_select = that.letter_select_images[wrongAnswer_i];	
 
-		var x_position = shuffle(["28px", "232px"]);
+		var x_position = _.shuffle(["28px", "232px"]);
 		$("#correct_answer").css({left: x_position[0]});
 		$("#wrong_answer").css({left: x_position[1]});
 		$("#correct_answer")[0].src = correct_image.src;
@@ -384,7 +365,7 @@ function Folksy(gameURL) {
 		$("#wrong_answer").hover  (function () { this.src = wrong_image_select.src; },
 					   function () { this.src = wrong_image.src; });
 		$(".answers").fadeIn();
-		folksy._isInQuestion = true;
+		that._isInQuestion = true;
 	}
 
 	function start_game() {
@@ -412,19 +393,21 @@ function Folksy(gameURL) {
 	this.initWithJSON = function(jsonData) {
       		// this.log(jsonData.gameTitle);
 		
+		
+
 		// As of yet, this JSON data is just an array of question id:s. 
 		this.questions = jsonData;
-		this._itemOrder = shuffle(range(folksy.questions.length));
+		this._itemOrder = _.shuffle(_.range(that.questions.length));
 
 		$(document).ready(function() {
 			// TODO> Respect max_items.
-			folksy.loadImages();
+			that.loadImages();
 			// TODO: should wait until images (and sound, if possible) are loaded
 			$("#start_game").click(start_game);
 			$("#switch_img").click(nextQuestion);
 		});
 		soundManager.onready(function() {
-			folksy.loadAudios();
+			that.loadAudios();
 		});
 
 		// Start loading images and stuff. 
@@ -437,7 +420,7 @@ function Folksy(gameURL) {
 		});
 	}
 
-	setup_soundManager();
+	folksy.setupSoundManager();
 
 	// Either we specify the game URL at the constructor, in which case things start to happen
 	// immediately. Otherwise, the user calles initWithURL or initWithJSON directly.
