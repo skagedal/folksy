@@ -10,6 +10,8 @@ icons_files = icons/info.png icons/success.png icons/warning.png icons/error.png
 
 all: doc
 
+.PHONY: up updoc test
+
 up:
 ifndef FOLKSY_WEBROOT
 	@echo "Please set FOLKSY_WEBROOT to install target"

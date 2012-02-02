@@ -1,3 +1,10 @@
-#
-# Ignore Emacs backup files.
+
+# Emacs backup files.
 *~
+
+# fabricate
+.deps
+
+* Python
+*.pyc
+
