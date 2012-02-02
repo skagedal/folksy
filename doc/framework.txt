@@ -4,6 +4,8 @@ Simon Kågedal Reimer <simon@kagedal.org>
 
 _Folksy_ is a framework for educational games. 
 
+:Folkes Folk: http://helgo.net/simon/folkesfolk/[Folkes Folk]
+
 == Introduction == 
 The idea is to develop a simple framework to run graphical educational
 games on a variety of platforms. The first priority is the web, then
@@ -40,19 +42,158 @@ and sounds.
   choice, but...
 
 .JSON structure
-To be continued...
+
+These attributes should be set at the root of the JSON.
+
+`id`::
+	A simple string identifying the game.
+	(Maybe use Java style unique identifiers, like org.folksy.* ??)
+`name`::
+	A more descriptive name.
+`format`::
+	File format version, an integer. This should only be bumped
+	when truly incompatible changes to the format are
+	introduced. Features can be added by simply adding
+	fields. (Unknown fields should be silently ignored by game
+	engines.)
+`gametype`::
+	See below for available gametypes.
+`gametype_format`::
+	Like `format`, but just for this gametype.
 
 === Game types ===
 
-There is currently only one game type:
+The currently implemented game type--see {Folkes Folk}--is
+`whatletter`. Currently reworking into the `one-to-one` gametype.
 
 `whatletter`:: 
 	The game consists of a set of images (of faces, objects...)
 	with corresponding sounds, typically voices that say: "A is
 	for apple", and so on. The player then has to click on the
 	right letter.
+`one-to-one`::
+	This is where we're going. See below.
 
 One idea is to separate the game logic into platform independent JavaScript.
+
+=== One to one ===
+
+A learning tool that works by establishing relations between
+stimuli. Let's define some terminology:
+
+* A 'stimulus' (plural: stimuli) is, as you'll find in any psychology
+  textbook, an energy pattern (e.g. light or sound) which is
+  registered by the senses (definition
+  http://en.wikipedia.org/wiki/Stimulus_(psychology)[from
+  Wikipedia]). We'll use it broadly. The following are some more
+  specific terms used in this project.
+* At the moment, we use 'image stimuli' (still images) and
+  'sound stimuli' (simple sound files). An 'atomic
+  stimulus' is either an image stimulus or a sound stimulus;
+  basically, a stimulus that will never be torn apart into several
+  sub-stimuli.  A 'composite stimulus' is a stimulus made up
+  from one or several atomic stimuli.
+* Borrowing from experimental psychology research procedures
+  (e.g. Dymond and Whelan, 2010):
+
+** a 'cue stimulus' is a cue for what the task at hand is,
+   e.g. "choose the similar object". This is, at the time of writing,
+   implicit in Folksy games. It may be any composite stimulus.
+
+** a 'sample stimulus' is a question to be answered. For example, an
+   image of an apple, where the task is to respond with the word
+   "apple". It may be any composite stimulus.
+
+** a 'comparison stimulus' is an answer. For exampe, the word "apple";
+   usually presented next to other comparison stimuli. It may
+   conceptually be any composite stimulus, but in practice it is
+   difficult or unintuitive to choose between sound stimuli (although
+   I have some ideas), so it might be presented as just the image part
+   of a image+sound stimulus.
+
+Specify the game logic algorithms. Say we have a set of sound stimuli,
+S(i) for i = 1...n, and a set of image stimuli in the form of glyphs,
+G(i) for i = 1...n. We want to learn the relation R(S, G); presented
+with sample stimulus S(i), the user learns to respond with G(i).
+
+We somehow measure the strength of each relation as p(i), a value that
+varies from 1 (completely unlearned) to 0 (theoretical max; fully
+learned). Values above 1 represent anti-learning, when the user
+performs worse than would be expected by chance.  The strength can be
+interpreted as the probability of being correct by chance. We'll get
+to that. Initially, p(i) = 1 for all i.
+
+'Picking a relation.' We assume p(i) > 0 since we never reach perfect
+learning. Add up all p(i) cumulatively to psum(i) so that psum(1) =
+p(1); psum(i + 1) = psum(i) + p(i + 1). Pick a random value r from [0,
+psum(n)]. The smallest i such that psum(i) > r is our pick.
+
+With this algorithm, any relation can get picked at any moment, but
+the more learned a relation is, the less likely it is picked.
+
+However, we might want to limit the set of relations chosen from, so
+that we do not introduce too many new stimuli at the same time. How
+about we try to keep the 'unlearned mass' -- psum(n) -- beneath an
+upper bound? This could possibly be adjusted for the cognitive
+capacity of the learner.
+
+'Statistics.' If we correctly respond when presented with 'n'
+comparison stimuli, the probability that this was pure chance is
+1/'n'. If this happens m times in a row, the probability of the null
+hypothesis ("no learning") is 1/'mn'. We could use this as a measure
+of the strength of the relation; the lower 'p'-value, the stronger
+relation. If a false answer is emitted, the 'p'-value should be
+adjusted upward. We then multiply it by 'n'. One way to make sense of
+this: If we keep giving random answers, our 'p' should oscillate somewhere around 1. 
+
+(I guess any algorithm like this needs to be adjusted heuristically
+after observing how it works.)
+
+'Picking the comparison stimuli.' Consider the situation where we want
+to learn a completely new relation between unknown stimuli such as,
+for me, the relation between Arabic glyphs and their vocalization. We
+want the tool to not only help us memorize, but to *teach* the
+relation. It should be theoretically possible to learn the relation
+without ever having to guess. (The game needs to continuosly adapt so
+that it's at the right level of difficulty to stay interesting.)
+Therefore, on the very first trial, the user is presented with a
+sample stimulus (a voice saying "’alif") and only one comparison
+stimuli (an ’alif glyph). The user responds, and the relation is then
+marked as *teached*. On each following trial, at maximum one unteached
+relation should be exposed, allowing the user to logically conclude
+the right answer.The second trial might then be the vocalization of
+"bā’" as sample stimulus, and ’alif and bā’ glyphs as comparison
+stimuli. The bā’-bā’ relation is then considered teached (even if the
+user does not initially give the right answer). However, the second
+trial might also be the ’alif sample stimuli again, with alif and bā’
+glyphs as comparison stimuli -- this does not make the bā’-bā’
+relation teached, obviously.
+
+Some stimuli are more similar to each other then others, making them
+difficult to differentiate. For example, when learning Swedish script,
+it might be hard to learn the difference between Å and Ä. To make it
+easy on the learner, we could make Å and Ä less likely to occur in the
+same comparison trial. A stimulus set *S* might specify a similarity
+function sim(i, j) that gives the similarity between 0 and 1.
+
+After a few relations are taught, we need to decide what the size of
+the comparison set should be. I'm playing with the idea of letting the
+user simply decide for herself, even during game. Yes, this allows you
+to "cheat", but the premise of this game is that you're curious, want
+to learn, and know best yourself what kind of cognitive load you can
+handle at the moment. This should all be very configurable for various
+situations. One possibility is to have a "parent"/"teacher" console.
+
+Anyway, a good choice could be csize = 2 for preschool kids and 
+csize = 4 for the rest uf us.
+
+Composing the comparison set then becomes a random pick weighted with
+p (we want well-learned alternatives) and similarity with the correct
+stimulus.
+
+'Scoring.' A mean value of the p's could measure how well the whole
+relation set is learned. There should be continuous rewards, e.g. a
+star every time you reach below pmean = 0.9, 0.8, 0.7...
 
 === Themes ===
 Graphical and auditive themes in common for many games.
@@ -96,6 +237,15 @@ The game tool is a tool to generate games from source files, written
 in Python. Here we use the very readable and editable file format
 {yaml}.
 
+The game tool can be used in different ways depending on your
+setup. The simplest is to type
+
+  folsky.py buildzip my-game.yaml
+
+This will give you a zip file to uncompress at your web server, ready to run.
+
+NOTE: This is not how it's working at the moment. 
+
 Libraries and other tools used:
 
 * {PIL} for image manipulations
@@ -115,6 +265,11 @@ the {PyYAML}, unpack it and install with:
 A web application where you can design your own games.
 
 * Use https://code.google.com/p/wami-recorder/[wami-recorder] to record audio
+
+== References ==
+
+* Dymond, S., & Whelan, R. (2010). Derived relational responding: a comparison of match-to-sample and the relational completion procedure. (available from Simon Dymonds homepage, http://psy.swan.ac.uk/staff/dymond/ )
+
 
 == Appendix A: Internationalization ==
 

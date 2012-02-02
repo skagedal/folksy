@@ -5,17 +5,19 @@ Simon Kågedal Reimer <simon@kagedal.org>
 .General 
 * Clean separation of _game engine_, _games_ and _themes_
 * Link to README from game; maybe a nice http://www.cssstickyfooter.com/[sticky footer]?
-* Web application where you can design your own games 
 * Nicer formatting of AsciiDoc generated html
 * Use some kind of automatic documentation system 
+* fabricate as build tool: http://code.google.com/p/fabricate/
 
 .Game engine
 * Allow use of keyboard
+* Instead of failing completely on load error of an image, degrade (?) gracefully. If all images fail, fail. If some images fail, tell user, but play anyway.
 * Visual "nudge" instead of sound effect on wrong answer
 * Versions with three or more letters. 
 * Full alphabet version using Fish Eye!
 * Android game engine
 * iPhone/iPad game engine
+* Native desktop game engines 
 * Separate _game logic_ in platform independent JavaScript! Can JavaScript be embedded in Android/iPhone apps?
 * Using local or CDN hosted jQuery should maybe be a setting? The former can be good for debugging purposes.
 * "use strict";
@@ -26,10 +28,12 @@ Simon Kågedal Reimer <simon@kagedal.org>
 .Game tool
 * Prepare games (JSON file + media) from YAML file (or from just a bunch of media files, Wikipedia page...)
 * http://docs.python.org/library/gettext.html#module-gettext
-
+* http://mp3val.sourceforge.net/ - Validate and fix MPEG audio files
 * Use http://pychecker.sourceforge.net/
+* Use unicodedata.name("A") for glyph images
+* Use ffmpeg -ss [position] -t [duration] to cut out a part of the sound file (position and duration may be in either seconds or hh:mm:ss[.xxx] format)
 
-.Data
+.Games, data and ideas
 * Record better sound
 * General game sets, such as "A for apple, B for banana..." -- in English and Swedish.
 ** http://openclipart.org/user-cliparts/mazeo?page=2
@@ -40,8 +44,18 @@ Simon Kågedal Reimer <simon@kagedal.org>
 ** Deutsch: http://de.wikibooks.org/wiki/Wikijunior_Tieralphabet
 ** Turkish: http://tr.wikibooks.org/wiki/Viki%C3%A7ocuk:Alfabe
 ** Portugese: http://pt.wikibooks.org/wiki/Alfabeto_dos_animais
+* Game ideas:
+** Animal sounds
+** Bird song
+** Emotions, face expressions
+** Sign language
+** http://commons.wikimedia.org/wiki/File:Ell-AlphabitosUpload.ogg
+** http://commons.wikimedia.org/wiki/File:Arabic_alphabet_(31s,_80kbps).ogg
+** http://commons.wikimedia.org/wiki/Category:Pronounciation_of_alphabets
 * Improve letters, provide alternatives 
 ** Maybe render images programatically using http://cairographics.org/pycairo/[Pycairo]? See http://cairographics.org/samples/[samples]
+* Animated letters that gradually appear the way they would be drawn
 
 .Other stuff
 * http://patik.com/blog/complete-cross-browser-console-log/[Complete cross browser console.log]
+* Is there a good list of web-safe (for browsers supporting HTML5 audio) subsets of MP3 and Ogg Vorbis?
