@@ -1,35 +1,35 @@
 // "Interfaces"
 
 Stimulus = {
-  id: "<stimulusID>",
+    id: "<stimulusID>",
 };
 
 StimulusSet = {
-  each: function (op) { }
+    each: function (op) { }
 };
 
 Relation = {
-  stimulusA: {},
-  stimulusB: {},
-  pStrength: 1
+    stimulusA: {},
+    stimulusB: {},
+    pStrength: 1
 };
 
 RelationSet = {
-  add: function (stimulusA, stimulusB) { }
+    add: function (stimulusA, stimulusB) { }
 };
 
 User = {
-  getRelation: function (idA, idB) { },
+    getRelation: function (idA, idB) { },
 };
 
 // Game logic
 
 GameLogic = {
-  newGame: function (user) { 
-  },
-  pickSampleStimulus: function () { },
-  pickComparisonStimuli: function () { },
-  respond: function (stimulus) {
-    return isCorrect;
-  }
-  
+    newGame: function (user) { 
+    },
+    pickSampleStimulus: function () { },
+    pickComparisonStimuli: function () { },
+    respond: function (stimulus) {
+	return isCorrect;
+    }
+}
