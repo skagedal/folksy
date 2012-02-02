@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <title>${name}</title>
+  <meta charset="UTF-8" />
+  $prereqs
+  <script type="text/javascript">soundManager.debugMode = false;</script>
+  <script type="text/javascript">folkeDebug = true;</script>
+  $folksy
+  <link rel="stylesheet" type="text/css" media="screen" href="css/reset.css" /> 
+  <link rel="stylesheet" type="text/css" media="screen" href="css/folkesfolk.css" />
+ </head>
+ <body>
+  <div id="container">
+    <div id="intro">
+	<h1>${name}</h1>
+	${description}
+	${runbutton}
+    </div>
+    $game
+ </div>
+<!-- <footer><a href="README.html">Folkes Folk</a></footer> -->
+ </body>
+</html>

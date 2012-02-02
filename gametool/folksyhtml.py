@@ -44,7 +44,7 @@ substs = {
         <script type="text/javascript">
                 folksy = new Folksy();
                 folksy.setDebugMode(true);
-                folksy.initWithURL(${json_loc});
+                folksy.initWithURL('${json_loc}');
         </script>
         """,
     "runbutton": u"""

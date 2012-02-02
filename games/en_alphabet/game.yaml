@@ -5,7 +5,15 @@ gametype: whatletter
 theme: sunset
 lang: en
 
-comment: This is a Folksy game version of the WikiBook http://en.wikibooks.org/wiki/Wikijunior:Alphabet
+description: 
+    <p>This is a simple game for learning the alphabet. The player is
+    presented with a picture of a familiar object and a voice saying
+    "A for apple", "B for banana", and so on, and should then click on
+    the right letter. Have fun!</p>
+    
+    <p>This game is based on the <a
+    href="http://en.wikibooks.org/wiki/Wikijunior:Alphabet">Wikijunior
+    Alphabet</a> from Wikibooks.</p>
 
 items:
  - id: A_apple

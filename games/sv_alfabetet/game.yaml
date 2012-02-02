@@ -1,0 +1,36 @@
+name: Svenska alfabetet
+gametype: whatletter
+theme: sunset
+lang: sv
+
+items:
+ - id: 
+   title: A som i anka
+   title: B som i banan
+   title: C som i citron
+   title: D som i dator
+   title: E som i elefant
+   title: F som i fisk
+   title: G som i gris
+   title: H som i häst
+   title: I som i igloo
+   title: J som i jordgubbe
+   title: K som i katt
+   title: L som i lejon, lampa
+   title: M som i mus
+   title: N som i nyckel
+   title: O som i orm
+   title: P som i paraply
+   title: Q som i quorn
+   title: R som i ros
+   title: S som i sol
+   title: T som i telefon
+   title: U som i uggla
+   title: V som i väg
+   title: W som i wienerbröd
+   title: X som i xylofon
+   title: Y som i yxa
+   title: Z som i zebra
+   title: Å som i åsna
+   title: Ä som i äpple 
+   title: Ö som i ödla, öra

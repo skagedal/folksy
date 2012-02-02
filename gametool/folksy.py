@@ -17,6 +17,15 @@
 #   along with Folksy.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+"""
+The following environment variables are used:
+
+FOLKSY_GAMEPATH: Here's where we look for games [TODO: change this system to basic regular work-on-this-file]
+FOLKSY_THEMEPATH: Here's where we look for themes. 
+
+Colon separated. (on Unix, semi-colon on Windows I guess.)
+"""
+
 # Want this to keep working with both Python 2.6 and Python 2.7.
 
 import sys, os, os.path as path, subprocess, json, locale, re, distutils.dir_util
@@ -139,10 +148,20 @@ class HtmlBuildRule(BuildRule):
         BuildRule.__init__(self, game, sources, target)
 
     def run(self):
-        fhtml = FolksyHtml(self.game.lang, {"name": self.game.name, "json_loc": self.game.json_loc})
+        gamevars = {"name": self.game.name, 
+                    "json_loc": self.game.json_loc,
+                    "description": self.game.description}
+        fhtml = FolksyHtml(self.game.lang, gamevars)
         content = unicode(open(self.sources[0], "r").read(), "utf-8")
         open(self.target, "w").write(fhtml.substitute(content).encode("utf-8"))
         debug("wrote html file")
+
+class Theme:
+    def __init__(self, _folksy, _theme_id, _path):
+        self.folksy = _folksy
+        self.theme_id = _theme_id
+        self.path = _path
+        self.yaml = None
 
 class Game:
     def __init__(self, _folksy, _game_id, _path):
@@ -160,6 +179,7 @@ class Game:
             raise GameLoadError("couldn't parse YAML: " + str(e))
 
         self.name = self.yaml.get("name", "<untitled>")
+        self.description = self.yaml.get("name", "")
 
         try:
             self.gametype = self.folksy.get_gametype(self.yaml["gametype"])
@@ -168,9 +188,10 @@ class Game:
         except GameTypeError as e:
             raise GameLoadError(e.value)
 
-        self.theme = self.yaml.get("theme", self.gametype.get_default_theme())
-        if not self.gametype.is_valid_theme(self.theme):
+        themename = self.yaml.get("theme", self.folksy.get_default_theme())
+        if not self.folksy.is_valid_theme(themename):
             raise GameLoadError("not a valid %s theme: %s" % (self.gametype, self.theme))
+        self.theme = self.folksy.themes[themename]
 
         self.lang = self.yaml.get("lang", locale.getdefaultlocale()[0].split('_')[0].lower())
         # We could check if lang is valid with pycountry. Do we want to?
@@ -180,7 +201,7 @@ class Game:
         print ("path:         " + self.path)
         print ("name:         " + self.name)
         print ("gametype:     " + str(self.gametype))
-        print ("theme:        " + self.theme)
+        print ("theme:        " + self.theme.theme_id)
         print ("lang:         " + self.lang)
 
     def find_media_file(self, subdir, base, extensions):
@@ -275,44 +296,41 @@ class Game:
         json.dump(self.json, open(filename, "w"))
 
         # Build html
+        template = ""
         if "template" in self.yaml:
-            HtmlBuildRule(self, path.join(self.path, self.yaml["template"]), path.join(self.buildpath, "index.html")).rebuild()
+            template = path.join(self.path, self.yaml["template"])
+        else:
+            template = path.join(self.theme.path, self.lang + ".template")
+
+        if path.isfile(template):
+            debug("template file: " + template)
+            HtmlBuildRule(self, template, path.join(self.buildpath, "index.html")).rebuild()
 
 class GameType:
     def __init__(self, _id):
         self.id = _id
-        self.themes = set([])
-        self.default_theme = None
 
     def __str__(self):
         return self.id
 
-    def add_theme(self, themename, default = False):
-        self.themes.add(themename)
-        if (default):
-            self.default_theme = themename
-        
-    def get_default_theme(self):
-        return self.default_theme
-
-    def is_valid_theme(self, t):
-        return t in self.themes
 
 
 class FolksyTool:
-    paths_list = []
+    gamepaths = []
     games = {}
+    themepaths = []
+    themes = {}
     gametypes = {}
     buildpath = ""
 
     def __init__(self):
         self.setup_gamepaths()
+        self.setup_themepaths()
         self.setup_buildpath()
         self.setup_gametypes()
 
     def setup_gametypes(self):
         gametype = GameType("whatletter")
-        gametype.add_theme("sunset", default = True)
         self.gametypes["whatletter"] = gametype
 
     # Class method
@@ -326,12 +344,17 @@ class FolksyTool:
         # Only one so far...
         return g == "whatletter"
 
+    def get_environ_path(self, var):
+        if os.environ.has_key(var):
+            return os.environ[var].split(os.pathsep)
+        else:
+            return []
+
     def setup_gamepaths(self):
         # There should also be some default paths
-        if(os.environ.has_key("FOLKSY_GAMEPATH")):
-            self.paths_list += os.environ["FOLKSY_GAMEPATH"].split(os.pathsep)
+        self.gamepaths += self.get_environ_path("FOLKSY_GAMEPATH")
 
-        for p in self.paths_list:
+        for p in self.gamepaths:
             try:
                 for game in subdirectories(p):
                     if not game.startswith("."):
@@ -339,16 +362,34 @@ class FolksyTool:
             except OSError as e:
                 warning("%s: %s" % (e.filename, e.strerror))
 
+    def setup_themepaths(self):
+        self.themepaths += self.get_environ_path("FOLKSY_THEMEPATH")
+
+        for p in self.themepaths:
+            try:
+                for theme in subdirectories(p):
+                    if not theme.startswith("."):
+                        self.themes[theme] = Theme(self, theme, path.join(p, theme))
+            except OSError as e:
+                warning("%s: %s" % (e.filename, e.strerror))
+
     def setup_buildpath(self):
         # TODO: should of course be settable in all kinds of ways.
         self.buildpath = path.expanduser("~/.folksy/build")
 
+    def get_default_theme(self):
+        return "sunset"
+
+    def is_valid_theme(self, theme):
+        return theme in self.themes
+
     def list_games(self):
-        if (len(self.games) == 0):
-            print ("There are no games.")
-        else:
-            for name in self.games:
-                print (name)
+        for name in self.games:
+            print (name)
+
+    def list_themes(self):
+        for name in self.themes:
+            print (name)
 
     def build_game(self, game_name):
         try:
@@ -360,7 +401,7 @@ class FolksyTool:
         try:
             game.load()
         except GameLoadError as e:
-            error("%s: %s" % (game_name, e.strerror))
+            error("%s: %s" % (game_name, str(e)))
             return
 
         game.show_info()
@@ -385,6 +426,8 @@ class FolksyTool:
                 print ("HERE: list all commmands");
             elif (command == "list"):
                 self.list_games()
+            elif (command == "themes"):
+                self.list_themes()
             elif (command == "build"):
                 if (len(args) > 0):
                     game = pop_first(args)
