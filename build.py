@@ -16,17 +16,10 @@
 #   You should have received a copy of the GNU General Public License
 #   along with Folksy.  If not, see <http://www.gnu.org/licenses/>.
 
-import sys
-sys.path = ['..'] + sys.path
-from fabricate import *
+from buildsupport import *
 
-sources = ['TODO.txt', 'framework.txt']
+subdirs = ["doc"]
 
-def build():
-    for source in sources:
-        run('asciidoc', source)
+for subdir in subdirs:
+    recurse(subdir)
 
-def clean():
-    autoclean()
-
-main()
