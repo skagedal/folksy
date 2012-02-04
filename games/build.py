@@ -16,10 +16,21 @@
 #   You should have received a copy of the GNU General Public License
 #   along with Folksy.  If not, see <http://www.gnu.org/licenses/>.
 
+import sys
+sys.path = ['..'] + sys.path
 from buildsupport import *
 
-subdirs = ["doc", "games"]
+subdirs = ["en_alphabet"]
+# subdirs = subdirectories() 
 
-for subdir in subdirs:
-    recurse(subdir)
+folksy = "../../gametool/folksy.py"
 
+def build():
+    for subdir in subdirs:
+        call_in_dir(subdir, [folksy, "build"])
+
+def clean():
+    for subdir in subdirs:
+        call_in_dir(subdir, [folksy, "clean"])
+
+main()

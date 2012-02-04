@@ -215,7 +215,8 @@ class Game:
         # This is the stuff that will get dumped to the json file.
         self.json = {}
 
-        self.buildpath = path.join(self.folksy.buildpath, self.game_id)
+        # self.buildpath = path.join(self.folksy.buildpath, self.game_id)
+        self.buildpath = path.join(self.path, "gamebuild")
         print("building in:   " + self.buildpath)
         try:
             mkpath(self.buildpath)
@@ -407,6 +408,18 @@ class FolksyTool:
         game.show_info()
         game.build()
 
+    def build_game_cwd(self):
+        game_id = path.split(os.getcwd())[1]
+        game = Game(self, game_id, os.getcwd())
+        try:
+            game.load()
+        except GameLoadError as e:
+            error("%s: %s" % (game_name, str(e)))
+            return
+
+        game.show_info()
+        game.build()
+        
 
     def main(self):
         parser = OptionParser()
@@ -433,7 +446,7 @@ class FolksyTool:
                     game = pop_first(args)
                     self.build_game(game)
                 else:
-                    print ("Use as: folksy build [gamename] -- se folksy list for a list of games")
+                    self.build_game_cwd()
             else:
                 print ("Unknown command: " + command)
         else:

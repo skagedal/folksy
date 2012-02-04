@@ -17,7 +17,7 @@
 #   along with Folksy.  If not, see <http://www.gnu.org/licenses/>.
 
 from fabricate import *
-import sys, os, subprocess
+import sys, os, os.path as path, subprocess
 
 def in_dir(dir, fun, *args, **kwargs):
     """Execute the function `fun` in the directory `dir`, passing on
@@ -37,3 +37,11 @@ def call_in_dir(dir, *args, **kwargs):
 
 def recurse(dir):
     call_in_dir(dir, ["./build.py"] + sys.argv[1:])
+
+def subdirectories(dir = None):
+    # This function is also in folksy.py.
+    if (dir is None):
+        dir = os.getcwd()
+    for entry in os.listdir(dir):
+        if path.isdir(path.join(dir, entry)):
+            yield entry
