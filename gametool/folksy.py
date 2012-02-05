@@ -22,13 +22,14 @@ The following environment variables are used:
 
 FOLKSY_GAMEPATH: Here's where we look for games [TODO: change this system to basic regular work-on-this-file]
 FOLKSY_THEMEPATH: Here's where we look for themes. 
+FOLKSY_HREF_PREFIX: To put before common Folksy files in URL:s.
 
 Colon separated. (on Unix, semi-colon on Windows I guess.)
 """
 
 # Want this to keep working with both Python 2.6 and Python 2.7.
 
-import sys, os, os.path as path, subprocess, json, locale, re, distutils.dir_util
+import sys, os, os.path as path, subprocess, json, locale, re, distutils.dir_util, unicodedata
 import shutil
 from optparse import OptionParser
 mkpath = distutils.dir_util.mkpath
@@ -163,6 +164,20 @@ class Theme:
         self.path = _path
         self.yaml = None
 
+    def letter_json(self, letter):
+        json = {}
+        json["text"] = letter
+        json["id"] = "letter_" + letter
+        kwords = { "prefix": self.folksy.href_prefix,
+                   "theme": self.theme_id, 
+                   "letter": unicodedata.name(letter).replace(" ", "_")}
+        json["image"] = "{prefix}themes/{theme}/letters/{letter}.png".format(**kwords)
+        json["image_select"] = "{prefix}themes/{theme}/letters/{letter}_select.png".format(**kwords)
+        filename = kwords["letter"] + ".png"
+        # The _select images are assumed to have the same dimensions the unselected version.
+        (json["width"], json["height"]) = get_image_size(path.join(self.path, "letters", filename))
+        return json
+        
 class Game:
     def __init__(self, _folksy, _game_id, _path):
         self.folksy = _folksy
@@ -230,9 +245,12 @@ class Game:
         self.json['gametype_format'] = 1
         self.json['lang'] = self.lang
 
+        self.json['stimulus_sets'] = []
         # Process items. This code is really specific for gametype == "whatletter".
         # We'll see what happens.
         self.json['items'] = []
+        
+        stimuli = []
         for y_item in self.yaml["items"]:
             j_item = {}
             try:
@@ -284,17 +302,29 @@ class Game:
             else:
                 warning("no sound file for item %s; skipping" % y_item["id"])
                 continue
+
+            # Find letter, or deduce from id
+            j_item["text"] = unicode(y_item.get("letter", re.match("^([^_]*)", y_item["id"]).group(0)))
             
             # All done with the item. Add it to JSON output.
-            self.json['items'].append(j_item)
+            stimuli.append(j_item)
+
+        self.json['stimulus_sets'].append({"stimuli": stimuli, "id": "faces"})
 
         # Letter images. From theme.
+        letters = uniqify([s["text"] for s in stimuli])
+        letter_stimuli = [self.theme.letter_json(letter) for letter in letters]
+        self.json['stimulus_sets'].append({"stimuli": letter_stimuli, "id": "letters"})
 
+        # A relation is composed of _edges_ between node A and node B (the stimuli)
+        edges = [{"A": s["id"], "B": "letter_" + s["text"]} for s in stimuli]
+        self.json['relation'] = {"A": "faces", "B": "letters", "edges": edges}
 
         # Dump JSON.
         self.json_loc = "%s.json" % self.game_id                # also used for html template 
         filename = path.join(self.buildpath, self.json_loc)
-        json.dump(self.json, open(filename, "w"))
+        # TODO: the pretty-printing (indent) should be settable, production mode should be no pretty-print?
+        json.dump(self.json, open(filename, "w"), indent = 4)
 
         # Build html
         template = ""
@@ -329,6 +359,7 @@ class FolksyTool:
         self.setup_themepaths()
         self.setup_buildpath()
         self.setup_gametypes()
+        self.href_prefix = os.environ.get("FOLKSY_HREF_PREFIX", "")
 
     def setup_gametypes(self):
         gametype = GameType("whatletter")
@@ -462,6 +493,14 @@ def pop_first(array):
     del array[0]
     return element
 
+def uniqify(seq):  
+    # order preserving 
+    checked = [] 
+    for e in seq: 
+        if e not in checked: 
+            checked.append(e) 
+    return checked
+
 def warning(s):
     sys.stderr.write("WARNING: " + s + "\n")
 
@@ -487,6 +526,10 @@ def shell_command(cmd, extra_env):
 
 def get_ext(s):
     return path.splitext(s)[1]
+
+def get_image_size(filepath):
+    image = PIL.Image.open(filepath)
+    return image.size
 
 if __name__ == "__main__":
     FolksyTool().main()

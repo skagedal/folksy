@@ -35,7 +35,8 @@ folksy.RESOURCES = {
 	'en': {
 		'loading_images':	'Loading images... (%(count)s of %(total)s)',
 		'error_load_image':	"Couldn't load image file <tt>%(file)s</tt>. ",
-		'error_report':		'Please report this error to <a href="mailto:simon@kagedal.org">Simon</a>.'
+		'error_report':		'Please report this error to <a href="mailto:simon@kagedal.org">Simon</a>.',
+		'error_format':		"Can't read this game format."
 	},
 	'sv': {
 		'loading_images':	'Laddar bilder... (%(count)s av %(total)s)'
@@ -208,7 +209,7 @@ function Folksy(gameURL) {
 		if (!this._loadingAborted) {
 			this._loadingAborted = true;
 			s += F_("error_report");
-			$("#info").append('<div class="error">' + s + '</div>');
+			this.showError(s);
 		}
 	}
 
@@ -389,10 +390,20 @@ function Folksy(gameURL) {
 				console.log(s);
 		}
 	}
+
+	this.showError = function(s) {
+		$("#info").append('<div class="error">' + s + '</div>');
+	}
 	
 	this.initWithJSON = function(jsonData) {
       		// this.log(jsonData.gameTitle);
-		
+		if (jsonData.format > 1 ||
+		    jsonData.gametype != "whatletter" ||
+		    jsonData.gametype_format > 1) {
+			this.showError(F_(error_format));
+			return;
+		}
+		    		    
 		
 
 		// As of yet, this JSON data is just an array of question id:s. 

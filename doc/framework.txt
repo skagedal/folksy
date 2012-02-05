@@ -116,7 +116,7 @@ S(i) for i = 1...n, and a set of image stimuli in the form of glyphs,
 G(i) for i = 1...n. We want to learn the relation R(S, G); presented
 with sample stimulus S(i), the user learns to respond with G(i).
 
-We somehow measure the strength of each relation as p(i), a value that
+We measure the strength of each relation as p(i), a value that
 varies from 1 (completely unlearned) to 0 (theoretical max; fully
 learned). Values above 1 represent anti-learning, when the user
 performs worse than would be expected by chance.  The strength can be
