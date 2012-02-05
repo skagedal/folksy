@@ -8,3 +8,8 @@
 * Python
 *.pyc
 
+# Emacs auto-save files
+\#*\#
+
+# Dunno what these are!?
+.\#*
