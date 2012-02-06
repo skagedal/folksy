@@ -113,11 +113,18 @@ _.mixin({pickRandom: function(array, n, guard) {
 	  }) (array, n, array.length);
 }});
 
-_.mixin({isEqualTo: function(a) {
+_.mixin({
+    isEqualTo: function(a) {
 	return function (b) {
-		return (a === b); 
+	    return (a === b); 
 	}
-}});
+    },
+    sum: function(list) {
+	return _.reduce(function (a, b) {
+	    return a + b;
+	}, 0);
+    }    
+});
 
 folksy.setupSoundManager = function () {
 	// soundManager.debugMode = true;
