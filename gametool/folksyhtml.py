@@ -17,6 +17,7 @@
 #   along with Folksy.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+import os
 from string import Template
 
 langs = {
@@ -33,14 +34,14 @@ langs = {
 
 substs = {
     "prereqs": u"""
-        <script type="text/javascript" src="js/firebug-fallback.js"></script>
-        <script type="text/javascript" src="js/sprintf-0.7-beta1.js"></script>
-        <script type="text/javascript" src="js/soundmanager2.js"></script>
-        <script type="text/javascript" src="js/underscore-1.3.1.js"></script>
+        <script type="text/javascript" src="${href_prefix}js/firebug-fallback.js"></script>
+        <script type="text/javascript" src="${href_prefix}js/sprintf-0.7-beta1.js"></script>
+        <script type="text/javascript" src="${href_prefix}js/soundmanager2.js"></script>
+        <script type="text/javascript" src="${href_prefix}js/underscore-1.3.1.js"></script>
         <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
         """,
     "folksy": u"""
-        <script type="text/javascript" src="js/folksy.js"></script>
+        <script type="text/javascript" src="${href_prefix}js/folksy.js"></script>
         <script type="text/javascript">
                 folksy = new Folksy();
                 folksy.setDebugMode(true);
@@ -76,6 +77,7 @@ class FolksyHtml:
         # Substitute the substitutes.
         lang_substs = langs[self.lang]
         all_substs = dict(lang_substs.items() + self.gamevars.items())
+        all_substs['href_prefix'] = os.environ.get("FOLKSY_HREF_PREFIX", "")
 
         new_substs = all_substs
         for key, val in substs.iteritems():

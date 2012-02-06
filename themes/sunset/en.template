@@ -7,8 +7,8 @@
   <script type="text/javascript">soundManager.debugMode = false;</script>
   <script type="text/javascript">folkeDebug = true;</script>
   $folksy
-  <link rel="stylesheet" type="text/css" media="screen" href="css/reset.css" /> 
-  <link rel="stylesheet" type="text/css" media="screen" href="css/folkesfolk.css" />
+  <link rel="stylesheet" type="text/css" media="screen" href="${href_prefix}css/reset.css" /> 
+  <link rel="stylesheet" type="text/css" media="screen" href="${href_prefix}css/folkesfolk.css" />
  </head>
  <body>
   <div id="container">

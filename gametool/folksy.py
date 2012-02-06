@@ -194,7 +194,7 @@ class Game:
             raise GameLoadError("couldn't parse YAML: " + str(e))
 
         self.name = self.yaml.get("name", "<untitled>")
-        self.description = self.yaml.get("name", "")
+        self.description = self.yaml.get("description", "")
 
         try:
             self.gametype = self.folksy.get_gametype(self.yaml["gametype"])

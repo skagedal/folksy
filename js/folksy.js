@@ -25,36 +25,41 @@ soundManager.url = '/simon/folkesfolk/swf/';		// HARDCODE
  * MODULE
  ***********************************************************************/
 
-folksy = {}
+folksy = (function () {
 
 /***********************************************************************
  * INTERNATIONALIZATION
  ***********************************************************************/
 
-folksy.RESOURCES = {
-	'en': {
-		'loading_images':	'Loading images... (%(count)s of %(total)s)',
-		'error_load_image':	"Couldn't load image file <tt>%(file)s</tt>. ",
-		'error_report':		'Please report this error to <a href="mailto:simon@kagedal.org">Simon</a>.',
-		'error_format':		"Can't read this game format."
-	},
-	'sv': {
-		'loading_images':	'Laddar bilder... (%(count)s av %(total)s)'
-	}
-}
-
-folksy.getResource = function (index, args) {
-	var cascade = ['sv', 'en'];
-	var res = folksy.RESOURCES;
-	for (var i = 0; i < cascade.length; i++) { 
-		var lang = cascade[i];
-		if (index in res[lang]) {
-			var fmt = res[lang][index];
-			return args ? sprintf(fmt, args) : fmt;
+	var RESOURCES = {
+		'en': {
+			'loading_images':	'Loading images... (%(count)s of %(total)s)',
+			'error_load_image':	"Couldn't load image file <tt>%(file)s</tt>. ",
+			'error_report':		'Please report this error to <a href="mailto:simon@kagedal.org">Simon</a>.',
+			'error_format':		"Can't read this game format."
+		},
+		'sv': {
+			'loading_images':	'Laddar bilder... (%(count)s av %(total)s)'
 		}
 	}
-	return null;
-}
+
+	function getResource(index, args) {
+		var cascade = ['sv', 'en'];
+		var res = RESOURCES;
+		console.log("getResource");
+		console.log(res);
+		for (var i = 0; i < cascade.length; i++) { 
+			var lang = cascade[i];
+			if (index in res[lang]) {
+				var fmt = res[lang][index];
+				return args ? sprintf(fmt, args) : fmt;
+			}
+		}
+		return null;
+	}
+
+	return {getResource: getResource};
+})();
 
 /***********************************************************************
  * HELPER FUNCTIONS
@@ -396,6 +401,7 @@ function Folksy(gameURL) {
 	}
 	
 	this.initWithJSON = function(jsonData) {
+		this.log("initWithJSON");
       		// this.log(jsonData.gameTitle);
 		if (jsonData.format > 1 ||
 		    jsonData.gametype != "whatletter" ||
@@ -403,8 +409,7 @@ function Folksy(gameURL) {
 			this.showError(F_(error_format));
 			return;
 		}
-		    		    
-		
+		this.log("The name of the game: " + jsonData.name);
 
 		// As of yet, this JSON data is just an array of question id:s. 
 		this.questions = jsonData;
@@ -426,8 +431,18 @@ function Folksy(gameURL) {
 	}
 
 	this.initWithURL = function(url) {
+		that.log("initWithURL: " + url);
+		 //this.initWithJSON
 		$(document).ready(function() {
-	   		$.getJSON(url, this.initWithJSON);
+			that.log("ready");
+	   		$.getJSON(url)
+				.success(function (data, textStatus, jqXHR) {
+					that.initWithJSON(data);
+				})
+				.error(function (jqXHR, textStatus, errorThrown) {
+					that.showError(url + "<p>" + errorThrown + "</p>");
+				});
+			
 		});
 	}
 
@@ -439,6 +454,7 @@ function Folksy(gameURL) {
 		this.initWithURL(gameURL);
 	}
 }
+
 
 /* 
  * Example usage from HTML head - but use the folksyhtml.py templating instead; this is incomplete:
