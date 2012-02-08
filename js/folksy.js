@@ -16,12 +16,6 @@
 //
 
 /***********************************************************************
- * SETTINGS
- ***********************************************************************/
-
-soundManager.url = '/simon/folkesfolk/swf/';		// HARDCODE
-
-/***********************************************************************
  * MODULE
  ***********************************************************************/
 
@@ -31,117 +25,56 @@ folksy = (function () {
  * INTERNATIONALIZATION
  ***********************************************************************/
 
-	var RESOURCES = {
-		'en': {
-			'loading_images':	'Loading images... (%(count)s of %(total)s)',
-			'error_load_image':	"Couldn't load image file <tt>%(file)s</tt>. ",
-			'error_report':		'Please report this error to <a href="mailto:simon@kagedal.org">Simon</a>.',
-			'error_format':		"Can't read this game format."
-		},
-		'sv': {
-			'loading_images':	'Laddar bilder... (%(count)s av %(total)s)'
-		}
-	}
+    var RESOURCES = {
+	'en': {
+	    'loading_images': 'Loading images... (%(count)s of %(total)s)',
+	    'error_load_image': "Couldn't load image file <tt>%(file)s</tt>. ",
+	    'error_report': 'Please report this error to ' +
+		' <a href="mailto:simon@kagedal.org">Simon</a>.',
+	    'error_format': "Can't read this game format."
+	},
+	'sv': {
+	    'loading_images':	'Laddar bilder... (%(count)s av %(total)s)',
 
-	function getResource(index, args) {
-		var cascade = ['sv', 'en'];
-		var res = RESOURCES;
-		console.log("getResource");
-		console.log(res);
-		for (var i = 0; i < cascade.length; i++) { 
-			var lang = cascade[i];
-			if (index in res[lang]) {
-				var fmt = res[lang][index];
-				return args ? sprintf(fmt, args) : fmt;
-			}
-		}
-		return null;
+	    '_FALLBACK_': 'en'
 	}
+    }
 
-	return {getResource: getResource};
+
+    function getResource(index, args) {
+	// Rewrite to use _FALLBACK_ 
+	var cascade = ['sv', 'en'];
+	var res = RESOURCES;
+	console.log("getResource");
+	console.log(res);
+	for (var i = 0; i < cascade.length; i++) { 
+	    var lang = cascade[i];
+	    if (index in res[lang]) {
+		var fmt = res[lang][index];
+		return args ? sprintf(fmt, args) : fmt;
+	    }
+	}
+	return null;
+    }
+    
+    // TODO: something like this instead:
+    // function getResourceGetter(locale) { 
+    //   return function(index, args) { 
+    //     return getResourceForLocale(locale, index, args); 
+    //   }; 
+    // }
+
+    function setupSoundManager() {
+	soundManager.useHTML5Audio = true;
+    }
+
+    // Module exports
+    return {
+	getResource: getResource,
+	setupSoundManager: setupSoundManager
+    };
 })();
 
-/***********************************************************************
- * HELPER FUNCTIONS
- * Some are added as "mixins" to underscore, when it feels like they
- * fit there.
- ***********************************************************************/ 
-
-
-// _.pickRandom - a mixin for underscore.js. 
-//
-// Pick random elements from an array. Works similar to 
-// `_.first(_.shuffle(array, n))`, but is more efficient -- operates 
-// in time proportional to `n` rather than the length of the whole 
-// array. 
-//
-// If the argument `n` is given, an array is returned.
-// If no `n` is specified, only the one element is returned. This also
-// happens if three or more arguments are specified -- this is so that
-// _.map(array, _.pickRandom) will work as expected. This behavior is
-// similar to other underscore functions, such as `_.first`. 
-//
-// The algorithms mutates the input array while working, but restores 
-// everything before returning. This provides for an optimally
-// efficient algorithm in all situations.  
-
-_.mixin({pickRandom: function(array, n, guard) {
-	  if (n == null  || guard)
-		  return array[Math.floor(Math.random() * array.length)];
-	  n = Math.max(0, Math.min(array.length, n));
-
-	  return (function pickR(array, n, length) {
-		  var i, picked, rest, hasIndex;
-
-		  if (n === 0) {
-			  return [];
-		  }
-
-		  i = Math.floor(Math.random() * length);
-		  hasIndex = array.hasOwnProperty(i);	// This is needed for restoration of dense arrays
-		  picked = array[i];
-		  array[i] = array[length - 1];
-		  rest = pickR(array, n - 1, length - 1);
-		  // Restore array
-		  if (hasIndex) {
-			  array[i] = picked;
-		  } else {
-			  delete array[i];
-		  }
-		  rest.push(picked);
-		  return rest;
-	  }) (array, n, array.length);
-}});
-
-_.mixin({
-    isEqualTo: function(a) {
-	return function (b) {
-	    return (a === b); 
-	}
-    },
-    sum: function(list) {
-	return _.reduce(function (a, b) {
-	    return a + b;
-	}, 0);
-    }    
-});
-
-folksy.setupSoundManager = function () {
-	// soundManager.debugMode = true;
-	soundManager.useHTML5Audio = true;
-	/*soundManager.preferFlash = false;
-	soundManager.audioFormats = {
-		'mp3': {
-			'type': ['audio/mpeg; codecs="mp3"', 'audio/mpeg', 'audio/mp3', 'audio/MPA', 'audio/mpa-robust'],
-			'required': false
-		},
-		'ogg': {
-			'type': ['audio/ogg; codecs=vorbis'],
-			'required': false
-		}
-	};*/
-	
-}
 
 /***********************************************************************
  * THE FOLKSY CLASSES

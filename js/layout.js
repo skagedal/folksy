@@ -15,6 +15,8 @@
 //   along with Folksy.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+// Requirements: only util.js
+
 /*
  * layout (box, items, options).
  *
@@ -34,50 +36,6 @@
  *
  */
 
-
-// COMPATIBILITY CODE
-
-// From  https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/map
-// (removed production steps comments and renamed some variables)
-// Reference: http://es5.github.com/#x15.4.4.19
-if (!Array.prototype.map) {
-	Array.prototype.map = function(callback, thisArg) {
-		var T, A, k;
-
-		if (this == null) {
-			throw new TypeError(" this is null or not defined");
-		}
-
-		var obj = Object(this);
-		var len = obj.length >>> 0;
-
-		// See: http://es5.github.com/#x9.11
-		if ({}.toString.call(callback) != "[object Function]") {
-			throw new TypeError(callback + " is not a function");
-		}
-
-		if (thisArg) {
-			T = thisArg;
-		}
-
-		A = new Array(len);
-		k = 0;
-
-		while(k < len) {
-
-			var kValue, mappedValue;
-
-			if (k in obj) {
-				kValue = obj[k];
-				mappedValue = callback.call(T, kValue, k, obj);
-				A[k] = mappedValue;
-			}
-			k++;
-		}
-
-		return A;
-	};      
-}
 
 //
 // LAYOUT 
