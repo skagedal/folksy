@@ -284,14 +284,14 @@ class Game:
             
             # Find sound.
             snd_filename = self.find_media_file("sounds", y_item["id"], FolksyOptions["sound_extensions"])
-            debug(snd_filename)
+            # debug(snd_filename)
             if snd_filename is not None:
                 snd_src_filepath = path.join(self.path, snd_filename)
                 snd_dest_base = path.splitext(snd_filename)[0]
                 oggpath = path.join(self.buildpath, snd_dest_base + ".ogg")
                 mp3path = path.join(self.buildpath, snd_dest_base + ".mp3")
                 try:
-                    debug("Build %s to %s and %s" % (snd_src_filepath, oggpath, mp3path))
+                    # debug("Build %s to %s and %s" % (snd_src_filepath, oggpath, mp3path))
                     SoundBuildRule(self, snd_src_filepath, oggpath).rebuild()
                     SoundBuildRule(self, snd_src_filepath, mp3path).rebuild()
                 except IOError as e:
@@ -332,6 +332,8 @@ class Game:
             template = path.join(self.path, self.yaml["template"])
         else:
             template = path.join(self.theme.path, self.lang + ".template")
+            if not path.isfile(template):
+                template = path.join(self.theme.path, "index.template")
 
         if path.isfile(template):
             debug("template file: " + template)
