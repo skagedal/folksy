@@ -103,6 +103,15 @@ gamelogic = (function () {
 	return self.currentEdge;
     };
 
+    GameLogic.prototype.next = function () {
+	this.pickRelationEdge();
+	this.pickComparisonStimuli();
+    }
+
+    GameLogic.prototype.getSampleStimulus = function () {
+	return this.currentEdge.stimulusA;
+    }
+
     GameLogic.prototype.pickComparisonStimuli = function () { 
     };
 

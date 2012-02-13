@@ -69,6 +69,20 @@ folksy = (function () {
 	soundManager.useHTML5Audio = true;
     }
 
+// Module helpers
+
+    var _debugMode = true;
+    function setDebugMode(b) {
+	_debugMode = Boolean(b);
+	//soundManager.debugMode = _debugMode;
+    }
+    
+    function log(s) {
+	if (_debugMode) {
+	    if (typeof console !== "undefined" && typeof (console.log) !== "undefined")
+		console.log(s);
+	}
+    }
 
 /***********************************************************************
  * THE GAME CLASS
@@ -105,14 +119,14 @@ folksy = (function () {
     function loadImageError(event) {
 	var game = event.data.game;
 	game.abortLoad(F_("error_load_image", {file: event.data.filename}));
-	game.log("Could not load " + event.data.filename + "!");
+	log("Could not load " + event.data.filename + "!");
     }
 
     function loadImage(game, filename) {
 	game._loadImagesTotal++;
 	updateLoading(game);
 
-	//this.log("Let's load " + filename + "...");
+	//log("Let's load " + filename + "...");
 	var img = new Image();
 
 	$(img)
@@ -141,73 +155,101 @@ folksy = (function () {
 	$("#img_count").text(String(game._loadImagesCount));
 	$("#img_total").text(String(game._loadImagesTotal));
 	if (game._loadImagesCount == game._loadImagesTotal) {
-	    game.log("Run!");
-	    $("#start_game").show();
+	    log("Run!");
+	    $("#start_game").click(start_game).show();
+	    $("#switch_img").click(nextQuestion);
 	}
     }
 
-    Game.prototype.loadStimulusSets = function() {
+    function loadStimulus(game, stimulus) {
+        function loadIm(imgProp, srcProp) {
+            if (stimulus.hasOwnProperty(srcProp)) {
+                stimulus[imgProp] = game.loadImage(stimulus[srcProp]);
+            }
+        }
+        loadIm("image", "image_src");
+        loadIm("imageSelect", "image_select_src");
+    
+        if(stimulus.hasOwnProperty("sound_srcs")) {
+            stimulus.sound = soundManager.createSound({
+                id: stimulus.id,
+                url: stimulus.sound_srcs,
+                autoLoad: true
+            });
+        }
     }
 
-    Game.prototype.loadGameData = function() {
-	if (this._loadingAborted) return;
 
-	var progress = sprintf(F_("loading_images"), {'count': '<span id="img_count"></span>',
-						      'total': '<span id="img_total"></span>'});
-	$("#load_progress").append(progress);
-	this.updateLoading();
-
-	for (var i = 0; i < this.animals.length; i++) {
-	    this.animalImages.push(this.loadImage("themes/sunset/rewards/images/" + this.animals[i] + ".png"));
+    function loadStimuli(game) {
+	for (var i = 0; i < game.stimulusSets; i++) {
+            var set = game.stimulusSets[i];
+            for (var j = 0; j < set.stimuli.length; j++) {
+		loadStimulus(game, set.stimuli[j]);
+            }
 	}
     }
 
-    Game.prototype.loadAudios = function() {
+    function loadRewards(game) {
 	if (this._loadingAborted) return;
 	
-	for (var i in this.soundFX) {
-	    var s = this.soundFX[i];
+	for (var i = 0; i < game.animals.length; i++) {
+	    game.animalImages.push(this.loadImage("themes/sunset/rewards/images/" + game.animals[i] + ".png"));
+	}
+
+	for (var i in game.soundFX) {
+	    var s = game.soundFX[i];
 	    var sound = soundManager.createSound({
 		id: s,
 		url: ['themes/sunset/rewards/sound/' + s + '.mp3',
 		      'themes/sunset/rewards/sound/' + s + '.ogg'],
 		autoLoad: true});
-	    this.soundFXaudios.push(sound);
+	    game.soundFXaudios.push(sound);
 	}
     }
 
-    Game.prototype.playSound = function(audio) {
+    function loadGameData(game) {
+	if (game._loadingAborted) return;
+
+	var progress = sprintf(F_("loading_images"), {'count': '<span id="img_count"></span>',
+						      'total': '<span id="img_total"></span>'});
+	$("#load_progress").append(progress);
+	game.updateLoading();
+
+	loadStimuli(game);
+	loadRewards(game);
+    }
+
+
+    function playSound(audio) {
 	//	audio.currentTime = 0;
 	audio.play();
     }
 
-    Game.prototype.positiveReinforcement = function() {
+    function positiveReinforcement(game) {
 	var reward = $("#reward");
 	reward.css({top: 212, left: 212, width: 0, height: 0, opacity: 1.0});
-	reward[0].src = _.pickRandom(that.animalImages).src;
+	reward[0].src = util.pickOneRandom(game.animalImages).src;
 	reward.show();
 	reward.animate({top: 62, left: 62, width: 300, height: 300}, 
 		       function() { 
-			   that._isInClickReward = true; 
-			   soundManager.play(_.pickRandom(["bra_jobbat", "ja_det_var_raett"]));
+			   game._isInClickReward = true; 
+			   soundManager.play(util.pickOneRandom(["bra_jobbat", "ja_det_var_raett"]));
 		       });
 	$("#tip").fadeIn();
     }
 
-    // FIXME
-    function clickReward() {
-	that.log("We here");
-	if (that._isInClickReward) {
-	    that._isInClickReward = false;
+    function clickReward(game) {
+	log("We here");
+	if (game._isInClickReward) {
+	    game._isInClickReward = false;
 	    $("#tip").fadeOut();
-	    $("#reward").fadeOut(nextQuestion);
+	    $("#reward").fadeOut(function() { nextQuestion(game); });
 	}
     }
 
-    // FIXME
-    function correctAnswer() {
-	if (that._isInQuestion) {
-	    that._isInQuestion = false;
+    function correctAnswer(game) {
+	if (game._isInQuestion) {
+	    game._isInQuestion = false;
 	    soundManager.play("yippie");
 	    $("#wrong_answer").fadeOut();
 	    $("#correct_answer").animate({
@@ -219,123 +261,123 @@ folksy = (function () {
 		    $("#face").fadeOut();
 		    $("#correct_answer").fadeOut(function() {
 			$("#correct_answer").css({top: 424, width: 164, height: 164, opacity: 1.0});
-			positiveReinforcement();
+			positiveReinforcement(game);
 		    });
 		});
-	    that.log("Whoohooo!");
+	    log("Whoohooo!");
 	}
     }
 
-    // FIXME
-    function wrongAnswer() {
-	if (that._isInQuestion) {
+    function wrongAnswer(game) {
+	if (game._isInQuestion) {
 	    soundManager.play('fel');
 	}
     }
 
-    function nextQuestion() {
-	if (that._itemOrder.length < 1) {
+    function hoverComparisonImageIn() {
+	var stimulus = $(this).data('stimulus');
+	this.src = stimulus.imageSelect.src;
+    }
+
+    function hoverComparisonImageOut() {
+	var stimulus = $(this).data('stimulus');
+	this.src = stimulus.image.src;
+    }
+
+    function setupComparisonImage(game, index, stimulus) {
+	var image = game._comparisonImages[index];
+	if (!image) {
+	    image = new Image();
+	    $(image).addClass('answers');
+	    $(image).click(function () { clickComparisonImage(game, i); });
+	    $(image).hover(hoverComparisonImageIn, hoverComparisonImageOut);
+	    $("#game").append(image);
+	    game._comparisonImages[index] = image;
+	}
+	$.data(image, 'stimulus', stimulus)
+    }
+
+    function nextQuestion(game) {
+	if (game._itemOrder.length < 1) {
 	    alert("Bra jobbat!");
 	    return;
 	}
-	var q = that._itemOrder.shift();
-	var answer = getAnswer(that.questions[q]);
-	var answer_i = _.indexOf(that.letters, answer);
-	var wrongAnswer = _.pickRandom(_.reject(that.letters, _.isEqualTo(answer)));
-	var wrongAnswer_i = _.indexOf(that.letters, wrongAnswer);
+
+	game.logic.next();
+	var sampleStimulus = game.logic.getSampleStimulus();
+	var comparisonStimuli = game.logic.getComparisonStimuli();
+
+	if (sampleStimulus.hasOwnProperty('sound'))
+	    playSound(sampleStimulus.sound);
 	
-	playSound(that.audios[q]);
-	
-	// Set up face
-	that.current_image = that.images[q];
-	$("#face")[0].src = that.current_image.src;
+	// Set up face (sample stimulus)
+	game.current_image = sampleStimulus.image;
+	$("#face")[0].src = game.current_image.src;
 	$("#face").fadeIn();		
 	
-	// Set up letters
-	var correct_image = that.letter_images[answer_i];
-	var correct_image_select = that.letter_select_images[answer_i];
-	var wrong_image = that.letter_images[wrongAnswer_i];
-	var wrong_image_select = that.letter_select_images[wrongAnswer_i];	
-	
-	var x_position = _.shuffle(["28px", "232px"]);
-	$("#correct_answer").css({left: x_position[0]});
-	$("#wrong_answer").css({left: x_position[1]});
-	$("#correct_answer")[0].src = correct_image.src;
-	$("#wrong_answer")[0].src = wrong_image.src;
-	$("#correct_answer").hover(function () { this.src = correct_image_select.src; },
-				   function () { this.src = correct_image.src; });
-	$("#wrong_answer").hover  (function () { this.src = wrong_image_select.src; },
-				   function () { this.src = wrong_image.src; });
+	// Set up letters (comparison stimuli)
+	uiInitComparisonImages(comparisonStimuli.length);
+	for (var i = 0; i < comparisonStimuli.length; i++) {
+	    setupComparisonImage(game, i, comparisonStimuli[i]);
+	}
+
+	layout.layout();
+
 	$(".answers").fadeIn();
 	that._isInQuestion = true;
     }
 
-    function start_game() {
-	$("#correct_answer").click(correctAnswer);
-	$("#wrong_answer").click(wrongAnswer);
-	$("#reward").click(clickReward);
+    function start_game(game) 
+	$("#correct_answer").click(function () { correctAnswer(game); });
+	$("#wrong_answer").click(function () { wrongAnswer(game); });
+	$("#reward").click(function () { clickReward(game); });
 	$("#intro").slideUp("slow", function() { 
-	    $("#game").fadeIn("slow", nextQuestion); 	
+	    $("#game").fadeIn("slow", fnextQuestion); 	
 	});
     }
 
-    var _debugMode = true;
-    this.setDebugMode = function(b) {
-	_debugMode = Boolean(b);
-	//soundManager.debugMode = _debugMode;
-    }
-    this.getDebugMode = function() { return _debugMode; }
-    this.log = function(s) {
-	if (_debugMode) {
-	    if (typeof console !== "undefined" && typeof (console.log) !== "undefined")
-		console.log(s);
-	}
-    }
+  
+    
 
     this.showError = function(s) {
 	$("#info").append('<div class="error">' + s + '</div>');
     }
     
-    this.initWithJSON = function(jsonData) {
-	this.log("initWithJSON");
-      	// this.log(jsonData.gameTitle);
+    Game.prototype.initWithJSON = function(jsonData) {
+    var game = this;
+	log("initWithJSON");
+      	// log(jsonData.gameTitle);
 	if (jsonData.format > 1 ||
 	    jsonData.gametype != "whatletter" ||
 	    jsonData.gametype_format > 1) {
 	    this.showError(F_(error_format));
 	    return;
 	}
-	this.log("The name of the game: " + jsonData.name);
-	
-	// As of yet, this JSON data is just an array of question id:s. 
-	this.questions = jsonData;
-	this._itemOrder = _.shuffle(_.range(that.questions.length));
+    this.stimulusSets = jsonData.stimulus_sets;
+    this.relations = jsonData.relations;
+    // FIXME above in python
+	log("The name of the game: " + jsonData.name);
 	
 	$(document).ready(function() {
-	    that.loadImages();
-	    // TODO: should wait until images (and sound, if possible) are loaded
-	    $("#start_game").click(start_game);
-	    $("#switch_img").click(nextQuestion);
-	});
-	soundManager.onready(function() {
-	    that.loadAudios();
+        soundManager.onready(function() {
+            loadGameData(game);
+        });
 	});
 	
-	// Start loading images and stuff. 
-	// 
     }
 
     Game.prototype.initWithURL = function(url) {
-	that.log("initWithURL: " + url);
-	//this.initWithJSON
+	log("initWithURL: " + url);
+
+        var game = this;
 	$(document).ready(function() {
-	    that.log("ready");
+	    log("ready");
 	    $.getJSON(url)
 		.success(function (data, textStatus, jqXHR) {
-		    that.initWithJSON(data);
+		    game.initWithJSON(data);
 		})
 		.error(function (jqXHR, textStatus, errorThrown) {
-		    that.showError(url + "<p>" + errorThrown + "</p>");
+		    game.showError(url + "<p>" + errorThrown + "</p>");
 		});
 	    
 	});
