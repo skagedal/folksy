@@ -102,15 +102,15 @@ folksy = (function () {
 	}
     }
 
-    // gah, fixme
     function loadImageError(event) {
-	that.abortLoad(F_("error_load_image", {file: event.data}));
-	that.log("Could not load " + event.data + "!");
+	var game = event.data.game;
+	game.abortLoad(F_("error_load_image", {file: event.data.filename}));
+	game.log("Could not load " + event.data.filename + "!");
     }
 
-    Game.prototype.loadImage = function(filename) {
-	this._loadImagesTotal++;
-	this.updateLoading();
+    function loadImage(game, filename) {
+	game._loadImagesTotal++;
+	updateLoading(game);
 
 	//this.log("Let's load " + filename + "...");
 	var img = new Image();
@@ -118,31 +118,30 @@ folksy = (function () {
 	$(img)
 	    .load(function() {
 		$(this).hide();
-		//that.log("Have now loaded " + filename);
-		that._loadImagesCount++;
-		that.updateLoading();
+		game._loadImagesCount++;
+		updateLoading(game);
 	    })
 		
-	    .error(filename, loadImageError)
+	    .error({filename: filename, game: game}, loadImageError)
 		
 	    .attr('src', filename);
 
 	return img;
     }
 
-    Game.prototype.abortLoad = function(s) {
-	if (!this._loadingAborted) {
-	    this._loadingAborted = true;
+    function abortLoad(game, s) {
+	if (!game._loadingAborted) {
+	    game._loadingAborted = true;
 	    s += F_("error_report");
-	    this.showError(s);
+	    showError(game, s);
 	}
     }
 
-    Game.prototype.updateLoading = function() { 
-	$("#img_count").text(String(this._loadImagesCount));
-	$("#img_total").text(String(this._loadImagesTotal));
-	if (this._loadImagesCount == this._loadImagesTotal) {
-	    this.log("Run!");
+    function updateLoading(game) { 
+	$("#img_count").text(String(game._loadImagesCount));
+	$("#img_total").text(String(game._loadImagesTotal));
+	if (game._loadImagesCount == game._loadImagesTotal) {
+	    game.log("Run!");
 	    $("#start_game").show();
 	}
     }
