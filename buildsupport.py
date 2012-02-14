@@ -45,3 +45,4 @@ def subdirectories(dir = None):
     for entry in os.listdir(dir):
         if path.isdir(path.join(dir, entry)):
             yield entry
+
