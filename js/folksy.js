@@ -79,8 +79,10 @@ folksy = (function () {
     
     function log(s) {
 	if (_debugMode) {
-	    if (typeof console !== "undefined" && typeof (console.log) !== "undefined")
+	    if (typeof console !== "undefined" && 
+		typeof (console.log) !== "undefined") {
 		console.log(s);
+	    }
 	}
     }
 
@@ -90,7 +92,7 @@ folksy = (function () {
 
     function Game(gameURL) {
 
-	// Private items are marked with _. We make them "public" anyway, for ease of debugging .
+	// Private items are marked with _. 
 	this._isInQuestion = false;
 	this._isInClickReward = false;
 	this._gameURL = null;
@@ -109,8 +111,10 @@ folksy = (function () {
 
 	folksy.setupSoundManager();
 
-	// Either we specify the game URL at the constructor, in which case things start to happen
-	// immediately. Otherwise, the user calles initWithURL or initWithJSON directly.
+	// Either we specify the game URL at the constructor, in which
+	// case things start to happen immediately. Otherwise, the
+	// user calles initWithURL or initWithJSON directly.
+
 	if (gameURL !== undefined) {
 	    this.initWithURL(gameURL);
 	}
@@ -157,7 +161,6 @@ folksy = (function () {
 	if (game._loadImagesCount == game._loadImagesTotal) {
 	    log("Run!");
 	    $("#start_game").click(start_game).show();
-	    $("#switch_img").click(nextQuestion);
 	}
     }
 
@@ -190,10 +193,12 @@ folksy = (function () {
     }
 
     function loadRewards(game) {
-	if (this._loadingAborted) return;
+	if (game._loadingAborted) return;
 	
 	for (var i = 0; i < game.animals.length; i++) {
-	    game.animalImages.push(this.loadImage("themes/sunset/rewards/images/" + game.animals[i] + ".png"));
+	    var filename = "themes/sunset/rewards/images/" + 
+		game.animals[i] + ".png";
+	    game.animalImages.push(loadImage(game, filename));
 	}
 
 	for (var i in game.soundFX) {
@@ -210,8 +215,9 @@ folksy = (function () {
     function loadGameData(game) {
 	if (game._loadingAborted) return;
 
-	var progress = sprintf(F_("loading_images"), {'count': '<span id="img_count"></span>',
-						      'total': '<span id="img_total"></span>'});
+	var progress = sprintf(F_("loading_images"), 
+			       {'count': '<span id="img_count"></span>',
+				'total': '<span id="img_total"></span>'});
 	$("#load_progress").append(progress);
 	game.updateLoading();
 
@@ -221,7 +227,6 @@ folksy = (function () {
 
 
     function playSound(audio) {
-	//	audio.currentTime = 0;
 	audio.play();
     }
 
@@ -324,7 +329,7 @@ folksy = (function () {
 	layout.layout();
 
 	$(".answers").fadeIn();
-	that._isInQuestion = true;
+	game._isInQuestion = true;
     }
 
     function start_game(game) 
@@ -338,13 +343,12 @@ folksy = (function () {
 
   
     
-
-    this.showError = function(s) {
+    function showError(s) {
 	$("#info").append('<div class="error">' + s + '</div>');
     }
     
     Game.prototype.initWithJSON = function(jsonData) {
-    var game = this;
+	var game = this;
 	log("initWithJSON");
       	// log(jsonData.gameTitle);
 	if (jsonData.format > 1 ||
@@ -353,15 +357,14 @@ folksy = (function () {
 	    this.showError(F_(error_format));
 	    return;
 	}
-    this.stimulusSets = jsonData.stimulus_sets;
-    this.relations = jsonData.relations;
-    // FIXME above in python
+	this.stimulusSets = jsonData.stimulus_sets;
+	this.relations = jsonData.relations;
 	log("The name of the game: " + jsonData.name);
 	
 	$(document).ready(function() {
-        soundManager.onready(function() {
-            loadGameData(game);
-        });
+            soundManager.onready(function() {
+		loadGameData(game);
+            });
 	});
 	
     }
