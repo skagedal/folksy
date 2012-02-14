@@ -160,6 +160,44 @@ if (!Array.prototype.filter)
     };
 }
 
+// From https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/forEach
+// (removed production steps comments and renamed some variables)
+// Reference: http://es5.github.com/#x15.4.4.18
+if ( !Array.prototype.forEach ) {
+
+    Array.prototype.forEach = function( callback, thisArg ) {
+
+	var T, k;
+
+	if ( this == null ) {
+	    throw new TypeError( " this is null or not defined" );
+	}
+
+	var O = Object(this);
+	var len = O.length >>> 0; // Hack to convert O.length to a UInt32
+
+	if ( {}.toString.call(callback) != "[object Function]" ) {
+	    throw new TypeError( callback + " is not a function" );
+	}
+
+	if ( thisArg ) {
+	    T = thisArg;
+	}
+
+	k = 0;
+	while( k < len ) {
+	    var kValue;
+
+	    if ( k in O ) {
+		kValue = O[ k ];
+		callback.call( T, kValue, k, O );
+	    }
+	    k++;
+	}
+    };
+}
+
+
 /***********************************************************************
  * MODULE
  ***********************************************************************/
@@ -205,14 +243,58 @@ util = (function () {
 	return pickRandom(array, 1)[0];
     }
 
+    function pickRandomWeighted(coll, getWeight, n) {
+	var total = 0;
+	var subTotals = [];
+	var objs;
+
+	coll.each(function (obj) {
+	    total += getWeight(obj);
+	    subTotals.push({wtot: total, obj: obj});
+	});
+  
+	function popOne (subTotals) {
+	    var total = subTotals[subTotals.length - 1].wtot;
+	    var rand = Math.random() * total;
+	    var foundObj = null, foundIndex, foundWeight;
+
+	    for (var i = 0; i < subTotals.length; i++) {
+		if (foundObj === null) {
+		    if (rand < subTotals[i].wtot) {
+			foundObj = subTotals[i].obj;
+			foundWeight = getWeight(foundObj);
+			foundIndex = i;
+		    }
+		} else {
+		    subTotals[i].wtot -= foundWeight;
+		}
+	    }
+	    // console.assert(foundObj != null);
+	    // should I sprinkle asserts in code or thoroughly unit test?
+	    subTotals.splice(foundIndex, 1); // RIGHT?
+
+	    return foundObj;
+	}
+  
+	if (n == null)
+	    return popOne(subTotals);
+  
+	objs = [];
+	for (var i = 0; i < n; i++)
+	    objs.push(popOne(subTotals)); 
+
+	return objs;
+    }
+
+
     function equalityChecker(a) {
 	return function (b) {
 	    return (a === b); 
 	}
     }
 
-    function sum(list) {
-	return list.reduce(function (a, b) {
+    function sum(array) {
+	return array.reduce(function (a, b) {
 	    return a + b;
 	}, 0);
     },   
@@ -223,12 +305,18 @@ util = (function () {
 	}
     }
 
+    function pluckMap(array, key) {
+	return array.map(plucker(key));
+    }
+
+
     // Module exports
     return {
 	pickRandom: pickRandom,
 	pickOneRandom: pickOneRandom,
 	equalityChecker: equalityChecker,
 	sum: sum,
-	plucker: plucker
+	plucker: plucker,
+	pluckMap: pluckMap
     }
 }

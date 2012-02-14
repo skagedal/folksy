@@ -5,8 +5,8 @@ gamelogic = (function () {
     // "Interfaces" -- this is basically just documentation; what this module expects and uses 
 
     var Game = {
-	relation: {},
-	stimulusSets: {}
+	relations: [],
+	stimulusSets: []
     }
     var Stimulus = {
 	id: "<stimulusID>",
@@ -27,9 +27,6 @@ gamelogic = (function () {
 	stimulusB: {},
 	pStrength: 1,
 	taught: false
-    };
-    var User = {
-	getRelation: function (idA, idB) { },
     };
 
     // Game logic
@@ -56,21 +53,20 @@ gamelogic = (function () {
     }
     
     GameLogic.prototype.initGame = function () {
-	var self = this;
-	_.each(self.game.relation.edges, function (edge) {
+	this.game.relations[0].edges.forEach(function (edge) {
 	    edge.taught = self.params.initTaught;
 	    edge.pStrength = 1;
 	});
     };
 
     function untaughtEdges(relation) {
-	return _.filter(relation.edges, function (edge) {
+	return relation.edges.filter(function (edge) {
 	    return edge.taught === false;
 	});
     }
 
     function taughtEdges(relation) {
-	return _.filter(relation.edges, function (edge) {
+	return relation.edges.filter(function (edge) {
 	    return edge.taught === true;
 	});
     }
@@ -84,14 +80,14 @@ gamelogic = (function () {
     GameLogic.prototype.pickRelationEdge = function () { 
 	var self = this;
 	var taught = taughtEdges(self.relation);
-	var unlearnedMass = _.sum(_.pluck(taught, 'pStrength'));
+	var unlearnedMass = util.sum(util.pluckMap(taught, 'pStrength'));
 
 	// Pick a new relation edge to teach?
 	if (unlearnedMass < self.params.teachCutoff) {
 	    var untaught = untaughtEdges(self.relation);
 	    if (untaught.length > 0) {
 		self.currentEdge = self.params.teachInRandomOrder ?
-		    _.pickRandom(untaught) : untaught[0];
+		    util.pickOneRandom(untaught) : untaught[0];
 		// We call it "taught" already here, since we're now about to teach it.
 		self.currentEdge.taught = true;
 		return self.currentEdge;
@@ -99,7 +95,7 @@ gamelogic = (function () {
 	}
 
 	// Otherwise, choose an already taught relation edge with a weighted random pick.
-	self.currentEdge = _.pickRandomWeighted(taught, weightGetter(self.params.pickStrengthExponent));
+	self.currentEdge = util.pickRandomWeighted(taught, weightGetter(self.params.pickStrengthExponent));
 	return self.currentEdge;
     };
 
