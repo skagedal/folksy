@@ -43,7 +43,7 @@ substs = {
     "folksy": u"""
         <script type="text/javascript" src="${href_prefix}js/folksy.js"></script>
         <script type="text/javascript">
-                folksy = new Folksy();
+                folksy = new folksy.Game();
                 folksy.setDebugMode(true);
                 folksy.initWithURL('${json_loc}');
         </script>

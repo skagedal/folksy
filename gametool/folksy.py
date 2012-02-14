@@ -27,16 +27,24 @@ FOLKSY_HREF_PREFIX: To put before common Folksy files in URL:s.
 Colon separated. (on Unix, semi-colon on Windows I guess.)
 """
 
+FolksyConfig = {
+    "HAVE_PIL": True
+    }
+
 # Want this to keep working with both Python 2.6 and Python 2.7.
 
-import sys, os, os.path as path, subprocess, json, locale, re, distutils.dir_util, unicodedata
-import shutil
+import sys, os, os.path as path, subprocess, json, locale, re
+import distutils.dir_util, unicodedata, shutil
 from optparse import OptionParser
 mkpath = distutils.dir_util.mkpath
 
 # non-standard libraries
 import yaml
-import PIL.Image
+try:
+    import PIL.Image
+except ImportError:
+    FolksyConfig["HAVE_PIL"] = False
+
 #import pycountry
 
 # own libraries
@@ -124,6 +132,8 @@ class ImageBuildRule(BuildRule):
         self.image = image
 
     def run(self):
+        if not FolksyConfig["HAVE_PIL"]:
+            return 
         if self.image is None:
             self.image = PIL.Image.open(self.sources[0])
         if self.crop is not None:
@@ -205,7 +215,8 @@ class Game:
 
         themename = self.yaml.get("theme", self.folksy.get_default_theme())
         if not self.folksy.is_valid_theme(themename):
-            raise GameLoadError("not a valid %s theme: %s" % (self.gametype, self.theme))
+            raise GameLoadError("not a valid %s theme: %s" % (self.gametype, 
+                                                              themename))
         self.theme = self.folksy.themes[themename]
 
         self.lang = self.yaml.get("lang", locale.getdefaultlocale()[0].split('_')[0].lower())
@@ -318,7 +329,9 @@ class Game:
 
         # A relation is composed of _edges_ between node A and node B (the stimuli)
         edges = [{"A": s["id"], "B": "letter_" + s["text"]} for s in stimuli]
-        self.json['relation'] = {"A": "faces", "B": "letters", "edges": edges}
+        self.json['relations'] = [{"A": "faces", 
+                                   "B": "letters", 
+                                   "edges": edges}]
 
         # Dump JSON.
         self.json_loc = "%s.json" % self.game_id                # also used for html template 
@@ -447,13 +460,17 @@ class FolksyTool:
         try:
             game.load()
         except GameLoadError as e:
-            error("%s: %s" % (game_name, str(e)))
+            error("%s: %s" % (game_id, str(e)))
             return
 
         game.show_info()
         game.build()
         
-
+    def configure(self):
+        if not FolksyConfig["HAVE_PIL"]:
+            error("Python Imaging Library not installed.")
+            return False
+        return True
     def main(self):
         parser = OptionParser()
 
@@ -464,6 +481,9 @@ class FolksyTool:
         # TODO: actually care about these options...
 
         (options, args) = parser.parse_args()
+
+        if not self.configure():
+            return
 
         if (len(args) > 0):
             command = pop_first(args)
@@ -510,7 +530,7 @@ Folksy_exit_code = 0
 def error(s):
     global Folksy_exit_code
     Folksy_exit_code = 1
-    sys.stderr.write(s + "\n")
+    sys.stderr.write("ERROR: " + s + "\n")
     
 def debug(s):
     sys.stderr.write("DEBUG: " + str(s) + "\n")
