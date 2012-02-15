@@ -325,7 +325,7 @@ util = (function () {
 	return array.reduce(function (a, b) {
 	    return a + b;
 	}, 0);
-    },   
+    }
 
     function plucker(key) {
 	return function(obj) {
@@ -347,4 +347,5 @@ util = (function () {
 	plucker: plucker,
 	pluckMap: pluckMap
     }
-}
+
+})();
