@@ -230,7 +230,7 @@ if (!Function.prototype.bind) {
  * MODULE
  ***********************************************************************/
 
-util = (function () {
+var util = (function () {
 
     // Pick random elements from an array. Works similar to 
     // `_.first(_.shuffle(array, n))`, but is more efficient -- operates 

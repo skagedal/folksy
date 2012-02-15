@@ -151,7 +151,11 @@ class SoundBuildRule(BuildRule):
         if (get_ext(self.sources[0]).lower() == target_ext):
             shutil.copyfile(self.sources[0], self.target)
         else:
-            subprocess.call(["ffmpeg", "-y", "-i", self.sources[0], "-acodec", "libvorbis", self.target])
+            subprocess.call(["ffmpeg", 
+                             "-y",                    # overwrite output file
+                             "-i", self.sources[0],   # set input file
+                             "-acodec", "libvorbis",  # FIXME!
+                             self.target])
 
 class HtmlBuildRule(BuildRule):
     """Build a index.html from a template file"""
@@ -181,8 +185,8 @@ class Theme:
         kwords = { "prefix": self.folksy.href_prefix,
                    "theme": self.theme_id, 
                    "letter": unicodedata.name(letter).replace(" ", "_")}
-        json["image"] = "{prefix}themes/{theme}/letters/{letter}.png".format(**kwords)
-        json["image_select"] = "{prefix}themes/{theme}/letters/{letter}_select.png".format(**kwords)
+        json["image_src"] = "{prefix}themes/{theme}/letters/{letter}.png".format(**kwords)
+        json["image_select_src"] = "{prefix}themes/{theme}/letters/{letter}_select.png".format(**kwords)
         filename = kwords["letter"] + ".png"
         # The _select images are assumed to have the same dimensions the unselected version.
         (json["width"], json["height"]) = get_image_size(path.join(self.path, "letters", filename))
@@ -287,7 +291,7 @@ class Game:
                 except IOError as e:
                     warning("%s: %s; skipping item" % (e.filename, e.strerror)) #fixme lousy error message
                     continue
-                j_item["image"] = img_filename
+                j_item["image_src"] = img_filename
                 (j_item["width"], j_item["height"]) = image.size
             else:
                 warning("no image file for item %s; skipping" % y_item["id"])
@@ -308,8 +312,11 @@ class Game:
                 except IOError as e:
                     warning("%s: %s; skipping item" % (e.filename, e.strerror)) #fixme lousy error message
                     continue
-                j_item["sound_ogg"] = snd_dest_base + ".ogg"
-                j_item["sound_mp3"] = snd_dest_base + ".mp3"
+
+                #j_item["sound_ogg"] = snd_dest_base + ".ogg"
+                #j_item["sound_mp3"] = snd_dest_base + ".mp3"
+                j_item["sound_srcs"] = [snd_dest_base + ".ogg",
+                                        snd_dest_base + ".mp3"]
             else:
                 warning("no sound file for item %s; skipping" % y_item["id"])
                 continue

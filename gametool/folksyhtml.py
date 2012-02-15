@@ -31,21 +31,30 @@ langs = {
         }
     }
         
+prereqs_js = [
+    "${href_prefix}js/firebug-fallback.js",
+    "${href_prefix}js/sprintf-0.7-beta1.js",
+    "${href_prefix}js/soundmanager2.js",
+    "https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"]
 
+folksy_js = [
+    "${href_prefix}js/util.js",
+    "${href_prefix}js/gamelogic.js",
+    "${href_prefix}js/layout.js",
+    "${href_prefix}js/folksy.js"]
+    
+def scripts(list):
+    tmpl = u'        <script type="text/javascript" src="%s"></script>\n'
+    return "".join([tmpl % x for x in list])
+
+    
 substs = {
-    "prereqs": u"""
-        <script type="text/javascript" src="${href_prefix}js/firebug-fallback.js"></script>
-        <script type="text/javascript" src="${href_prefix}js/sprintf-0.7-beta1.js"></script>
-        <script type="text/javascript" src="${href_prefix}js/soundmanager2.js"></script>
-        <script type="text/javascript" src="${href_prefix}js/underscore-1.3.1.js"></script>
-        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-        """,
-    "folksy": u"""
-        <script type="text/javascript" src="${href_prefix}js/folksy.js"></script>
+    "prereqs": scripts(prereqs_js),
+    "folksy": scripts(folksy_js) + u"""
         <script type="text/javascript">
-                folksy = new folksy.Game();
                 folksy.setDebugMode(true);
-                folksy.initWithURL('${json_loc}');
+                game = new folksy.Game();
+                game.initWithURL('${json_loc}');
         </script>
         """,
     "runbutton": u"""

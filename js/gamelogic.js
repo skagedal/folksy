@@ -18,8 +18,6 @@ gamelogic = (function () {
     var Relation = {
 	setA: "<idA>",
 	setB: "<idB>",
-	add: function (stimulusA, stimulusB) { }
-	each: function (op) { }
 	edges: []
     };
     var RelationEdge = {
@@ -34,18 +32,20 @@ gamelogic = (function () {
     function GameLogic(game, params) {
 	this.game = game;
 	this.params = {
-	    // Are the relation edges all considered "taught" already at game start?
+	    // Are the relation edges all considered "taught" already
+	    // at game start?
 	    initTaught: params.initTaught || false,
 
 	    // Do we want to introduce new relation edges in random order?
 	    teachInRandomOrder: params.teachInRandomOrder || false,
 
-	    // When "unlearned mass" falls below this value, teach new stuff
+	    // When "unlearned mass" falls below this value, teach new stuff.
 	    // Use lower values for lower cognitive capacity (e.g., kids)
 	    teachCutoff: params.teachCutoff || 4,
 
 	    // Power p values with this when picking sample stimuli.
-	    // Higher pickStrengthExponent --> well learned relation edges less likely to appear again
+	    // Higher pickStrengthExponent --> 
+	    //   well learned relation edges less likely to appear again
 	    pickStrengthExponent: params.pickStrengthExponent || 1
 	}
 	
@@ -88,13 +88,15 @@ gamelogic = (function () {
 	    if (untaught.length > 0) {
 		self.currentEdge = self.params.teachInRandomOrder ?
 		    util.pickOneRandom(untaught) : untaught[0];
-		// We call it "taught" already here, since we're now about to teach it.
+		// We call it "taught" already here, since we're now
+		// about to teach it.
 		self.currentEdge.taught = true;
 		return self.currentEdge;
 	    }
 	}
 
-	// Otherwise, choose an already taught relation edge with a weighted random pick.
+	// Otherwise, choose an already taught relation edge with a
+	// weighted random pick.
 	self.currentEdge = util.pickRandomWeighted(taught, weightGetter(self.params.pickStrengthExponent));
 	return self.currentEdge;
     };

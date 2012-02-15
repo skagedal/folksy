@@ -21,6 +21,11 @@
 
 folksy = (function () {
 
+    // HACKITY HACK
+    // Since all URLs should be specified in the game json anyway,
+    // let's use this hack for now.
+    var HREF_PREFIX = "/simon/folksy/";
+
 /***********************************************************************
  * INTERNATIONALIZATION
  ***********************************************************************/
@@ -45,8 +50,6 @@ folksy = (function () {
 	// Rewrite to use _FALLBACK_ 
 	var cascade = ['sv', 'en'];
 	var res = RESOURCES;
-	console.log("getResource");
-	console.log(res);
 	for (var i = 0; i < cascade.length; i++) { 
 	    var lang = cascade[i];
 	    if (index in res[lang]) {
@@ -106,6 +109,7 @@ folksy = (function () {
 	// For showing progress
 	this._loadImagesCount = 0;
 	this._loadImagesTotal = 0;
+	this._imageRequestsSent = false;
 
 	this._loadingAborted = false;	
 
@@ -158,16 +162,17 @@ folksy = (function () {
     function updateLoading(game) { 
 	$("#img_count").text(String(game._loadImagesCount));
 	$("#img_total").text(String(game._loadImagesTotal));
-	if (game._loadImagesCount == game._loadImagesTotal) {
+	if (game._imageRequestsSent && 
+	    game._loadImagesCount == game._loadImagesTotal) {
 	    log("Run!");
-	    $("#start_game").click(start_game).show();
+	    $("#start_game").click(start_game.bind(null, game)).show();
 	}
     }
 
     function loadStimulus(game, stimulus) {
         function loadIm(imgProp, srcProp) {
             if (stimulus.hasOwnProperty(srcProp)) {
-                stimulus[imgProp] = game.loadImage(stimulus[srcProp]);
+                stimulus[imgProp] = loadImage(game, stimulus[srcProp]);
             }
         }
         loadIm("image", "image_src");
@@ -184,7 +189,7 @@ folksy = (function () {
 
 
     function loadStimuli(game) {
-	for (var i = 0; i < game.stimulusSets; i++) {
+	for (var i = 0; i < game.stimulusSets.length; i++) {
             var set = game.stimulusSets[i];
             for (var j = 0; j < set.stimuli.length; j++) {
 		loadStimulus(game, set.stimuli[j]);
@@ -196,7 +201,7 @@ folksy = (function () {
 	if (game._loadingAborted) return;
 	
 	for (var i = 0; i < game.animals.length; i++) {
-	    var filename = "themes/sunset/rewards/images/" + 
+	    var filename = HREF_PREFIX + "themes/sunset/rewards/images/" + 
 		game.animals[i] + ".png";
 	    game.animalImages.push(loadImage(game, filename));
 	}
@@ -205,8 +210,8 @@ folksy = (function () {
 	    var s = game.soundFX[i];
 	    var sound = soundManager.createSound({
 		id: s,
-		url: ['themes/sunset/rewards/sound/' + s + '.mp3',
-		      'themes/sunset/rewards/sound/' + s + '.ogg'],
+		url: [HREF_PREFIX + 'themes/sunset/rewards/sound/' + s + '.mp3',
+		      HREF_PREFIX + 'themes/sunset/rewards/sound/' + s + '.ogg'],
 		autoLoad: true});
 	    game.soundFXaudios.push(sound);
 	}
@@ -219,10 +224,11 @@ folksy = (function () {
 			       {'count': '<span id="img_count"></span>',
 				'total': '<span id="img_total"></span>'});
 	$("#load_progress").append(progress);
-	game.updateLoading();
+	updateLoading(game);
 
 	loadStimuli(game);
 	loadRewards(game);
+	game._imageRequestsSent = true;
     }
 
 
@@ -303,11 +309,7 @@ folksy = (function () {
     }
 
     function nextQuestion(game) {
-	if (game._itemOrder.length < 1) {
-	    alert("Bra jobbat!");
-	    return;
-	}
-
+	console.log("nextQuestion", game);
 	game.logic.next();
 	var sampleStimulus = game.logic.getSampleStimulus();
 	var comparisonStimuli = game.logic.getComparisonStimuli();
@@ -332,12 +334,12 @@ folksy = (function () {
 	game._isInQuestion = true;
     }
 
-    function start_game(game) 
+    function start_game(game) {
 	$("#correct_answer").click(function () { correctAnswer(game); });
 	$("#wrong_answer").click(function () { wrongAnswer(game); });
 	$("#reward").click(function () { clickReward(game); });
 	$("#intro").slideUp("slow", function() { 
-	    $("#game").fadeIn("slow", fnextQuestion); 	
+	    $("#game").fadeIn("slow", nextQuestion.bind(null, game)); 	
 	});
     }
 
@@ -349,8 +351,6 @@ folksy = (function () {
     
     Game.prototype.initWithJSON = function(jsonData) {
 	var game = this;
-	log("initWithJSON");
-      	// log(jsonData.gameTitle);
 	if (jsonData.format > 1 ||
 	    jsonData.gametype != "whatletter" ||
 	    jsonData.gametype_format > 1) {
@@ -360,6 +360,8 @@ folksy = (function () {
 	this.stimulusSets = jsonData.stimulus_sets;
 	this.relations = jsonData.relations;
 	log("The name of the game: " + jsonData.name);
+
+	this.logic = new gamelogic.GameLogic(this, {});
 	
 	$(document).ready(function() {
             soundManager.onready(function() {
@@ -374,7 +376,6 @@ folksy = (function () {
 
         var game = this;
 	$(document).ready(function() {
-	    log("ready");
 	    $.getJSON(url)
 		.success(function (data, textStatus, jqXHR) {
 		    game.initWithJSON(data);
@@ -390,6 +391,7 @@ folksy = (function () {
     return {
 	getResource: getResource,
 	setupSoundManager: setupSoundManager,
+	setDebugMode: setDebugMode,
 	Game: Game
     };
 
