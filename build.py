@@ -18,7 +18,7 @@
 
 from buildsupport import *
 
-subdirs = ["doc", "games"]
+subdirs = ["doc", "games", "themes"]
 
 for subdir in subdirs:
     recurse(subdir)
