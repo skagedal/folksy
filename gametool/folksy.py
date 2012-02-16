@@ -133,7 +133,7 @@ class ImageBuildRule(BuildRule):
 
     def run(self):
         if not FolksyConfig["HAVE_PIL"]:
-            return 
+            CopyBuildRule.run(self)
         if self.image is None:
             self.image = PIL.Image.open(self.sources[0])
         if self.crop is not None:
@@ -188,8 +188,6 @@ class Theme:
         json["image_src"] = "{prefix}themes/{theme}/letters/{letter}.png".format(**kwords)
         json["image_select_src"] = "{prefix}themes/{theme}/letters/{letter}_select.png".format(**kwords)
         filename = kwords["letter"] + ".png"
-        # The _select images are assumed to have the same dimensions the unselected version.
-        (json["width"], json["height"]) = get_image_size(path.join(self.path, "letters", filename))
         return json
         
 class Game:
@@ -278,12 +276,6 @@ class Game:
             img_filename = self.find_media_file("images", y_item["id"], FolksyOptions["image_extensions"])
             if img_filename is not None:
                 img_src_filepath = path.join(self.path, img_filename)
-                try:
-                    image = PIL.Image.open(img_src_filepath)
-                except IOError as e:
-                    msg = e.message if e.message else "invalid image file" 
-                    warning("%(msg)s: %(file)s; skipping item" % {"msg": msg, "file":img_src_filepath})
-                    continue
 
                 try:
                     # Should later use ImageBuildRule
@@ -292,7 +284,6 @@ class Game:
                     warning("%s: %s; skipping item" % (e.filename, e.strerror)) #fixme lousy error message
                     continue
                 j_item["image_src"] = img_filename
-                (j_item["width"], j_item["height"]) = image.size
             else:
                 warning("no image file for item %s; skipping" % y_item["id"])
                 continue
@@ -475,9 +466,9 @@ class FolksyTool:
         
     def configure(self):
         if not FolksyConfig["HAVE_PIL"]:
-            error("Python Imaging Library not installed.")
-            return False
+            warning("Python Imaging Library is not installed; no image manipulations will be performed.")
         return True
+
     def main(self):
         parser = OptionParser()
 
@@ -557,6 +548,9 @@ def get_ext(s):
     return path.splitext(s)[1]
 
 def get_image_size(filepath):
+    if not FolksyConfig["HAVE_PIL"]:
+        warning("Trying to get image size, but PIL is not installed.");
+        return (0, 0)
     image = PIL.Image.open(filepath)
     return image.size
 
