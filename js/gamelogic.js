@@ -27,7 +27,7 @@ gamelogic = (function () {
 	taught: false
     };
 
-    // Game logic
+    // Smart game logic
 
     function GameLogic(game, params) {
 	this.game = game;
@@ -37,7 +37,7 @@ gamelogic = (function () {
 	    initTaught: params.initTaught || false,
 
 	    // Do we want to introduce new relation edges in random order?
-	    teachInRandomOrder: params.teachInRandomOrder || false,
+	    introduceRandomly: params.introduceRandomly || false,
 
 	    // When "unlearned mass" falls below this value, teach new stuff.
 	    // Use lower values for lower cognitive capacity (e.g., kids)
@@ -86,7 +86,7 @@ gamelogic = (function () {
 	if (unlearnedMass < self.params.teachCutoff) {
 	    var untaught = untaughtEdges(self.relation);
 	    if (untaught.length > 0) {
-		self.currentEdge = self.params.teachInRandomOrder ?
+		self.currentEdge = self.params.introduceRandomly ?
 		    util.pickOneRandom(untaught) : untaught[0];
 		// We call it "taught" already here, since we're now
 		// about to teach it.
@@ -117,9 +117,47 @@ gamelogic = (function () {
 	return isCorrect;
     };
 
+    // Simple game logic
+
+    function SimpleGameLogic(setA, setB, pairs, params) {
+	this.setA = setA;
+	this.setB = setB;
+	this.origPairs = pairs;
+	this.params = {
+	    introduce_randomly: params.introduce_randomly || false,
+	    comparison_stimuli: params.comparison_stimuli || 2
+	};
+	this.start();
+    }
+
+    SimpleGameLogic.prototype.start = function () {
+	if (this.params.introduceRandomly) {
+	    this.pairs = util.shuffle(this.origPairs);
+	} else {
+	    this.pairs = util.copyArray(this.origPairs);
+	}
+    }
+
+    SimpleGameLogic.prototype.next = function () {
+	this.currentPair = util.rotateArray(this.pairs);
+	var sampleStimulus = this.currentPair[0];
+	var targetStimulus = this.currentPair[1];
+	var otherStimuli = this.setB.filter(
+	    util.not(util.equalityChecker(targetStimulus)));
+	var comparisonStimuli = util.pickRandom(otherStimuli,
+						this.comparison_stimuli - 1);
+	comparisonStimuli.push(targetStimulus);
+	return [sampleStimulus, comparisonStimuli];
+    }
+
+    SimpleGameLogic.prototype.respond = function (stimulus) {
+	return stimulus === this.currentPair[1];
+    }
+
     // Exports from module "gamelogic"
     return {
-	GameLogic: GameLogic
+	GameLogic: GameLogic,
+	SimpleGameLogic: SimpleGameLogic
     };
 
 })();

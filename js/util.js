@@ -271,6 +271,10 @@ var util = (function () {
 	return pickRandom(array, 1)[0];
     }
 
+    function shuffle(array) {
+	return pickRandom(array, array.length);
+    }
+
     function pickRandomWeighted(coll, getWeight, n) {
 	var total = 0;
 	var subTotals = [];
@@ -321,6 +325,12 @@ var util = (function () {
 	}
     }
 
+    function not(fun) {
+	return function () { 
+	    return !fun(); 
+	};
+    }
+
     function sum(array) {
 	return array.reduce(function (a, b) {
 	    return a + b;
@@ -337,15 +347,28 @@ var util = (function () {
 	return array.map(plucker(key));
     }
 
+    function copyArray(array) {
+	return array.slice(0);
+    }
+
+    function rotateArray(array) {
+	var e = array.shift();
+	array.push(e);
+	return e;
+    }
 
     // Module exports
     return {
 	pickRandom: pickRandom,
 	pickOneRandom: pickOneRandom,
+	shuffle: shuffle,
+	pickRandomWeighted: pickRandomWeighted,
 	equalityChecker: equalityChecker,
+	not: not,
 	sum: sum,
 	plucker: plucker,
-	pluckMap: pluckMap
+	pluckMap: pluckMap,
+	copyArray: copyArray
     }
 
 })();
