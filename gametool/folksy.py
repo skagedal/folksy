@@ -164,7 +164,7 @@ class HtmlBuildRule(BuildRule):
 
     def run(self):
         gamevars = {"name": self.game.name, 
-                    "json_loc": self.game.json_loc,
+                    "json_loc": self.game.get_json_filename(),
                     "description": self.game.description}
         fhtml = FolksyHtml(self.game.lang, gamevars)
         content = unicode(open(self.sources[0], "r").read(), "utf-8")
@@ -195,6 +195,7 @@ class Game:
         self.folksy = _folksy
         self.game_id = _game_id # TODO: should check if valid id i.e. [A-Za-z_]
         self.path = _path
+        self.buildpath = path.join(self.path, "gamebuild")
         self.yaml = None        # not loaded
 
     def load(self):
@@ -238,13 +239,19 @@ class Game:
                  return path.join(subdir, base + ext)
         return None
 
+    def get_json_filename(self):
+        return "%s.json" % self.game_id
+
+    def get_path_json(self):
+        return path.join(self.buildpath, self.get_json_filename())
+
+    def get_path_indexhtml(self):
+        return path.join(self.buildpath, "index.html")
 
     def build(self):
         # This is the stuff that will get dumped to the json file.
         self.json = {}
 
-        # self.buildpath = path.join(self.folksy.buildpath, self.game_id)
-        self.buildpath = path.join(self.path, "gamebuild")
         print("building in:   " + self.buildpath)
         try:
             mkpath(self.buildpath)
@@ -323,19 +330,18 @@ class Game:
         # Letter images. From theme.
         letters = uniqify([s["text"] for s in stimuli])
         letter_stimuli = [self.theme.letter_json(letter) for letter in letters]
-        self.json['stimulus_sets'].append({"stimuli": letter_stimuli, "id": "letters"})
+        self.json['stimulus_sets'].append(
+            {"stimuli": letter_stimuli, "id": "letters"})
 
-        # A relation is composed of _edges_ between node A and node B (the stimuli)
-        edges = [{"A": s["id"], "B": "letter_" + s["text"]} for s in stimuli]
+        # A relation is composed of _pairs_ of stimuli
+        pairs = [{"A": s["id"], "B": "letter_" + s["text"]} for s in stimuli]
         self.json['relations'] = [{"A": "faces", 
                                    "B": "letters", 
-                                   "edges": edges}]
+                                   "pairs": pairs}]
 
-        # Dump JSON.
-        self.json_loc = "%s.json" % self.game_id                # also used for html template 
-        filename = path.join(self.buildpath, self.json_loc)
-        # TODO: the pretty-printing (indent) should be settable, production mode should be no pretty-print?
-        json.dump(self.json, open(filename, "w"), indent = 4)
+        # TODO: the pretty-printing (indent) should be settable,
+        # production mode should be no pretty-print?
+        json.dump(self.json, open(self.get_path_json(), "w"), indent = 4)
 
         # Build html
         template = ""
@@ -348,7 +354,7 @@ class Game:
 
         if path.isfile(template):
             debug("template file: " + template)
-            HtmlBuildRule(self, template, path.join(self.buildpath, "index.html")).rebuild()
+            HtmlBuildRule(self, template, self.get_path_indexhtml()).rebuild()
 
 class GameType:
     def __init__(self, _id):
@@ -365,12 +371,10 @@ class FolksyTool:
     themepaths = []
     themes = {}
     gametypes = {}
-    buildpath = ""
 
     def __init__(self):
         self.setup_gamepaths()
         self.setup_themepaths()
-        self.setup_buildpath()
         self.setup_gametypes()
         self.href_prefix = os.environ.get("FOLKSY_HREF_PREFIX", "")
 
@@ -418,10 +422,6 @@ class FolksyTool:
             except OSError as e:
                 warning("%s: %s" % (e.filename, e.strerror))
 
-    def setup_buildpath(self):
-        # TODO: should of course be settable in all kinds of ways.
-        self.buildpath = path.expanduser("~/.folksy/build")
-
     def get_default_theme(self):
         return "sunset"
 
@@ -463,10 +463,22 @@ class FolksyTool:
 
         game.show_info()
         game.build()
+
+    def clean(self):
+        pass
+
+    def semiclean(self):
+        game_id = path.split(os.getcwd())[1]
+        game = Game(self, game_id, os.getcwd())
+        print ("rm %s" % game.get_path_json())
+        subprocess.call(["rm", game.get_path_json()])
+        print ("rm %s" % game.get_path_indexhtml())
+        subprocess.call(["rm", game.get_path_indexhtml()])
         
     def configure(self):
         if not FolksyConfig["HAVE_PIL"]:
-            warning("Python Imaging Library is not installed; no image manipulations will be performed.")
+            warning("Python Imaging Library is not installed; " + 
+                    "no image manipulations will be performed.")
         return True
 
     def main(self):
@@ -498,6 +510,10 @@ class FolksyTool:
                     self.build_game(game)
                 else:
                     self.build_game_cwd()
+            elif (command == "clean"):
+                self.clean()
+            elif (command == "semiclean"):
+                self.semiclean()
             else:
                 print ("Unknown command: " + command)
         else:

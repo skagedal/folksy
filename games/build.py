@@ -38,4 +38,8 @@ def clean():
     for subdir in subdirs:
         call_in_dir(subdir, [folksy, "clean"])
 
+def semiclean():
+    for subdir in subdirs:
+        call_in_dir(subdir, [folksy, "semiclean"])
+
 main()
