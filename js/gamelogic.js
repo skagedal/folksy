@@ -1,30 +1,11 @@
 // Module
 
 gamelogic = (function () {
-
-    // "Interfaces" -- this is basically just documentation; what this module expects and uses 
-
-    var Game = {
-	relations: [],
-	stimulusSets: []
-    }
-    var Stimulus = {
-	id: "<stimulusID>",
-    };
-    var StimulusSet = {
-	id: "<stimlusSetID>",
-	each: function (op) { }
-    };
-    var Relation = {
-	setA: "<idA>",
-	setB: "<idB>",
-	edges: []
-    };
-    var RelationEdge = {
+    var RelationPair = {
 	stimulusA: {},
 	stimulusB: {},
 	pStrength: 1,
-	taught: false
+	introduced: false
     };
 
     // Smart game logic
@@ -32,11 +13,11 @@ gamelogic = (function () {
     function GameLogic(game, params) {
 	this.game = game;
 	this.params = {
-	    // Are the relation edges all considered "taught" already
+	    // Are the relation pairs all considered "introduced" already
 	    // at game start?
-	    initTaught: params.initTaught || false,
+	    introduceAll: params.introduceAll || false,
 
-	    // Do we want to introduce new relation edges in random order?
+	    // Do we want to introduce new relation pairs in random order?
 	    introduceRandomly: params.introduceRandomly || false,
 
 	    // When "unlearned mass" falls below this value, teach new stuff.
@@ -45,69 +26,69 @@ gamelogic = (function () {
 
 	    // Power p values with this when picking sample stimuli.
 	    // Higher pickStrengthExponent --> 
-	    //   well learned relation edges less likely to appear again
+	    //   well learned relation pairs less likely to appear again
 	    pickStrengthExponent: params.pickStrengthExponent || 1
 	}
 	
-	this.currentEdge = null;
+	this.currentPair = null;
     }
     
     GameLogic.prototype.initGame = function () {
-	this.game.relations[0].edges.forEach(function (edge) {
-	    edge.taught = self.params.initTaught;
-	    edge.pStrength = 1;
+	this.game.relations[0].pairs.forEach(function (pair) {
+	    pair.introduced = self.params.introduceAll;
+	    pair.pStrength = 1;
 	});
     };
 
-    function untaughtEdges(relation) {
-	return relation.edges.filter(function (edge) {
-	    return edge.taught === false;
+    function unintroducedPairs(relation) {
+	return relation.pairs.filter(function (pair) {
+	    return pair.introduced === false;
 	});
     }
 
-    function taughtEdges(relation) {
-	return relation.edges.filter(function (edge) {
-	    return edge.taught === true;
+    function introducedPairs(relation) {
+	return relation.pairs.filter(function (pair) {
+	    return pair.introduced === true;
 	});
     }
 
     function weightGetter(strengthExponent) {
-	return function (edge) {
-	    return Math.pow(edge.pStrength, strengthExponent);
+	return function (pair) {
+	    return Math.pow(pair.pStrength, strengthExponent);
 	};
     }
 
-    GameLogic.prototype.pickRelationEdge = function () { 
+    GameLogic.prototype.pickRelationPair = function () { 
 	var self = this;
-	var taught = taughtEdges(self.relation);
-	var unlearnedMass = util.sum(util.pluckMap(taught, 'pStrength'));
+	var introduced = introducedPairs(self.relation);
+	var unlearnedMass = util.sum(util.pluckMap(introduced, 'pStrength'));
 
-	// Pick a new relation edge to teach?
+	// Pick a new relation pair to teach?
 	if (unlearnedMass < self.params.teachCutoff) {
-	    var untaught = untaughtEdges(self.relation);
-	    if (untaught.length > 0) {
-		self.currentEdge = self.params.introduceRandomly ?
-		    util.pickOneRandom(untaught) : untaught[0];
-		// We call it "taught" already here, since we're now
-		// about to teach it.
-		self.currentEdge.taught = true;
-		return self.currentEdge;
+	    var unintroduced = unintroducedPairs(self.relation);
+	    if (unintroduced.length > 0) {
+		self.currentPair = self.params.introduceRandomly ?
+		    util.pickOneRandom(unintroduced) : unintroduced[0];
+		// We call it "introduced" already here, since we're
+		// now about to introduce it.
+		self.currentPair.introduced = true;
+		return self.currentPair;
 	    }
 	}
 
-	// Otherwise, choose an already taught relation edge with a
-	// weighted random pick.
-	self.currentEdge = util.pickRandomWeighted(taught, weightGetter(self.params.pickStrengthExponent));
-	return self.currentEdge;
+	// Otherwise, choose an already introduced relation pair with
+	// a weighted random pick.
+	self.currentPair = util.pickRandomWeighted(introduced, weightGetter(self.params.pickStrengthExponent));
+	return self.currentPair;
     };
 
     GameLogic.prototype.next = function () {
-	this.pickRelationEdge();
+	this.pickRelationPair();
 	this.pickComparisonStimuli();
     }
 
     GameLogic.prototype.getSampleStimulus = function () {
-	return this.currentEdge.stimulusA;
+	return this.currentPair.stimulusA;
     }
 
     GameLogic.prototype.pickComparisonStimuli = function () { 
@@ -143,9 +124,9 @@ gamelogic = (function () {
 	var sampleStimulus = this.currentPair[0];
 	var targetStimulus = this.currentPair[1];
 	var otherStimuli = this.setB.filter(
-	    util.not(util.equalityChecker(targetStimulus)));
+	    util.inequalityChecker(targetStimulus));
 	var comparisonStimuli = util.pickRandom(otherStimuli,
-						this.comparison_stimuli - 1);
+						this.params.comparison_stimuli - 1);
 	comparisonStimuli.push(targetStimulus);
 	return [sampleStimulus, comparisonStimuli];
     }

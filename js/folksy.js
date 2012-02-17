@@ -159,13 +159,25 @@ folksy = (function () {
 	}
     }
 
+    function onLoaded(game) {
+	// Save original dimensions of images
+	forEachStimulus(game, function (stim) {
+	    if (stim.image) {
+		stim.width = stim.image.width;
+		stim.height = stim.image.height;
+	    }
+	});
+
+	// Enable "Run" button
+	$("#start_game").click(start_game.bind(null, game)).show();
+    }
+
     function updateLoading(game) { 
 	$("#img_count").text(String(game._loadImagesCount));
 	$("#img_total").text(String(game._loadImagesTotal));
 	if (game._imageRequestsSent && 
 	    game._loadImagesCount == game._loadImagesTotal) {
-	    log("Run!");
-	    $("#start_game").click(start_game.bind(null, game)).show();
+	    onLoaded(game);
 	}
     }
 
@@ -271,7 +283,9 @@ folksy = (function () {
 		opacity: 0.5}, 1000, function() {
 		    $("#face").fadeOut();
 		    $("#correct_answer").fadeOut(function() {
-			$("#correct_answer").css({top: 424, width: 164, height: 164, opacity: 1.0});
+			$("#correct_answer").css({top: 424, 
+						  width: 164, height: 164, 
+						  opacity: 1.0});
 			positiveReinforcement(game);
 		    });
 		});
@@ -308,11 +322,60 @@ folksy = (function () {
 	$.data(image, 'stimulus', stimulus)
     }
 
+    function getStimulusIdentifiers(stimulusSet) {
+	return stimulusSet.stimuli.map(function (stim) {
+	    return stimulusSet.id + ":" + stim.id;
+	});
+    }
+
+    function getRelationPairs(relation) {
+	return relation.pairs.map(function (pair) {
+	    return [relation["A"] + ":" + pair["A"],
+		    relation["B"] + ":" + pair["B"]];
+	});
+    }
+
+    function getStimulusSetById(game, id) {
+	for (var i = 0; i < game.stimulusSets.length; i++) {
+	    if (game.stimulusSets[i].id === id) 
+		return game.stimulusSets[i];
+	}
+	return null;
+    }
+
+    function getStimulusById(stimulusSet, id) {
+	for (var i = 0; i < stimulusSet.stimuli.length; i++) {
+	    if (stimulusSet.stimuli[i].id === id)
+		return stimulusSet.stimuli[i];
+	}
+	return null;
+    }
+
+    function getStimulusByFullId(game, fullId) {
+	var id = fullId.split(":");
+	var set = getStimulusSetById(game, id[0]);
+	return getStimulusById(set, id[1]);
+    }
+
+    function getStimuliByFullId(game, fullIds) {
+	return fullIds.map(getStimulusByFullId.bind(null, game));
+    }
+
+    function forEachStimulus(game, fun) {
+	game.stimulusSets.forEach(function (set) {
+	    set.stimuli.forEach(fun);
+	});
+    }
+
     function nextQuestion(game) {
 	console.log("nextQuestion", game);
-	game.logic.next();
-	var sampleStimulus = game.logic.getSampleStimulus();
-	var comparisonStimuli = game.logic.getComparisonStimuli();
+	var next = game.logic.next();
+	var sampleStimulus = getStimulusByFullId(game, next[0]);
+	var comparisonStimuli = getStimuliByFullId(game, next[1]);
+
+	console.log("Next: ", next);
+	console.log("Sample stimulus: ", sampleStimulus);
+	console.log("Comparison stimuli: ", comparisonStimuli);
 
 	if (sampleStimulus.hasOwnProperty('sound'))
 	    playSound(sampleStimulus.sound);
@@ -361,7 +424,16 @@ folksy = (function () {
 	this.relations = jsonData.relations;
 	log("The name of the game: " + jsonData.name);
 
-	this.logic = new gamelogic.GameLogic(this, {});
+	if (this.stimulusSets.length !== 2 || this.relations.length !== 1) {
+	    this.showError(F_(error_format));
+	    return;
+	}	    
+
+	var setA = getStimulusIdentifiers(this.stimulusSets[0]);
+	var setB = getStimulusIdentifiers(this.stimulusSets[1]);
+	var pairs = getRelationPairs(this.relations[0]);
+
+	this.logic = new gamelogic.SimpleGameLogic(setA, setB, pairs, {});
 	
 	$(document).ready(function() {
             soundManager.onready(function() {

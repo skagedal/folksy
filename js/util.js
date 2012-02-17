@@ -241,6 +241,7 @@ var util = (function () {
     // everything before returning. This provides for an optimally
     // efficient algorithm in all situations.  
     function pickRandom (array, n) {
+	console.log("pickRandom: ", array, n);
 	n = Math.max(0, Math.min(array.length, n));
 
 	return (function pickR(array, n, length) {
@@ -251,7 +252,8 @@ var util = (function () {
 	    }
 
 	    i = Math.floor(Math.random() * length);
-	    hasIndex = array.hasOwnProperty(i);	// This is needed for restoration of dense arrays
+	    // This is needed for restoration of dense arrays
+	    hasIndex = array.hasOwnProperty(i);	
 	    picked = array[i];
 	    array[i] = array[length - 1];
 	    rest = pickR(array, n - 1, length - 1);
@@ -325,10 +327,10 @@ var util = (function () {
 	}
     }
 
-    function not(fun) {
-	return function () { 
-	    return !fun(); 
-	};
+    function inequalityChecker(a) {
+	return function (b) {
+	    return (a !== b); 
+	}
     }
 
     function sum(array) {
@@ -364,11 +366,12 @@ var util = (function () {
 	shuffle: shuffle,
 	pickRandomWeighted: pickRandomWeighted,
 	equalityChecker: equalityChecker,
-	not: not,
+	inequalityChecker: inequalityChecker,
 	sum: sum,
 	plucker: plucker,
 	pluckMap: pluckMap,
-	copyArray: copyArray
+	copyArray: copyArray,
+	rotateArray: rotateArray
     }
 
 })();
