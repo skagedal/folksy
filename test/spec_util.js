@@ -15,5 +15,19 @@ describe("util.pickRandom", function () {
     it("should pick the right number of elements", function () {
         expect(util.pickRandom(testSet, 3).length).toEqual(3);
     });
+});
 
+describe("util.mergeObjects", function () {
+    it("should override properties giving preference to earlier arguments",
+       function () {
+	   var obj = util.mergeObjects({a: "A"},
+				       {a: "never seen",
+					b: "B"},
+				       {a: "don't see this",
+					b: "or this",
+					c: "C"});
+	   expect(obj.a).toEqual("A");
+	   expect(obj.b).toEqual("B");
+	   expect(obj.c).toEqual("C");
+       });
 });

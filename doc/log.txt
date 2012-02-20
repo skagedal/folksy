@@ -1,0 +1,11 @@
+2012-02-20: 
+
+I'm having trouble deciding what documentation system I should use. I
+was going to go for JSDoc, but it doesn't seem to work well with the
+module structure I like. Plus, I really want it to have some simple
+markup like Markdown -- hate having to use html in comments. Looks
+awful.
+
+My favorite right now is http://pdoc.org/[PDoc]. One thing though.
+I'm going to use Google Closure Compiler. This uses JSDoc fields for
+guiding compilation. So maybe I'm stuck then..? :-(

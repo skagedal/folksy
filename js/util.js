@@ -232,7 +232,6 @@ if (!Function.prototype.bind) {
 var util = (function () {
 
     /**
-     * @private
      * Pick `n` random elements from `array` using a more
      * efficient method than shuffling the whole array and taking
      * out the first `n` elements; it operates in time
@@ -361,6 +360,23 @@ var util = (function () {
 	return e;
     }
 
+    /**
+     * Merge properties from all objects given as arguments, objects
+     * with lower argument indices overriding those with higher indices.
+     */
+    function mergeObjects(args) {
+	var newObj = {}
+	for (var i = arguments.length - 1; i >= 0; i--) {
+	    var obj = arguments[i];
+	    for (var key in obj) {
+		if (obj.hasOwnProperty(key)) {
+		    newObj[key] = obj[key];
+		}
+	    }
+	}
+	return newObj;
+    }
+
     // Module exports
     return {
 	pickRandom: pickRandom,
@@ -373,7 +389,8 @@ var util = (function () {
 	plucker: plucker,
 	pluckMap: pluckMap,
 	copyArray: copyArray,
-	rotateArray: rotateArray
+	rotateArray: rotateArray,
+	mergeObjects: mergeObjects
     };
 
 })();

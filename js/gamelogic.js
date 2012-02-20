@@ -10,25 +10,30 @@ gamelogic = (function () {
 
     // Smart game logic
 
+    /** 
+     * @param {Object} params User settable parameters.
+     *   introduceAll: 
+     *       Are the relation pairs all considered "introduced" already
+     *       at game start?
+     *   introduceRandomly:
+     *       Do we want to introduce new relation pairs in random order?
+     *   teachCutoff:
+     *       When "unlearned mass" falls below this value, teach new stuff.
+     *       Use lower values for lower cognitive capacity (e.g., kids)
+     *   pickStrengthExponent:
+     *      Power p values with this when picking sample stimuli.
+     *      Higher pickStrengthExponent --> 
+     *         well learned relation pairs less likely to appear again
+     */
     function GameLogic(game, params) {
 	this.game = game;
-	this.params = {
-	    // Are the relation pairs all considered "introduced" already
-	    // at game start?
-	    introduceAll: params.introduceAll || false,
-
-	    // Do we want to introduce new relation pairs in random order?
-	    introduceRandomly: params.introduceRandomly || false,
-
-	    // When "unlearned mass" falls below this value, teach new stuff.
-	    // Use lower values for lower cognitive capacity (e.g., kids)
-	    teachCutoff: params.teachCutoff || 4,
-
-	    // Power p values with this when picking sample stimuli.
-	    // Higher pickStrengthExponent --> 
-	    //   well learned relation pairs less likely to appear again
-	    pickStrengthExponent: params.pickStrengthExponent || 1
-	}
+	this.params = util.mergeObjects(params, {
+	    // Defaults
+	    introduceAll: false,
+	    introduceRandomly: false,
+	    teachCutoff: 4,
+	    pickStrengthExponent: 1
+	});
 	
 	this.currentPair = null;
     }
@@ -104,10 +109,10 @@ gamelogic = (function () {
 	this.setA = setA;
 	this.setB = setB;
 	this.origPairs = pairs;
-	this.params = {
-	    introduce_randomly: params.introduce_randomly || false,
-	    comparison_stimuli: params.comparison_stimuli || 2
-	};
+	this.params = util.mergeObjects(params, {
+	    introduce_randomly: false,
+	    comparison_stimuli: 2
+	});
 	this.start();
     }
 
