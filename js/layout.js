@@ -28,11 +28,6 @@
  * Each item is placed with item.place(top, left, width, height). 
  * 
  * This layout engine should handle the following options:
- *   padding:       Put at least this amount of pixels between each item. Defaults to 10.
- *   h_align:       horizontal alignment. "left", "right", "center" or "justify". Defaults to "center".
- *   v_align:       vertical alignment. "left", "right", "center" or "justify". Defaults to "center".
- *   shuffle:       If true, shuffle items within rows and shuffle the rows. Defaults to true.
- *   equal_height:  If true, force all rows to be as high as the lowest one. Defaults to true. 
  *
  */
 
@@ -141,68 +136,86 @@ function layoutRows(box, sortedObjects, padding, n_rows) {
 	return {bins:  bins, emptySpace: emptySpace};
 }
 
-function layout(box, objects, userOptions) 
+/**
+ * Lay out rectangular objects nicely in a rectangular box. Items may be
+ * scaled. This implementation lays out the items in rows.
+ * @param {Object} box		The bounding box to place objects in. 
+ *				Has width and height.
+ * @param {Object[]} objects	Objects to place. Have width, height and 
+ *				place function.
+ * @param {Object} params	User settable parameters.
+ *    <dl>
+ *	<dt>padding:</dt>	<dd>Put at least this amount of pixels between each
+ *				item. Defaults to 10.</dd>
+ *	<dt>h_align:</dt>	<dd>Horizontal alignment. "left", "right", "center" 
+ *				or "justify". Defaults to "center".</dd>
+ *	<dt>v_align:</dt>	<dd>Vertical alignment. "left", "right", "center" 
+ *				or "justify". Defaults to "center".</dd>
+ *	<dt>shuffle:</dt>	<dd>If true, shuffle items within rows and shuffle 
+ *				the rows. Defaults to true.</dd>
+ *	<dt>equal_height:</dt>	<dd>If true, force all rows to be as high as the 
+ *				lowest one. Defaults to true.</dd>
+ *    </dl>
+ */
+function layout(box, objects, params) 
 {
-	options = {
-		padding:	10,
-		h_align:	"center",
-		v_align:	"center",
-		shuffle:	true,
-		equal_heights:	true
-	};
-	for (key in userOptions) {
-		if (userOptions.hasOwnProperty(key)) {
-			options[key] = userOptions[key];
-		}
+    // Defaults
+    var options = {
+	padding:	10,
+	h_align:	"center",
+	v_align:	"center",
+	shuffle:	true,
+	equal_heights:	true
+    };
+    for (var key in params) {
+	if (params.hasOwnProperty(key)) {
+	    options[key] = params[key];
 	}
-	
-	if ("padding" in options)
-		padding = options["padding"];
-	else
-		padding = 0;
-	
-	var numRows;
-	var wrappedObjects = objects.map(wrapObject);
+    }
+    var padding = options["padding"];
+    var numRows;
+    var wrappedObjects = objects.map(wrapObject);
+    
+    wrappedObjects.sort(heavyFirstCompare);
 
-	wrappedObjects.sort(heavyFirstCompare);
+    bestSolution = {emptySpace: Number.POSITIVE_INFINITY};
 
-	bestSolution = {emptySpace: Number.POSITIVE_INFINITY};
+    for (numRows = 1; numRows <= wrappedObjects.length; numRows++) {
+	solution = layoutRows(box, wrappedObjects, padding, numRows);
+	// When all things are equal, we prefer a smaller number of
+	// rows (i.e., horizontal layout). Since these are tried
+	// first, a strict less-than is good here. Maybe we should
+	// even allow for some calculating error.
+	if (solution.emptySpace < bestSolution.emptySpace)
+	    bestSolution = solution;
+    }
 
-	for (numRows = 1; numRows <= wrappedObjects.length; numRows++) {
-		solution = layoutRows(box, wrappedObjects, padding, numRows);
-		// When all things are equal, we prefer a smaller number of rows (i.e., horizontal layout)
-		// Since these are tried first, a strict less-than is good here. Maybe we should even
-		// allow for some calculating error. 
-		if (solution.emptySpace < bestSolution.emptySpace)
-			bestSolution = solution;
+    // console.assert(bestSolution.bins);
+    if (!bestSolution.bins) {
+	console.log("There was no solution.");
+	return;
+    }
+    // Implement bestSolution. FIXME: randomize. center (user settable alignment?)
+
+    var realOccupiedSpace = 0;
+
+    numRows = bestSolution.bins.length;
+    var offsetY = padding;
+    for (row = 0; row < numRows; row++) {
+	var offsetX = padding;
+	var bin = bestSolution.bins[row];
+	for (var i = 0; i < bin.length; i++) {
+	    var obj = bin[i];
+	    var width = bin.rowHeight * obj.weight;
+	    obj.realObject.place(offsetX, offsetY, width, bin.rowHeight);
+	    offsetX += width + padding; 
+	    realOccupiedSpace += width * bin.rowHeight;
 	}
+	offsetY += bin.rowHeight + padding;
+    }
 
-	// console.assert(bestSolution.bins);
-	if (!bestSolution.bins) {
-		console.log("There was no solution.");
-		return;
-	}
-	// Implement bestSolution. FIXME: randomize. center (user settable alignment?)
-
-	var realOccupiedSpace = 0;
-
-	numRows = bestSolution.bins.length;
-	var offsetY = padding;
-	for (row = 0; row < numRows; row++) {
-		var offsetX = padding;
-		var bin = bestSolution.bins[row];
-		for (var i = 0; i < bin.length; i++) {
-			var obj = bin[i];
-			var width = bin.rowHeight * obj.weight;
-			obj.realObject.place(offsetX, offsetY, width, bin.rowHeight);
-			offsetX += width + padding; 
-			realOccupiedSpace += width * bin.rowHeight;
-		}
-		offsetY += bin.rowHeight + padding;
-	}
-
-	console.log("Real occupied space: ", realOccupiedSpace);
-	var totSpace = box.getWidth() * box.getHeight();
-	console.log("Real empty space: ", totSpace - realOccupiedSpace);
-	// Should be used for an assert
+    console.log("Real occupied space: ", realOccupiedSpace);
+    var totSpace = box.getWidth() * box.getHeight();
+    console.log("Real empty space: ", totSpace - realOccupiedSpace);
+    // Should be used for an assert
 }

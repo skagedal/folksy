@@ -17,9 +17,7 @@
 
 "use strict";
 
-/***********************************************************************
- * COMPATIBILITY CODE
- ***********************************************************************/
+// COMPATIBILITY CODE
 
 // Extending functionality of JavaScript basic types by modifying the
 // prototype is only ok for ECMA standard compatibility.  Custom
@@ -226,20 +224,24 @@ if (!Function.prototype.bind) {
 }
 
 
-/***********************************************************************
- * MODULE
- ***********************************************************************/
+/**
+ * @namespace Utility functions. "Pure Javascript" , should be ignorant of the
+ * DOM.
+ */
 
 var util = (function () {
 
-    // Pick random elements from an array. Works similar to 
-    // `_.first(_.shuffle(array, n))`, but is more efficient -- operates 
-    // in time proportional to `n` rather than the length of the whole 
-    // array. 
-    //
-    // The algorithms mutates the input array while working, but restores 
-    // everything before returning. This provides for an optimally
-    // efficient algorithm in all situations.  
+    /**
+     * @private
+     * Pick `n` random elements from `array` using a more
+     * efficient method than shuffling the whole array and taking
+     * out the first `n` elements; it operates in time
+     * proportional to `n` rather than the length of the whole
+     * array.
+     *
+     * The algorithm mutates the input array while working, but
+     * restores everything before returning.
+     */
     function pickRandom (array, n) {
 	console.log("pickRandom: ", array, n);
 	n = Math.max(0, Math.min(array.length, n));
@@ -372,6 +374,6 @@ var util = (function () {
 	pluckMap: pluckMap,
 	copyArray: copyArray,
 	rotateArray: rotateArray
-    }
+    };
 
 })();
