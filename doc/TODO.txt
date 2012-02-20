@@ -3,11 +3,10 @@ Folkes Folk - TO DO list
 Simon Kågedal Reimer <simon@kagedal.org>
 
 .General 
-* Clean separation of _game engine_, _games_ and _themes_
 * Link to README from game; maybe a nice http://www.cssstickyfooter.com/[sticky footer]?
 * Nicer formatting of AsciiDoc generated html
 * Use some kind of automatic documentation system 
-* fabricate as build tool: http://code.google.com/p/fabricate/
+* This is how I should use jsdoc: http://code.google.com/p/jsdoc-toolkit/wiki/FAQ#Documenting_the_module_pattern
 
 .Game engine
 * Allow use of keyboard
@@ -18,7 +17,6 @@ Simon Kågedal Reimer <simon@kagedal.org>
 * Android game engine
 * iPhone/iPad game engine
 * Native desktop game engines 
-* Separate _game logic_ in platform independent JavaScript! Can JavaScript be embedded in Android/iPhone apps?
 * Using local or CDN hosted jQuery should maybe be a setting? The former can be good for debugging purposes.
 * "use strict";
 * Follow these code conventions: http://javascript.crockford.com/code.html

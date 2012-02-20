@@ -204,16 +204,23 @@ licensierad med GNU GPL, men tillåter valfri licens för dokument där
 typsnittet används.
 
 == Game engines ==
-There are game engines.
+There is currently only the web game engine. A mobile version will be written
+next.
 
 === The web game engine ===
 
 :jQuery:		http://jquery.com/[jQuery]
 :SoundManager 2:	http://www.schillmania.com/projects/soundmanager2/[SoundManager 2]
+:jsdoc:			http://code.google.com/p/jsdoc-toolkit/[jsdoc-toolkit]
+:jasmine:		http://pivotal.github.com/jasmine/[Jasmine]
 
 The game engine for the web is written in JavaScript using {jQuery}.
 Audio on the web is hard to get right. We're using 
 {SoundManager 2} which uses HTML5 audio or Flash. 
+
+{jsdoc} is used for documentation. (Ubuntu package: jsdoc-toolkit)
+{jasmine} (included) is used for unit testing.
+
 
 SoundManager problem: What I'd like is if I could give it an ogg file
 and an mp3 file, and then it would use the ogg wherever possible,
