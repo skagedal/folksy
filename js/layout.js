@@ -50,9 +50,11 @@ var layout = (function () {
     PlaceableBox.prototype = new Box();
     PlaceableBox.prototype.constructor = PlaceableBox;
     PlaceableBox.prototype.getOrigWidth = function () { 
-	return this.origWidth; };
+	return this.origWidth; 
+    };
     PlaceableBox.prototype.getOrigHeight = function () { 
-	return this.origHeight; };
+	return this.origHeight; 
+    };
     PlaceableBox.prototype.place = function (x, y, width, height) {
 	this.x = x;
 	this.y = y;
@@ -103,7 +105,6 @@ var layout = (function () {
 	var boxHeight = box.getHeight();
 	var boxWidth = box.getWidth();
 	
-	console.log("LET'S TRY this with %d rows...", n_rows);
 	// Try a layout with 'n_rows' rows.
 	
 	function createBin() {
@@ -111,7 +112,7 @@ var layout = (function () {
 	    b.weight = 0;
 	    return b;
 	}
-	function updateBin(b) {
+	function recalculateBinWeight(b) {
 	    b.weight = 0;
 	    for (var i = 0; i < b.length; i++) {
 		b.weight += b[i].weight;
@@ -131,18 +132,19 @@ var layout = (function () {
 	    // Put object in the last (lightest) bin.
 	    var bin = bins.pop();
 	    bin.push(sortedObjects[i]);
-	    updateBin(bin);
+	    recalculateBinWeight(bin);
 	    // Reinsert bin.
 	    insertIntoSorted(bins, bin, heavyFirstCompare);
 	}
-	// (Do we now have empty bins? If so, there is silliness in the algorithm.)
+	// (Do we now have empty bins? If so, there is silliness in
+	// the algorithm.)
 	console.log("Bin distribution: ", binsToString(bins));
 	
 	// Calculate space requirements. 
 
 	var offsetY = padding;
 	var emptySpace = offsetY * boxWidth;
-	for (row = 0; row < n_rows; row++) {
+	for (var row = 0; row < n_rows; row++) {
 	    var offsetX = padding;
 	    var rowsLeft = n_rows - row; 
 	    var heightLeft = boxHeight - offsetY;
@@ -177,20 +179,29 @@ var layout = (function () {
      *					place function.
      * @param {Object} params	User settable parameters.
      * <dl>
-     * 	 <dt>padding:</dt>	<dd>Put at least this amount of pixels between each
-     *				item. Defaults to 10.</dd>
-     *	 <dt>h_align:</dt>	<dd>Horizontal alignment. "left", "right", "center" 
-     *				or "justify". Defaults to "center".</dd>
-     *	 <dt>v_align:</dt>	<dd>Vertical alignment. "left", "right", "center" 
-     *				or "justify". Defaults to "center".</dd>
-     *	 <dt>shuffle:</dt>	<dd>If true, shuffle items within rows and shuffle 
-     *				the rows. Defaults to true.</dd>
-     *	 <dt>equal_height:</dt>	<dd>If true, force all rows to be as high as the 
-     *				lowest one. Defaults to true.</dd>
+     * 	 <dt>padding:</dt>	
+     *     <dd>Put at least this amount of pixels between each
+     *	       item. Defaults to 10.</dd>
+     *	 <dt>h_align:</dt>	
+     *     <dd>Horizontal alignment. "left", "right", "center" 
+     *	       or "justify". Defaults to "center".</dd>
+     *	 <dt>v_align:</dt>	
+     *     <dd>Vertical alignment. "left", "right", "center" 
+     *	       or "justify". Defaults to "center".</dd>
+     *	 <dt>shuffle:</dt>	
+     *     <dd>If true, shuffle items within rows and shuffle 
+     *	       the rows. Defaults to true.</dd>
+     *	 <dt>equal_height:</dt>	
+     *     <dd>If true, force all rows to be as high as the 
+     *	       lowest one. Defaults to true.</dd>
      * </dl>
      */
     function layoutObjects(box, objects, params) 
     {
+	var numRows;
+	var wrappedObjects;
+	var bestSolution;
+
 	params = util.mergeObjects(params, {
 	    // Defaults
 	    padding:		10,
@@ -200,16 +211,15 @@ var layout = (function () {
 	    equal_heights:	true
 	});
 
-	var padding = params["padding"];
-	var numRows;
-	var wrappedObjects = objects.map(wrapObject);
-	
+	// Wrap all objects to keep calculations
+	wrappedObjects = objects.map(wrapObject);
 	wrappedObjects.sort(heavyFirstCompare);
 	
 	bestSolution = {emptySpace: Number.POSITIVE_INFINITY};
 	
 	for (numRows = 1; numRows <= wrappedObjects.length; numRows++) {
-	    solution = layoutRows(box, wrappedObjects, padding, numRows);
+	    var solution = layoutRows(box, wrappedObjects, 
+				      params.padding, numRows);
 	    // When all things are equal, we prefer a smaller number
 	    // of rows (i.e., horizontal layout). Since these are
 	    // tried first, a strict less-than is good here. Maybe we
@@ -218,7 +228,6 @@ var layout = (function () {
 		bestSolution = solution;
 	}
 
-	// console.assert(bestSolution.bins);
 	if (!bestSolution.bins) {
 	    console.log("There was no solution.");
 	    return;
@@ -228,18 +237,18 @@ var layout = (function () {
 	var realOccupiedSpace = 0;
 	
 	numRows = bestSolution.bins.length;
-	var offsetY = padding;
-	for (row = 0; row < numRows; row++) {
-	    var offsetX = padding;
+	var offsetY = box.getTop() + params.padding;
+	for (var row = 0; row < numRows; row++) {
+	    var offsetX = box.getLeft() + params.padding;
 	    var bin = bestSolution.bins[row];
 	    for (var i = 0; i < bin.length; i++) {
 		var obj = bin[i];
 		var width = bin.rowHeight * obj.weight;
 		obj.realObject.place(offsetX, offsetY, width, bin.rowHeight);
-		offsetX += width + padding; 
+		offsetX += width + params.padding; 
 		realOccupiedSpace += width * bin.rowHeight;
 	    }
-	    offsetY += bin.rowHeight + padding;
+	    offsetY += bin.rowHeight + params.padding;
 	}
 	
 	console.log("Real occupied space: ", realOccupiedSpace);

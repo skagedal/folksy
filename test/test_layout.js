@@ -1,5 +1,7 @@
 // Testing the layout code.
 
+var layoutTest = {}
+
 function LayObj(w, h, bg) {
     this.active = true;
     this.isPlaced = false;
@@ -74,7 +76,7 @@ function plusMinus(LO) {
     return $('<div style="float:right"/>').append(buttonPlus, buttonMinus);
 }
 
-function addTableRow(layobjs) {
+function addTableRows(layobjs) {
     var b = plusMinus;
     var tbody = $('#ctable > tbody:last');
     for (var i = 0; i < layobjs.length; i++) {
@@ -105,9 +107,11 @@ function addTableRow(layobjs) {
 }
 
 function reLayout() {
-    var objs = $.grep($.ME.objs, function(o) { return o.active; });
+    var objs = $.grep(layoutTest.objs, function(o) { return o.active; });
 
-    layout.layoutObjects($.ME.box, objs, {padding: $.ME.padding});
+    layout.layoutObjects(layoutTest.box, 
+			 objs, 
+			 {padding: layoutTest.padding});
 }
 
 function randVal() { 
@@ -131,20 +135,21 @@ $(function() {
 	      "lime", "maroon", "navy", "olive", "purple", "red", 
 	      "silver", "teal", "white", "yellow"]
 
-    var objs = []
+    var objs = [];
     for (var i = 0; i < colors.length; i++) {
 	var lo = new LayObj(randVal(), randVal(), colors[i]);
 	lo.active = Math.random() < 0.4;
 	objs.push(lo);
     }
-    var box = {getWidth: function() { return $("#content").width(); }, 
-	       getHeight: function() { return $("#content").height(); }};
 
-    $.ME = {box: box, objs: objs, padding: 20};
+    layoutTest.box = layout.Box($("#content").width(),
+				$("#content").height());
+    layoutTest.objs = objs;
+    layoutTest.padding = 20;
 
     reLayout();
 
-    addTableRow(objs);
+    addTableRows(objs);
 
     /* We could use jQuery's .data(key, value) to connect the
      * model and the views, so to speak. */
