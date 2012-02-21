@@ -242,7 +242,6 @@ var util = (function () {
      * restores everything before returning.
      */
     function pickRandom (array, n) {
-	console.log("pickRandom: ", array, n);
 	n = Math.max(0, Math.min(array.length, n));
 
 	return (function pickR(array, n, length) {

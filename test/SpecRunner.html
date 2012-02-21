@@ -4,7 +4,20 @@
 <head>
   <title>Jasmine Spec Runner</title>
 
+  <script type="text/javascript" src="https://getfirebug.com/firebug-lite.js">
+    {
+    overrideConsole: false,
+    startInNewWindow: true,
+    startOpened: true,
+    enableTrace: true
+    }
+  </script>
+
   <link rel="shortcut icon" type="image/png" href="lib/jasmine-1.1.0/jasmine_favicon.png">
+
+  <!-- include source files here... -->
+  <script type="text/javascript" src="../js/util.js"></script>
+  <script type="text/javascript" src="../js/layout.js"></script>
 
   <link rel="stylesheet" type="text/css" href="lib/jasmine-1.1.0/jasmine.css">
   <script type="text/javascript" src="lib/jasmine-1.1.0/jasmine.js"></script>
@@ -12,9 +25,8 @@
 
   <!-- include spec files here... -->
   <script type="text/javascript" src="spec_util.js"></script>
+  <script type="text/javascript" src="spec_layout.js"></script>
 
-  <!-- include source files here... -->
-  <script type="text/javascript" src="../js/util.js"></script>
 
   <script type="text/javascript">
     (function() {

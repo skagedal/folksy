@@ -15,11 +15,52 @@
 //   along with Folksy.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+"use strict";
+
 // Requirements: only util.js
 
 /** @namespace Layout functions. */
 
 var layout = (function () {
+
+    // Data types
+
+    function Box(x, y, width, height, data) {
+	this.x = x;
+	this.y = y;
+	this.width = width;
+	this.height = height;
+	this.data = data;
+    }
+
+    Box.prototype.getWidth = function () { return this.width;  };
+    Box.prototype.getHeight = function () { return this.height; };
+    Box.prototype.getLeft = function () { return this.x; };
+    Box.prototype.getTop = function () { return this.y; };
+    Box.prototype.getRight = function () { return this.x + this.width; };
+    Box.prototype.getBottom = function () { return this.y + this.height; };
+    Box.prototype.getData = function () { return this.data; };
+
+    function PlaceableBox(width, height, data) { 
+	Box.call(this, 0, 0, width, height, data);
+	this.origWidth = width;
+	this.origHeight = height;
+    }
+
+    PlaceableBox.prototype = new Box();
+    PlaceableBox.prototype.constructor = PlaceableBox;
+    PlaceableBox.prototype.getOrigWidth = function () { 
+	return this.origWidth; };
+    PlaceableBox.prototype.getOrigHeight = function () { 
+	return this.origHeight; };
+    PlaceableBox.prototype.place = function (x, y, width, height) {
+	this.x = x;
+	this.y = y;
+	this.width = width;
+	this.height = height;
+    };
+
+    // Layout functions
 
     function heavyFirstCompare(a, b) {
 	return b.weight - a.weight;
@@ -182,8 +223,7 @@ var layout = (function () {
 	    console.log("There was no solution.");
 	    return;
 	}
-	// Implement bestSolution. FIXME: randomize. center (user
-	// settable alignment?)
+	// Implement bestSolution. FIXME: shuffle, alignment
 
 	var realOccupiedSpace = 0;
 	
@@ -209,7 +249,11 @@ var layout = (function () {
     }
 
     return {
+	Box: Box,
+	PlaceableBox: PlaceableBox,
 	layoutObjects: layoutObjects
     };
-
+    
 })();
+// window['layout'] = layout;
+
