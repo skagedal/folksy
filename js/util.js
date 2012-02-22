@@ -390,6 +390,12 @@ var util = (function () {
 	return newObj;
     }
 
+    // This is from underscore.js -- maybe we'll need all of those
+    // type checkers?
+    var _toString = Object.prototype.toString;
+    function isNumber(obj) {
+	return _toString.call(obj) == '[object Number]';
+    }
 
     // Module exports
     return {
@@ -406,7 +412,8 @@ var util = (function () {
 	pluck: pluck,
 	copyArray: copyArray,
 	rotateArray: rotateArray,
-	mergeObjects: mergeObjects
+	mergeObjects: mergeObjects,
+	isNumber: isNumber
     };
 
 })();

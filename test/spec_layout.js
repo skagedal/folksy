@@ -45,9 +45,33 @@ describe("layout.PlaceableBox", function () {
     });
 });
 
-/*
+describe("layout.layoutObjects", function () {
     it("places a square in a square", function () {
-        var placeSpy = spy(this.square, "place");
-        layout.layout(20, 20, [this.square], {});
-        expect(placeSpy).toHa
-*/
+	var box = new layout.Box(0, 0, 50, 50);
+	var square = new layout.PlaceableBox(10, 10);
+	layout.layoutObjects(box, [square], { padding: 0 });
+	expect(square.getTop()).toEqual(0);
+	expect(square.getLeft()).toEqual(0);
+	expect(square.getWidth()).toEqual(50);
+	expect(square.getHeight()).toEqual(50);
+    });
+
+    it("respects bounding box offset", function () {
+	var box = new layout.Box(10, 20, 50, 50);
+	var square = new layout.PlaceableBox(10, 10);
+	layout.layoutObjects(box, [square], { padding: 0 });
+	expect(square.getLeft()).toEqual(10);
+	expect(square.getTop()).toEqual(20);
+    });
+
+    it("uses padding", function () {
+	var box = new layout.Box(0, 0, 50, 50);
+	var square = new layout.PlaceableBox(10, 10);
+	layout.layoutObjects(box, [square], { padding: 10 });
+	expect(square.getTop()).toEqual(10);
+	expect(square.getLeft()).toEqual(10);
+	expect(square.getBottom()).toEqual(40);
+	expect(square.getRight()).toEqual(40);
+    });	
+});
+
