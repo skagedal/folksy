@@ -126,11 +126,14 @@ var layout = (function () {
     }
 
     function rowsToString(rows) {
-	return "[" + rows.map(function (row) { return row.toStr; }).join(", ") + "]";
+	return "[" + 
+	    rows.map(function (row) { return row.toStr; }).join(", ") + 
+	    "]";
     }
 
 
-    function calculateRowHeights(rows, boxWidth, boxHeight, padding, equalHeights) {
+    function calculateRowHeights(rows, boxWidth, boxHeight,  
+				 padding, equalHeights) {
 	var offsetY = padding;
         var rowIndex;
 
