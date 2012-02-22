@@ -100,71 +100,75 @@ var layout = (function () {
 	};
     }
 
-    function createBin() {
-	var b = [];
-	b.weight = 0;
-	return b;
+    function Row() {
+        this.children = [];
+        this.height = null;
+        this.weight = 0;
     }
-
-    function recalcBin(b) {
-	b.weight = 0;
-	for (var i = 0; i < b.length; i++) {
-	    b.weight += b[i].weight;
-	}
+   
+    Row.prototype.recalc = function () {
+	this.weight = util.sum(util.pluck(this.children, 'weight'));
+    }
+    Row.prototype.addChild = function (child) {
+        this.children.push(child);
+        this.recalc();
+    }
+    Row.prototype.shuffleChildren = function () {
+        util.shuffleInPlace(this.children);
     }
 
     function objToString(obj) {
 	return String(obj.weight);
     }
 
-    function binToString(bin) {
-	return "[" + bin.map(objToString).join(", ") + "]";
+    Row.prototype.toStr = function () {
+	return "[" + this.children.map(objToString).join(", ") + "]";
     }
 
-    function binsToString(bins) {
-	return "[" + bins.map(binToString).join(", ") + "]";
+    function rowsToString(rows) {
+	return "[" + rows.map(function (row) { return row.toStr; }).join(", ") + "]";
     }
 
 
-    function calculateRowHeights(bins, boxWidth, boxHeight, padding, equalHeights) {
+    function calculateRowHeights(rows, boxWidth, boxHeight, padding, equalHeights) {
 	var offsetY = padding;
-        var row;
+        var rowIndex;
 
-	for (row = 0; row < bins.length; row++) {
-	    var bin = bins[row];
+	for (rowIndex = 0; rowIndex < rows.length; rowIndex++) {
+	    var row = rows[rowIndex];
 	    var offsetX = padding;
-	    var rowsLeft = bins.length - row; 
+	    var rowsLeft = rows.length - rowIndex; 
 	    var heightLeft = boxHeight - offsetY;
-	    bin.rowHeight = heightLeft / rowsLeft - padding;
-	    var xPaddingTotal = bin.length * padding;
-	    var widthItemsTotal = bin.weight * bin.rowHeight;
+	    row.height = heightLeft / rowsLeft - padding;
+	    var xPaddingTotal = row.children.length * padding;
+	    var widthItemsTotal = row.weight * row.height;
 	    
 	    if (offsetX + widthItemsTotal + xPaddingTotal > boxWidth) {
 		widthItemsTotal = boxWidth - xPaddingTotal - offsetX;
-		bin.rowHeight = widthItemsTotal / bin.weight;
+		row.height = widthItemsTotal / row.weight;
 	    }
 
-	    offsetY += bin.rowHeight + padding;
+	    offsetY += row.height + padding;
 	}
 
         if (equalHeights) {
-            var smallestRowHeight = util.min(util.pluck(bins, 'rowHeight'));
-            bins.forEach(function (bin) {
-                bin.rowHeight = smallestRowHeight;
+            var smallestRowHeight = util.min(util.pluck(rows, 'height'));
+            rows.forEach(function (row) {
+                row.height = smallestRowHeight;
             });
         }
     }
 
-    function calculateEmptySpace(bins, boxWidth, boxHeight, padding) {
+    function calculateEmptySpace(rows, boxWidth, boxHeight, padding) {
         var offsetY = padding;
 	var emptySpace = offsetY * boxWidth;
-        for (var row = 0; row < bins.length; row++) {
-            var bin = bins[row];
-            var widthItems = bin.weight * bin.rowHeight;
+        for (var rowIndex = 0; rowIndex < rows.length; rowIndex++) {
+            var row = rows[rowIndex];
+            var widthItems = row.weight * row.height;
 	    var emptyX = boxWidth - widthItems;
 	    
-	    emptySpace += emptyX * bin.rowHeight + padding * boxWidth;
-	    offsetY += bin.rowHeight + padding;
+	    emptySpace += emptyX * row.height + padding * boxWidth;
+	    offsetY += row.height + padding;
         }
         emptySpace += (boxHeight - offsetY) * (boxWidth);
         return emptySpace;
@@ -176,35 +180,35 @@ var layout = (function () {
 	var boxHeight = box.getHeight();
 	var boxWidth = box.getWidth();
 	
-	// Create a bunch of bins where we put the objects.
+	// Create a bunch of rows where we put the objects.
 	// The list is kept sorted from heaviest to lightest.
-	var bins = [];
-	while (bins.push(createBin()) < n_rows);
+	var rows = [];
+	while (rows.push(new Row()) < n_rows);
 
-	// Greedy algorithm: put objects in a bin with most available
+	// Greedy algorithm: put objects in a row with most available
 	// space.
 	// TODO: Doesn't take the padding into account. Need to do
 	// this based on approximation of rowHeight.
 
 	for (var i = 0; i < sortedObjects.length; i++) {
-	    // Put object in the last (lightest) bin.
-	    var bin = bins.pop();
-	    bin.push(sortedObjects[i]);
-	    recalcBin(bin);
-	    // Reinsert bin.
-	    insertIntoSorted(bins, bin, heavyFirstCompare);
+	    // Put object in the last (lightest) row.
+	    var row = rows.pop();
+	    row.addChild(sortedObjects[i]);
+	
+	    // Reinsert row.
+	    insertIntoSorted(rows, row, heavyFirstCompare);
 	}
-	// (Do we now have empty bins? If so, there is silliness in
+	// (Do we now have empty rows? If so, there is silliness in
 	// the algorithm.)
-	console.log("Bin distribution: ", binsToString(bins));
+	console.log("Row distribution: ", rowsToString(rows));
 	
         // Calculate row heights
-        calculateRowHeights(bins, boxWidth, boxHeight, padding, equalHeights);
+        calculateRowHeights(rows, boxWidth, boxHeight, padding, equalHeights);
 
-        var emptySpace = calculateEmptySpace(bins, boxWidth, boxHeight, 
+        var emptySpace = calculateEmptySpace(rows, boxWidth, boxHeight, 
 					     padding);
 
-	return {bins: bins, emptySpace: emptySpace};
+	return {rows: rows, emptySpace: emptySpace};
     }
 
     /**
@@ -267,27 +271,35 @@ var layout = (function () {
 		bestSolution = solution;
 	}
 
-	if (!bestSolution.bins) {
+	if (!bestSolution.rows) {
 	    console.log("There was no solution.");
 	    return;
 	}
 	// Implement bestSolution. FIXME: shuffle, alignment
 
 	var realOccupiedSpace = 0;
-	
-	numRows = bestSolution.bins.length;
+  
+	var rows = bestSolution.rows;
+        if (params.shuffle) {
+            util.shuffleInPlace(rows);
+            rows.forEach(function (row) {
+                row.shuffleChildren();
+            });
+        }
+
+	numRows = rows.length;
 	var offsetY = box.getTop() + params.padding;
-	for (var row = 0; row < numRows; row++) {
+	for (var rowIndex = 0; rowIndex < numRows; rowIndex++) {
 	    var offsetX = box.getLeft() + params.padding;
-	    var bin = bestSolution.bins[row];
-	    for (var i = 0; i < bin.length; i++) {
-		var obj = bin[i];
-		var width = bin.rowHeight * obj.weight;
-		obj.realObject.place(offsetX, offsetY, width, bin.rowHeight);
+	    var row = rows[rowIndex];
+	    for (var i = 0; i < row.children.length; i++) {
+		var obj = row.children[i];
+		var width = row.height * obj.weight;
+		obj.realObject.place(offsetX, offsetY, width, row.height);
 		offsetX += width + params.padding; 
-		realOccupiedSpace += width * bin.rowHeight;
+		realOccupiedSpace += width * row.height;
 	    }
-	    offsetY += bin.rowHeight + params.padding;
+	    offsetY += row.height + params.padding;
 	}
 	
 	console.log("Real occupied space: ", realOccupiedSpace);
