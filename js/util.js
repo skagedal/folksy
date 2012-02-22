@@ -337,7 +337,21 @@ var util = (function () {
 	return array.reduce(function (a, b) {
 	    return a + b;
 	}, 0);
+
     }
+
+    function min(array) {
+	if (array.length < 1)
+	    throw new TypeError("zero-length array");
+	return Math.min.apply(Math, array);
+    }
+
+    function max(array)  {
+	if (array.length < 1)
+	    throw new TypeError("zero-length array");
+	return Math.max.apply(Math, array);
+    }
+
 
     function plucker(key) {
 	return function(obj) {
@@ -345,7 +359,7 @@ var util = (function () {
 	}
     }
 
-    function pluckMap(array, key) {
+    function pluck(array, key) {
 	return array.map(plucker(key));
     }
 
@@ -376,6 +390,7 @@ var util = (function () {
 	return newObj;
     }
 
+
     // Module exports
     return {
 	pickRandom: pickRandom,
@@ -385,8 +400,10 @@ var util = (function () {
 	equalityChecker: equalityChecker,
 	inequalityChecker: inequalityChecker,
 	sum: sum,
+	min: min,
+	max: max,
 	plucker: plucker,
-	pluckMap: pluckMap,
+	pluck: pluck,
 	copyArray: copyArray,
 	rotateArray: rotateArray,
 	mergeObjects: mergeObjects

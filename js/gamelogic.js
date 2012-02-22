@@ -66,7 +66,7 @@ gamelogic = (function () {
     GameLogic.prototype.pickRelationPair = function () { 
 	var self = this;
 	var introduced = introducedPairs(self.relation);
-	var unlearnedMass = util.sum(util.pluckMap(introduced, 'pStrength'));
+	var unlearnedMass = util.sum(util.pluck(introduced, 'pStrength'));
 
 	// Pick a new relation pair to teach?
 	if (unlearnedMass < self.params.teachCutoff) {

@@ -87,6 +87,19 @@ var layout = (function () {
 	};
     }
 
+    function createBin() {
+	var b = [];
+	b.weight = 0;
+	return b;
+    }
+
+    function updateBin(b) {
+	b.weight = 0;
+	for (var i = 0; i < b.length; i++) {
+	    b.weight += b[i].weight;
+	}
+    }
+
     function objToString(obj) {
 	return String(obj.weight);
     }
@@ -99,24 +112,57 @@ var layout = (function () {
 	return "[" + bins.map(binToString).join(", ") + "]";
     }
 
-    function layoutRows(box, sortedObjects, padding, n_rows) {
+
+    function calculateRowHeights(bins, boxWidth, boxHeight, padding, equalHeights) {
+	var offsetY = padding;
+        var row;
+
+	for (row = 0; row < bins.length; row++) {
+	    var bin = bins[row];
+	    var offsetX = padding;
+	    var rowsLeft = bins.length - row; 
+	    var heightLeft = boxHeight - offsetY;
+	    bin.rowHeight = heightLeft / rowsLeft - padding;
+	    var xPaddingTotal = bin.length * padding;
+	    var widthItemsTotal = bin.weight * bin.rowHeight;
+	    
+	    if (offsetX + widthItemsTotal + xPaddingTotal > boxWidth) {
+		widthItemsTotal = boxWidth - xPaddingTotal - offsetX;
+		bin.rowHeight = widthItemsTotal / bin.weight;
+	    }
+
+	    offsetY += bin.rowHeight + padding;
+	}
+
+        if (equalHeights) {
+            var smallestRowHeight = util.min(util.pluck(bins, 'rowHeight'));
+            bins.forEach(function (bin) {
+                bin.rowHeight = smallestRowHeight;
+            });
+        }
+    }
+
+    function calculateEmptySpace(bins, boxWidth, boxHeight, padding) {
+        var offsetY = padding;
+	var emptySpace = offsetY * boxWidth;
+        for (var row = 0; row < bins.length; row++) {
+            var bin = bins[row];
+            var widthItems = bin.weight * bin.rowHeight;
+	    var emptyX = boxWidth - widthItems;
+	    
+	    emptySpace += emptyX * bin.rowHeight + padding * boxWidth;
+	    offsetY += bin.rowHeight + padding;
+        }
+        emptySpace += (boxHeight - offsetY) * (boxWidth);
+        return emptySpace;
+    }
+
+
+    // Try a layout with 'n_rows' rows.
+    function layoutRows(box, sortedObjects, padding, equalHeights, n_rows) {
 	var boxHeight = box.getHeight();
 	var boxWidth = box.getWidth();
 	
-	console.log("LET'S TRY this with %d rows...", n_rows);
-	// Try a layout with 'n_rows' rows.
-	
-	function createBin() {
-	    var b = [];
-	    b.weight = 0;
-	    return b;
-	}
-	function updateBin(b) {
-	    b.weight = 0;
-	    for (var i = 0; i < b.length; i++) {
-		b.weight += b[i].weight;
-	    }
-	}
 	// Create a bunch of bins where we put the objects.
 	// The list is kept sorted from heaviest to lightest.
 	var bins = [];
@@ -138,34 +184,13 @@ var layout = (function () {
 	// (Do we now have empty bins? If so, there is silliness in the algorithm.)
 	console.log("Bin distribution: ", binsToString(bins));
 	
-	// Calculate space requirements. 
+        // Calculate row heights
+        calculateRowHeights(bins, boxWidth, boxHeight, padding, equalHeights);
 
-	var offsetY = padding;
-	var emptySpace = offsetY * boxWidth;
-	for (row = 0; row < n_rows; row++) {
-	    var offsetX = padding;
-	    var rowsLeft = n_rows - row; 
-	    var heightLeft = boxHeight - offsetY;
-	    var rowHeight = heightLeft / rowsLeft - padding;
-	    var bin = bins[row];
-	    var nItems = bin.length;
-	    var xPaddingTotal = nItems * padding;
-	    var widthItemsTotal = bin.weight * rowHeight;
-	    
-	    if (offsetX + widthItemsTotal + xPaddingTotal > boxWidth) {
-		widthItemsTotal = boxWidth - xPaddingTotal - offsetX;
-		rowHeight = widthItemsTotal / bin.weight;
-	    }
-	    var emptyX = boxWidth - widthItemsTotal;
-	    
-	    emptySpace += emptyX * rowHeight + padding * boxWidth;
-	    offsetY += rowHeight + padding;
-	    bin.rowHeight = rowHeight; // saved for when the solution
-				       // (if picked) is implemented
-	}
-	emptySpace += (boxHeight - offsetY) * (boxWidth);
+        var emptySpace = calculateEmptySpace(bins, boxWidth, boxHeight, 
+					     padding);
 
-	return {bins:  bins, emptySpace: emptySpace};
+	return {bins: bins, emptySpace: emptySpace};
     }
 
     /**
@@ -209,7 +234,9 @@ var layout = (function () {
 	bestSolution = {emptySpace: Number.POSITIVE_INFINITY};
 	
 	for (numRows = 1; numRows <= wrappedObjects.length; numRows++) {
-	    solution = layoutRows(box, wrappedObjects, padding, numRows);
+	    var solution = layoutRows(box, wrappedObjects, 
+				      padding, params["equal_heights"], 
+				      numRows);
 	    // When all things are equal, we prefer a smaller number
 	    // of rows (i.e., horizontal layout). Since these are
 	    // tried first, a strict less-than is good here. Maybe we
@@ -218,7 +245,6 @@ var layout = (function () {
 		bestSolution = solution;
 	}
 
-	// console.assert(bestSolution.bins);
 	if (!bestSolution.bins) {
 	    console.log("There was no solution.");
 	    return;
@@ -246,6 +272,7 @@ var layout = (function () {
 	var totSpace = box.getWidth() * box.getHeight();
 	console.log("Real empty space: ", totSpace - realOccupiedSpace);
 	// Should be used for an assert
+
     }
 
     return {
