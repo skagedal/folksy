@@ -231,6 +231,21 @@ if (!Function.prototype.bind) {
 
 var util = (function () {
 
+    // From http://stackoverflow.com/questions/962802/is-it-correct-to-use-javascript-array-sort-method-for-shuffling
+    function shuffleInPlace(array) {
+	// Shuffle an array in-place (i.e., mutate the array).
+	var tmp, current, top = array.length;      
+	if(top) {
+	    while(--top) {
+		current = Math.floor(Math.random() * (top + 1));         
+		tmp = array[current];         
+		array[current] = array[top];         
+		array[top] = tmp;     
+	    }    
+	}  
+	return array; 
+    } 
+
     /**
      * Pick `n` random elements from `array` using a more
      * efficient method than shuffling the whole array and taking
@@ -378,6 +393,7 @@ var util = (function () {
 
     // Module exports
     return {
+	shuffleInPlace: shuffleInPlace,
 	pickRandom: pickRandom,
 	pickOneRandom: pickOneRandom,
 	shuffle: shuffle,
