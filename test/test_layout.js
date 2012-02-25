@@ -106,12 +106,49 @@ function addTableRows(layobjs) {
     }
 }
 
+function addParamsTableRows() {
+    layoutTest.paramsJQObj = {};
+    var tbody = $('#params_table > tbody:last');
+    for (var key in layoutTest.params) {
+	if (layoutTest.params.hasOwnProperty(key)) {
+	    var tr = tbody.append($('<tr>'));
+	    tr.append($('<td>' + key + '</td>'));
+	    var value = layoutTest.params[key];
+	    var elem;
+	    if (util.isBoolean(value)) {
+		elem = $('<input type="checkbox">')
+		    .prop("checked", value)
+		    .change(reLayout);
+	    } else {
+		elem = $('<input type="text">')
+		    .val(value)
+		    .change(reLayout);
+	    }
+	    tr.append($('<td>').append(elem));
+	    layoutTest.paramsJQObj[key] = elem;
+	}
+    }
+}
+
+function readParamsFromTable() {
+    for (var key in layoutTest.params) {
+	var elem = layoutTest.paramsJQObj[key];
+	if (elem.attr("type") === "checkbox") {
+	    layoutTest.params[key] = (elem.attr("checked") === "checked");
+	} else {
+	    layoutTest.params[key] = elem.val();
+	}
+    }
+    layoutTest.params['padding'] = Number(layoutTest.params['padding']);
+}
+
 function reLayout() {
+    readParamsFromTable();
     var objs = $.grep(layoutTest.objs, function(o) { return o.active; });
 
     layout.layoutObjects(layoutTest.box, 
 			 objs, 
-			 {padding: layoutTest.padding});
+			 layoutTest.params);
 }
 
 function randVal() { 
@@ -146,13 +183,24 @@ $(function() {
     var height = $("#content").height();
 
     layoutTest.box = new layout.Box(0, 0, width, height);
+    layoutTest.params = {
+	padding:	10,
+	h_align:	"center",
+	v_align:	"center",
+	shuffle:	true,
+	equal_heights:	true
+    };
+    
 
     layoutTest.objs = objs;
     layoutTest.padding = 20;
 
+    addTableRows(objs);
+    addParamsTableRows();
+
     reLayout();
 
-    addTableRows(objs);
+    $("#relayout").click(reLayout);
 
     /* We could use jQuery's .data(key, value) to connect the
      * model and the views, so to speak. */

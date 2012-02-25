@@ -134,7 +134,9 @@ var layout = (function () {
     }
 
     function rowsToString(rows) {
-	return "[" + rows.map(function (row) { return row.toStr; }).join(", ") + "]";
+	return "[" + 
+	    rows.map(function (row) { return row.toStr; }).join(", ") + 
+	    "]";
     }
 
     // Get the sum of rows' heights (previously calculated)
@@ -142,7 +144,8 @@ var layout = (function () {
         return util.sum(util.pluck(rows, 'height'));
     }
 
-    function calculateRowHeights(rows, boxWidth, boxHeight, padding, equalHeights) {
+    function calculateRowHeights(rows, boxWidth, boxHeight,  
+				 padding, equalHeights) {
 	var offsetY = padding;
         var rowIndex;
 

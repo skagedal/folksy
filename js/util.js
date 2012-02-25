@@ -14,6 +14,11 @@
 //   You should have received a copy of the GNU General Public License
 //   along with Folksy.  If not, see <http://www.gnu.org/licenses/>.
 //
+//   The functions isObject, isFunction, isString, isNumber, isNaN,
+//   isBoolean, isRegExp, isNull, isUndefined is from the Underscore
+//   library.
+//     (c) 2009-2012 Jeremy Ashkenas, DocumentCloud Inc.
+//     Underscore is freely distributable under the MIT license.
 
 "use strict";
 
@@ -198,12 +203,60 @@ var util = (function () {
 	return newObj;
     }
 
-    // This is from underscore.js -- maybe we'll need all of those
-    // type checkers?
+    // This is from underscore.js
     var _toString = Object.prototype.toString;
+
+    // Is a given variable an object?
+    function isObject(obj) {
+	return obj === Object(obj);
+    };
+
+    // Is a given value a function?
+    function isFunction(obj) {
+	return _toString.call(obj) == '[object Function]';
+    };
+
+    // Is a given value a string?
+    function isString(obj) {
+	return _toString.call(obj) == '[object String]';
+    };
+
+    // Is a given value a number?
     function isNumber(obj) {
 	return _toString.call(obj) == '[object Number]';
-    }
+    };
+
+    // Is the given value `NaN`?
+    function isNaN(obj) {
+	// `NaN` is the only value for which `===` is not reflexive.
+	return obj !== obj;
+    };
+
+    // Is a given value a boolean?
+    function isBoolean(obj) {
+	return obj === true || obj === false || 
+	    _toString.call(obj) == '[object Boolean]';
+    };
+
+    // Is a given value a date?
+    function isDate(obj) {
+	return _toString.call(obj) == '[object Date]';
+    };
+
+    // Is the given value a regular expression?
+    function isRegExp(obj) {
+	return _toString.call(obj) == '[object RegExp]';
+    };
+
+    // Is a given value equal to null?
+    function isNull(obj) {
+	return obj === null;
+    };
+
+    // Is a given variable undefined?
+    function isUndefined(obj) {
+	return obj === void 0;
+    };
 
     // Module exports
     return {
@@ -222,7 +275,16 @@ var util = (function () {
 	copyArray: copyArray,
 	rotateArray: rotateArray,
 	mergeObjects: mergeObjects,
-	isNumber: isNumber
+	isArray: Array.isArray,	// since we have a shim
+	isObject: isObject,
+	isFunction: isFunction,
+	isString: isString,
+	isNumber: isNumber,
+	isNaN: isNaN,
+	isBoolean: isBoolean,
+	isRegExp: isRegExp,
+	isNull: isNull,
+	isUndefined: isUndefined
     };
 
 })();
