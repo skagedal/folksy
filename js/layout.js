@@ -113,6 +113,14 @@ var layout = (function () {
         this.children.push(child);
         this.recalc();
     }
+    Row.prototype.numChildren = function () {
+        return this.children.length;
+    }
+    Row.prototype.getChildrenWidth = function () {
+	this.recalc();
+        // should assert that height is set...
+        return this.weight * this.height;
+    }
     Row.prototype.shuffleChildren = function () {
         util.shuffleInPlace(this.children);
     }
@@ -129,6 +137,10 @@ var layout = (function () {
 	return "[" + rows.map(function (row) { return row.toStr; }).join(", ") + "]";
     }
 
+    // Get the sum of rows' heights (previously calculated)
+    function sumRowHeights(rows) {
+        return util.sum(util.pluck(rows, 'height'));
+    }
 
     function calculateRowHeights(rows, boxWidth, boxHeight, padding, equalHeights) {
 	var offsetY = padding;
@@ -275,7 +287,7 @@ var layout = (function () {
 	    console.log("There was no solution.");
 	    return;
 	}
-	// Implement bestSolution. FIXME: shuffle, alignment
+	// Implement bestSolution. 
 
 	var realOccupiedSpace = 0;
   
@@ -289,17 +301,41 @@ var layout = (function () {
 
 	numRows = rows.length;
 	var offsetY = box.getTop() + params.padding;
+        var extraY = box.getHeight() - sumRowHeights(rows);
+        if (params.v_align == 'bottom')
+            offsetY += extraY;
+        else if (params.v_align == 'center' ||
+                 (params.v_align == 'justify' && numRows == 1))
+	    offsetY += extraY / 2;
+        var padY = params.padding;
+        if (params.v_align == 'justify') 
+            padY += extraY / (numRows - 1);
+        
 	for (var rowIndex = 0; rowIndex < numRows; rowIndex++) {
 	    var offsetX = box.getLeft() + params.padding;
 	    var row = rows[rowIndex];
-	    for (var i = 0; i < row.children.length; i++) {
+            var numChildren = row.numChildren();
+            var extraHSpace = box.getWidth() - 
+		(row.getChildrenWidth() + numChildren * params.padding);
+            if (params.h_align == 'right')
+                offsetX += extraHSpace;
+            else if (params.h_align == 'center' ||
+                     (params.h_align == 'justify' && numChildren == 1))
+                offsetX += extraHSpace / 2;
+
+            var padX = params.padding;
+            if (params.h_align == 'justify')
+                padX += extraHSpace / (numChildren - 1);
+
+	    for (var i = 0; i < numChildren; i++) {
 		var obj = row.children[i];
 		var width = row.height * obj.weight;
 		obj.realObject.place(offsetX, offsetY, width, row.height);
-		offsetX += width + params.padding; 
+		offsetX += width + padX; 
+  
 		realOccupiedSpace += width * row.height;
 	    }
-	    offsetY += row.height + params.padding;
+	    offsetY += row.height + padY;
 	}
 	
 	console.log("Real occupied space: ", realOccupiedSpace);
