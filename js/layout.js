@@ -304,7 +304,8 @@ var layout = (function () {
 
 	numRows = rows.length;
 	var offsetY = box.getTop() + params.padding;
-        var extraY = box.getHeight() - sumRowHeights(rows);
+        var extraY = box.getHeight() - 
+	    (sumRowHeights(rows) + (numRows + 1) * params.padding);
         if (params.v_align == 'bottom')
             offsetY += extraY;
         else if (params.v_align == 'center' ||
@@ -319,7 +320,7 @@ var layout = (function () {
 	    var row = rows[rowIndex];
             var numChildren = row.numChildren();
             var extraHSpace = box.getWidth() - 
-		(row.getChildrenWidth() + numChildren * params.padding);
+		(row.getChildrenWidth() + (numChildren + 1) * params.padding);
             if (params.h_align == 'right')
                 offsetX += extraHSpace;
             else if (params.h_align == 'center' ||
