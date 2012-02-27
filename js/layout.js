@@ -23,6 +23,8 @@
 
 var layout = (function () {
 
+    var PORTRAIT = 1, LANDSCAPE = 2;
+
     // Data types
 
     function Box(x, y, width, height, data) {
@@ -135,7 +137,7 @@ var layout = (function () {
 
     function rowsToString(rows) {
 	return "[" + 
-	    rows.map(function (row) { return row.toStr; }).join(", ") + 
+	    rows.map(function (row) { return row.toStr(); }).join(", ") + 
 	    "]";
     }
 
@@ -349,10 +351,43 @@ var layout = (function () {
 
     }
 
+    function layoutMatchingGame(box, prompt, comparisons, params) {
+	var boxWidth = box.getWidth();
+	var boxHeight = box.getHeight();
+	var boxForPrompt, boxForComps;
+
+	params = util.mergeObjects(params, {
+	    // Defaults
+	    split:	0.6,
+	    padding:	10
+	});
+	
+
+	if (boxWidth > boxHeight) {
+	    var splitX = boxWidth * params.split;
+	    boxForPrompt = new Box(box.x, box.y, splitX, boxHeight);
+	    boxForComps = new Box(box.x + splitX - params.padding,
+				  box.y,
+				  boxWidth - splitX + params.padding,
+				  boxHeight);
+	} else {
+	    var splitY = boxHeight * params.split;
+	    boxForPrompt = new Box(box.x, box.y, boxWidth, splitY);
+	    boxForComps = new Box(box.x,
+				  box.y + splitY - params.padding,
+				  boxWidth,
+				  boxHeight - splitY + params.padding);
+	}
+	
+	layoutObjects(boxForPrompt, [prompt], params);
+	layoutObjects(boxForComps, comparisons, params);
+    }
+
     return {
 	Box: Box,
 	PlaceableBox: PlaceableBox,
-	layoutObjects: layoutObjects
+	layoutObjects: layoutObjects,
+	layoutMatchingGame: layoutMatchingGame
     };
     
 })();

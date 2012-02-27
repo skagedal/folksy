@@ -52,9 +52,12 @@ substs = {
     "prereqs": scripts(prereqs_js),
     "folksy": scripts(folksy_js) + u"""
         <script type="text/javascript">
-                folksy.setDebugMode(true);
-                game = new folksy.Game();
-                game.initWithURL('${json_loc}');
+                jQuery(function () {
+                    folksy.setDebugMode(true);
+                    var gameDiv = jQuery("#game")[0];
+                    window.folksyGame = new folksy.Game(gameDiv);
+                    window.folksyGame.initWithURL('${json_loc}');
+                });
         </script>
         """,
     "runbutton": u"""
@@ -63,10 +66,6 @@ substs = {
         """,
     "game": u"""
         <div id="game">
-                <img id="face">
-        	<img id="correct_answer" class="answers">
-        	<img id="wrong_answer" class="answers">
-        	<img id="reward">
         </div>
         <div id="tip">
                 $clickanimal

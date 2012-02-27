@@ -15,20 +15,19 @@
 //   along with Folksy.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-/***********************************************************************
- * MODULE
- ***********************************************************************/
+// Module
 
 folksy = (function () {
 
-    // HACKITY HACK
+// Constants
+
     // Since all URLs should be specified in the game json anyway,
     // let's use this hack for now.
     var HREF_PREFIX = "/simon/folksy/";
 
-/***********************************************************************
- * INTERNATIONALIZATION
- ***********************************************************************/
+    var MAX_COMPARISON_STIMULI = 8;
+
+// Internationalization
 
     var RESOURCES = {
 	'en': {
@@ -89,19 +88,34 @@ folksy = (function () {
 	}
     }
 
-/***********************************************************************
- * THE GAME CLASS
- ***********************************************************************/
+// HTML helpers
 
-    function Game(gameURL) {
+    function isElement(obj) {
+	return !!(obj && obj.nodeType == 1);
+    };
 
-	// Private items are marked with _. 
+    function isElementOfType(obj, type) {
+	if (!util.isString(type))
+	    throw new TypeError(
+		'second argument to isElementOfType should be a string');
+	return isElement(obj) && 
+	    obj.nodeName.toLowerCase() === type.toLowerCase();
+    }
+
+// The Game class
+
+    function Game(gameDiv, gameURL) {
+
+	// Private items are marked with _.
 	this._isInQuestion = false;
 	this._isInClickReward = false;
 	this._gameURL = null;
-
+        this._gameDiv = gameDiv;
+        if (!isElementOfType(gameDiv, 'div'))
+            throw new TypeError('gameDiv argument is not a div');
 	// These things should come with the game.
-	this.animals = ["cat", "monkey", "panda", "penguin", "pig", "sheep", "walrus"];
+	this.animals = ["cat", "monkey", "panda", "penguin", 
+			"pig", "sheep", "walrus"];
 	this.animalImages = [];
 	this.soundFX = ["bra_jobbat", "ja_det_var_raett", "fel", "yippie"];
 	this.soundFXaudios = [];
@@ -169,7 +183,7 @@ folksy = (function () {
 	});
 
 	// Enable "Run" button
-	$("#start_game").click(start_game.bind(null, game)).show();
+	$("#start_game").click(startGame.bind(null, game)).show();
     }
 
     function updateLoading(game) { 
@@ -249,14 +263,15 @@ folksy = (function () {
     }
 
     function positiveReinforcement(game) {
-	var reward = $("#reward");
+	var reward = game.$reward;
 	reward.css({top: 212, left: 212, width: 0, height: 0, opacity: 1.0});
 	reward[0].src = util.pickOneRandom(game.animalImages).src;
 	reward.show();
 	reward.animate({top: 62, left: 62, width: 300, height: 300}, 
 		       function() { 
 			   game._isInClickReward = true; 
-			   soundManager.play(util.pickOneRandom(["bra_jobbat", "ja_det_var_raett"]));
+			   soundManager.play(util.pickOneRandom([
+			       "bra_jobbat", "ja_det_var_raett"]));
 		       });
 	$("#tip").fadeIn();
     }
@@ -266,7 +281,7 @@ folksy = (function () {
 	if (game._isInClickReward) {
 	    game._isInClickReward = false;
 	    $("#tip").fadeOut();
-	    $("#reward").fadeOut(function() { nextQuestion(game); });
+	    game.$reward.fadeOut(function() { nextQuestion(game); });
 	}
     }
 
@@ -293,9 +308,20 @@ folksy = (function () {
 	}
     }
 
-    function wrongAnswer(game) {
+    function incorrectAnswer(game) {
 	if (game._isInQuestion) {
 	    soundManager.play('fel');
+	}
+    }
+
+    function clickComparisonImage() {
+	var stimulus = $(this).data('stimulus');
+	var game = $(this).data('game');
+	
+	if (game.logic.respond(stimulus.fullID) == gamelogic.CORRECT) {
+	    correctAnswer(game, this);
+	} else {
+	    incorrectAnswer(game);
 	}
     }
 
@@ -310,22 +336,17 @@ folksy = (function () {
     }
 
     function setupComparisonImage(game, index, stimulus) {
-	var image = game._comparisonImages[index];
-	if (!image) {
-	    image = new Image();
-	    $(image).addClass('answers');
-	    $(image).click(function () { clickComparisonImage(game, i); });
-	    $(image).hover(hoverComparisonImageIn, hoverComparisonImageOut);
-	    $("#game").append(image);
-	    game._comparisonImages[index] = image;
-	}
 	$.data(image, 'stimulus', stimulus)
     }
 
-    function getStimulusIdentifiers(stimulusSet) {
-	return stimulusSet.stimuli.map(function (stim) {
-	    return stimulusSet.id + ":" + stim.id;
+    function setFullStimulusIdentifiers(stimulusSet) {
+	stimulusSet.stimuli.forEach(function (stim) {
+	    stim.fullID = stimulusSet.id + ":" + stim.id;
 	});
+    }
+    
+    function getStimulusIdentifiers(stimulusSet) {
+	return util.pluck(stimulusSet.stimuli, 'fullID');
     }
 
     function getRelationPairs(relation) {
@@ -359,7 +380,7 @@ folksy = (function () {
 
     function getStimuliByFullId(game, fullIds) {
 	return fullIds.map(getStimulusByFullId.bind(null, game));
-    }
+    }				
 
     function forEachStimulus(game, fun) {
 	game.stimulusSets.forEach(function (set) {
@@ -367,40 +388,108 @@ folksy = (function () {
 	});
     }
 
-    function nextQuestion(game) {
-	console.log("nextQuestion", game);
-	var next = game.logic.next();
-	var sampleStimulus = getStimulusByFullId(game, next[0]);
-	var comparisonStimuli = getStimuliByFullId(game, next[1]);
-
-	console.log("Next: ", next);
-	console.log("Sample stimulus: ", sampleStimulus);
-	console.log("Comparison stimuli: ", comparisonStimuli);
-
-	if (sampleStimulus.hasOwnProperty('sound'))
-	    playSound(sampleStimulus.sound);
-	
-	// Set up face (sample stimulus)
-	game.current_image = sampleStimulus.image;
-	$("#face")[0].src = game.current_image.src;
-	$("#face").fadeIn();		
-	
-	// Set up letters (comparison stimuli)
-	uiInitComparisonImages(comparisonStimuli.length);
-	for (var i = 0; i < comparisonStimuli.length; i++) {
-	    setupComparisonImage(game, i, comparisonStimuli[i]);
+    // Create all the DOM elements (keep as jQuery objects for convenience)
+    function createElements(game) {
+	console.log("Creating elements.");
+        game.$prompt = $('<img />').css({
+	    'display': 'none',
+	    'z-index': '1',
+	    'position': 'absolute'});
+	game.$comparisons = [];
+	for (var i = 0; i < MAX_COMPARISON_STIMULI; i++) {
+	    game.$comparisons[i] = $('<img />')
+		.css({
+		    'display': 'none',
+		    'z-index': '1',
+		    'position': 'absolute',
+		    'cursor': 'pointer'})
+		.click(clickComparisonImage)
+		.hover(hoverComparisonImageIn, hoverComparisonImageOut)
+		.data('game', game);
 	}
+	var domComparisons = game.$comparisons.map(function (jqObj) {
+	    return jqObj[0];
+	});
+	game.$reward = $('<img />')
+	    .css({
+		'display': 'none',
+		'z-index': '2',
+		'position': 'absolute',
+		'cursor': 'pointer'})
+	    .click(clickReward.bind(null, game));
+	game.$gameDiv = $(game._gameDiv);
+	game.$gameDiv.append(game.$prompt,
+			     domComparisons,
+			     game.$reward);
+    }
 
-	layout.layout();
+    function placeJQuery(x, y, width, height) {
+	layout.PlaceableBox.prototype.place.call(this, x, y, width, height);
+	console.log("Placing object at ", x, y, width, height);
+	this.data.css({left: x,
+		       top: y,
+		       width: width,
+		       height: height});
 
-	$(".answers").fadeIn();
+    }
+
+    // Connect a jQuery'd image and a stimulus and a put it in a 
+    // placeable box. 
+    function connectAndBoxStimulus($img, stimulus) {
+	var box;
+	$img[0].src = stimulus.image.src;
+	$img.data('stimulus', stimulus);
+	box = new layout.PlaceableBox(stimulus.width,
+				      stimulus.height,
+				      $img);
+	box.place = placeJQuery;
+	return box;
+    }
+
+    // Run whenever we need to redo layout, on new question, on window resize...
+    function layoutGame(game) {
+	var gameBox, promptBox, comparisonBoxes;
+	var gameWidth = game.$gameDiv.width();
+	var gameHeight = game.$gameDiv.height();
+
+	gameBox = new layout.Box(0, 0, gameWidth, gameHeight);
+
+	// Set up prompt stimulus
+	promptBox = connectAndBoxStimulus(game.$prompt,
+					  game.promptStimulus);
+	
+	// Set up comparison stimuli
+	comparisonBoxes = [];
+	for (var i = 0; i < game.comparisonStimuli.length; i++) {
+	    comparisonBoxes.push(connectAndBoxStimulus(
+		game.$comparisons[i],
+		game.comparisonStimuli[i]));
+	}
+	game.$activeComparisons = 
+	    game.$comparisons.slice(0, game.comparisonStimuli.length);
+
+	layout.layoutMatchingGame(gameBox,
+				  promptBox,
+				  comparisonBoxes);
+    }
+
+    function nextQuestion(game) {
+	var next = game.logic.next();
+
+	game.promptStimulus = getStimulusByFullId(game, next[0]);
+	game.comparisonStimuli = getStimuliByFullId(game, next[1]);
+
+	if (game.promptStimulus.hasOwnProperty('sound'))
+	    playSound(game.promptStimulus.sound);
+	
+	layoutGame(game);
+
+	game.$prompt.fadeIn();		
+	game.$activeComparisons.forEach(function (c) { c.fadeIn(); });
 	game._isInQuestion = true;
     }
 
-    function start_game(game) {
-	$("#correct_answer").click(function () { correctAnswer(game); });
-	$("#wrong_answer").click(function () { wrongAnswer(game); });
-	$("#reward").click(function () { clickReward(game); });
+    function startGame(game) {
 	$("#intro").slideUp("slow", function() { 
 	    $("#game").fadeIn("slow", nextQuestion.bind(null, game)); 	
 	});
@@ -429,14 +518,18 @@ folksy = (function () {
 	    return;
 	}	    
 
+	this.stimulusSets.forEach(setFullStimulusIdentifiers);
 	var setA = getStimulusIdentifiers(this.stimulusSets[0]);
 	var setB = getStimulusIdentifiers(this.stimulusSets[1]);
 	var pairs = getRelationPairs(this.relations[0]);
 
-	this.logic = new gamelogic.SimpleGameLogic(setA, setB, pairs, {});
+	this.logic = new gamelogic.SimpleGameLogic(setA, setB, pairs, {
+	    comparison_stimuli: 4
+	});
 	
 	$(document).ready(function() {
             soundManager.onready(function() {
+		createElements(game);
 		loadGameData(game);
             });
 	});

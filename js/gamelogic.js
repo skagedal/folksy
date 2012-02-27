@@ -1,6 +1,11 @@
 // Module
 
 gamelogic = (function () {
+    var constants = {
+	CORRECT: 1,
+	INCORRECT: 2
+    };
+
     var RelationPair = {
 	stimulusA: {},
 	stimulusB: {},
@@ -137,13 +142,19 @@ gamelogic = (function () {
     }
 
     SimpleGameLogic.prototype.respond = function (stimulus) {
-	return stimulus === this.currentPair[1];
+	if (stimulus === this.currentPair[1])
+	    return constants.CORRECT;
+	else 
+	    return constants.INCORRECT;
     }
 
     // Exports from module "gamelogic"
-    return {
-	GameLogic: GameLogic,
-	SimpleGameLogic: SimpleGameLogic
-    };
+    return util.mergeObjects(
+	constants, 
+	{
+	    GameLogic: GameLogic,
+	    SimpleGameLogic: SimpleGameLogic,
+	}
+    );
 
 })();
