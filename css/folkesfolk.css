@@ -1,43 +1,43 @@
 
-/* CSS for Folkes Folk */
+/* Default CSS theme for Folksy */
 
 body {
-    font-family:Arial, Helvetica, sans-serif;
-    font-size:13px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 13px;
 }
 
 h1 {
-	margin: 1em 0px;
-	font-family: Arial, Sans;
-	font-size: x-large;
-	font-weight: bold;
+    margin: 1em 0px;
+    font-family: Arial, Sans;
+    font-size: x-large;
+    font-weight: bold;
 }
 p {
-	margin-bottom: 1em;
+    margin-bottom: 1em;
 }
 tt {
-	font-family: monospae;
+    font-family: monospae;
 }
 footer {
-	font-size: x-small;
-	border-top-style: solid;
-	border-color: black;
-	background-color: gray;
+    font-size: x-small;
+    border-top-style: solid;
+    border-color: black;
+    background-color: gray;
 }
 
 #container {
-	width: 424px;
-	margin-left: auto;
-	margin-right: auto;
+    width: 424px;
+    margin-left: auto;
+    margin-right: auto;
 }
 #game {
-	display: none;
-       	position: relative;
-	top: 28px;
-	width: 424px;
-	height: 620px;
-	background-image: url(../themes/sunset/background.jpg);
-	z-index: 0;
+    display: none;
+    position: relative;
+    top: 28px;
+    width: 424px;
+    height: 620px;
+    background-image: url(../themes/sunset/background.jpg);
+    z-index: 0;
 }
 
 /* These styles are suggested by:
@@ -82,60 +82,18 @@ footer {
     background-image: url('validation.png');
 }
 
-/* A lot of the values here are also hardcoded in the JS. Ugly, I know. */
-
-#face {
-	display: none;
-	z-index: 1;
-	position: absolute;
-	width: 368px;
-	height: 368px;
-	top: 28px;
-	left: 28px;	
-}
-.answers {
-	display: none;
-	z-index: 1;
-	position: absolute;
-	width: 164px;
-	height: 164px;
-	top: 424px;
-}
-.answers:hover {
-	cursor: pointer; 
-}
-#correct_answer {
-	left: 28px
-}
-#wrong_answer {
-	left: 232px;
-}
-#reward {
-	display: none;
-	z-index: 2;
-	position: absolute;
-	top: 212px;
-	left: 212px;
-	width: 0px;
-	height: 0px;
-}
-#reward:hover {
-	cursor: pointer;
-}
-
 #tip {
-	margin-top: 40px;	
-	font-size: small;
-	display: none;
+    margin-top: 40px;	
+    font-size: small;
+    display: none;
 }
-
 
 .bigbutton {
-	margin: 1em auto; 	/* Why can't I get it centered? */
-	font-size: large;
-	font-weight: bold;
-	padding: 1em;	
+    margin: 1em auto; 	/* Why can't I get it centered? */
+    font-size: large;
+    font-weight: bold;
+    padding: 1em;	
 }
 #start_game {
-	display: none;
+    display: none;
 }
