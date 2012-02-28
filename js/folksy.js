@@ -285,25 +285,28 @@ folksy = (function () {
 	}
     }
 
-    function correctAnswer(game) {
+    function correctAnswer(game, correctImage) {
 	if (game._isInQuestion) {
+	    var uiCorrectImage = $(correctImage);
 	    game._isInQuestion = false;
 	    soundManager.play("yippie");
-	    $("#wrong_answer").fadeOut();
-	    $("#correct_answer").animate({
-		top: 28, 
-		left: 28,
-		width: 368,
-		height: 368,
+	    game.$activeComparisons.forEach(function ($image) {
+		if ($image[0] !== correctImage)
+		    $image.fadeOut();
+	    });
+	    uiCorrectImage.animate({
+		top: game.$prompt.css('top'), 
+		left: game.$prompt.css('left'),
+		width: game.$prompt.css('width'),
+		height: game.$prompt.css('height'),
 		opacity: 0.5}, 1000, function() {
-		    $("#face").fadeOut();
-		    $("#correct_answer").fadeOut(function() {
-			$("#correct_answer").css({top: 424, 
-						  width: 164, height: 164, 
-						  opacity: 1.0});
+		    game.$prompt.fadeOut();
+		    uiCorrectImage.fadeOut(function () {
+			uiCorrectImage.css({opacity: 1.0});
 			positiveReinforcement(game);
 		    });
 		});
+
 	    log("Whoohooo!");
 	}
     }
