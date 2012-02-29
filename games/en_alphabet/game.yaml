@@ -20,10 +20,10 @@ items:
    title: A is for apple
    blurb: Two Fuji apples. In 1992, Washington apple growers harvested about 805,000 boxes of Fujis. Three years later, production had quadrupled to 3.5 million boxes.
    source: http://commons.wikimedia.org/wiki/File:Fuji_apple.jpg
- - id: B_ball
+ - id: B_banana
    title: B is for banana
-   blurb: A generic football. 
-   source: http://commons.wikimedia.org/wiki/File:Generic_football.png
+   blurb: A banana.
+   source: http://commons.wikimedia.org/wiki/File:Banana_(white_background).jpg
  - id: C_cat
    title: C is for cat
    blurb: A cat in the black hills.
