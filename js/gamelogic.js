@@ -138,7 +138,8 @@ gamelogic = (function () {
     function numComparisonStimuli(logic) {
         var round = Math.floor(logic.currentTrial / logic.pairs.length);
         return Math.min(logic.params.max_comparison_stimuli,
-                        logic.params.comparison_stimuli + round * logic.params.round_increase);
+                        logic.params.comparison_stimuli + 
+			round * logic.params.round_increase);
     }
 
     SimpleGameLogic.prototype.next = function () {
@@ -148,8 +149,8 @@ gamelogic = (function () {
 	var targetStimulus = this.currentPair[1];
 	var otherStimuli = this.setB.filter(
 	    util.inequalityChecker(targetStimulus));
-	var comparisonStimuli = util.pickRandom(otherStimuli,
-						numComparisonStimuli(this) - 1);
+	var comparisonStimuli = util.pickRandom(
+	    otherStimuli, numComparisonStimuli(this) - 1);
 	comparisonStimuli.push(targetStimulus);
 	return [sampleStimulus, comparisonStimuli];
     }
