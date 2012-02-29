@@ -359,27 +359,36 @@ var layout = (function () {
 	params = util.mergeObjects(params, {
 	    // Defaults
 	    split:	0.6,
-	    padding:	10
+	    padding:	20,
+	    h_align:	'center',
+	    v_align:	'center'
 	});
 	
 
 	if (boxWidth > boxHeight) {
 	    var splitX = boxWidth * params.split;
 	    boxForPrompt = new Box(box.x, box.y, splitX, boxHeight);
-	    boxForComps = new Box(box.x + splitX - params.padding,
+	    params['h_align'] = 'left';
+
+	    layoutObjects(boxForPrompt, [prompt], params);
+
+	    boxForComps = new Box(prompt.getRight(),
 				  box.y,
-				  boxWidth - splitX + params.padding,
+				  boxWidth - prompt.getRight(),
 				  boxHeight);
 	} else {
 	    var splitY = boxHeight * params.split;
 	    boxForPrompt = new Box(box.x, box.y, boxWidth, splitY);
+	    params['v_align'] = 'top';
+
+	    layoutObjects(boxForPrompt, [prompt], params);
+
 	    boxForComps = new Box(box.x,
-				  box.y + splitY - params.padding,
+				  prompt.getBottom(),
 				  boxWidth,
-				  boxHeight - splitY + params.padding);
+				  boxHeight - prompt.getBottom());
 	}
 	
-	layoutObjects(boxForPrompt, [prompt], params);
 	layoutObjects(boxForComps, comparisons, params);
     }
 

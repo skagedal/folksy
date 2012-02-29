@@ -8,7 +8,6 @@ Simon Kågedal Reimer <simon@kagedal.org>
 ** GitHub project page
 ** Link from game to project page; maybe a nice http://www.cssstickyfooter.com/[sticky footer]?
 ** Include copyright/credits text on game info page; generate from gametool
-** Increase padding to 20, see if that helps layout
 
 
 .General
