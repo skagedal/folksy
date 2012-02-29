@@ -40,33 +40,43 @@ folksy = (function () {
 	'sv': {
 	    'loading_images':	'Laddar bilder... (%(count)s av %(total)s)',
 
+	    // Fallback language for as of yet untranslated entries
 	    '_FALLBACK_': 'en'
 	}
     }
+    
+    var resources;
 
+    // TODO: should handle complex language tags. See:
+    // http://www.w3.org/International/articles/language-tags/
+    function loadResources(lang) {
+	if (lang in RESOURCES) {
+	    var langRes = RESOURCES[lang];
+	    if ('_FALLBACK_' in langRes) {
+		var fallback = langRes['_FALLBACK_'];
+		var fallbackRes = loadResources(fallback);
+		langRes = util.mergeObjects(langRes, fallbackRes);
+		delete langRes['_FALLBACK_'];
+	    }
+	    return langRes;
+	} else {
+	    return loadResources('en');
+	}	
+    }
+
+    function initResources(lang) {
+	resources = loadResources(lang);
+    }
 
     function getResource(index, args) {
-	// Rewrite to use _FALLBACK_ 
-	var cascade = ['sv', 'en'];
-	var res = RESOURCES;
-	for (var i = 0; i < cascade.length; i++) { 
-	    var lang = cascade[i];
-	    if (index in res[lang]) {
-		var fmt = res[lang][index];
-		return args ? sprintf(fmt, args) : fmt;
-	    }
+	if (index in resources) {
+	    var fmt = resources[index];
+	    return args ? sprintf(fmt, args) : fmt;
 	}
 	return null;
     }
-    var F_ = getResource;
+    var F_ = getResource;	
     
-    // TODO: something like this instead:
-    // function getResourceGetter(locale) { 
-    //   return function(index, args) { 
-    //     return getResourceForLocale(locale, index, args); 
-    //   }; 
-    // }
-
     function setupSoundManager() {
 	soundManager.useHTML5Audio = true;
     }
@@ -515,6 +525,9 @@ folksy = (function () {
 	this.stimulusSets = jsonData.stimulus_sets;
 	this.relations = jsonData.relations;
 	log("The name of the game: " + jsonData.name);
+
+	// We should use content negotiation for this. But, for now.
+	initResources(jsonData.lang || "en");
 
 	if (this.stimulusSets.length !== 2 || this.relations.length !== 1) {
 	    this.showError(F_(error_format));
