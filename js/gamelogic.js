@@ -136,6 +136,7 @@ gamelogic = (function () {
 
     // Calculate how many comparison stimuli to show this trial.
     function numComparisonStimuli(logic) {
+	// Fun testing mode: return Math.min(logic.currentTrial + 1, 8);
         var round = Math.floor(logic.currentTrial / logic.pairs.length);
         return Math.min(logic.params.max_comparison_stimuli,
                         logic.params.comparison_stimuli + 
