@@ -8,7 +8,6 @@ Simon Kågedal Reimer <simon@kagedal.org>
 ** B for banana...
 ** English ui text
 ** English "rewards" sounds
-** SimpleGameLogic: Increase number of comparison stimuli after each round; begin with two, max... eight?
 ** GitHub project page
 ** Link from game to project page; maybe a nice http://www.cssstickyfooter.com/[sticky footer]?
 ** Include copyright/credits text on game info page; generate from gametool

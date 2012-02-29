@@ -527,7 +527,7 @@ folksy = (function () {
 	var pairs = getRelationPairs(this.relations[0]);
 
 	this.logic = new gamelogic.SimpleGameLogic(setA, setB, pairs, {
-	    comparison_stimuli: 4
+	    // comparison_stimuli: 4
 	});
 	
 	$(document).ready(function() {

@@ -116,7 +116,10 @@ gamelogic = (function () {
 	this.origPairs = pairs;
 	this.params = util.mergeObjects(params, {
 	    introduce_randomly: false,
-	    comparison_stimuli: 2
+	    comparison_stimuli: 2,
+            // Increase number of comparion stimuli each round
+            round_increase: 1,
+            max_comparison_stimuli: 8
 	});
 	this.start();
     }
@@ -127,16 +130,26 @@ gamelogic = (function () {
 	} else {
 	    this.pairs = util.copyArray(this.origPairs);
 	}
+        // Ever increasing, used to keep track of which round we're in.
+        this.currentTrial = -1;
+    }
+
+    // Calculate how many comparison stimuli to show this trial.
+    function numComparisonStimuli(logic) {
+        var round = Math.floor(logic.currentTrial / logic.pairs.length);
+        return Math.min(logic.params.max_comparison_stimuli,
+                        logic.params.comparison_stimuli + round * logic.params.round_increase);
     }
 
     SimpleGameLogic.prototype.next = function () {
+        this.currentTrial++;
 	this.currentPair = util.rotateArray(this.pairs);
 	var sampleStimulus = this.currentPair[0];
 	var targetStimulus = this.currentPair[1];
 	var otherStimuli = this.setB.filter(
 	    util.inequalityChecker(targetStimulus));
 	var comparisonStimuli = util.pickRandom(otherStimuli,
-						this.params.comparison_stimuli - 1);
+						numComparisonStimuli(this) - 1);
 	comparisonStimuli.push(targetStimulus);
 	return [sampleStimulus, comparisonStimuli];
     }
