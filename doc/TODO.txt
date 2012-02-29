@@ -4,7 +4,6 @@ Simon Kågedal Reimer <simon@kagedal.org>
 
 .Priority 
 * Fix up before publication of en_alphabet:
-** Remove sunset background
 ** B for banana...
 ** English ui text
 ** English "rewards" sounds
