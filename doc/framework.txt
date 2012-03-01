@@ -27,9 +27,8 @@ and sounds.
 * JPEG should be used for photographic images. PNG should be used for
   computer generated images, such as letters. 
 ** *Future:* GIF *might* be usable for simple animations (although
-    looping through PNGs with code might work just as well?). I really
-    hope SVG will be a core format some day, but I guess the web isn't
-    ready yet...
+    looping through PNGs with code might work just as well?). I hope
+    to also provide SVG support soon.
 * For sound files, *both* Ogg Vorbis and MP3 should be provided. I
   really wish we could stick with Ogg Vorbis, since MP3 has patent
   problems. Unfortunately, that would leave a large part of our
@@ -37,9 +36,9 @@ and sounds.
   a fallback use Flash.
 ** I'd like more specification here on what bitrate, sample rate
    etc. we want to use -- based on what works best in browsers
-* I'm guessing the saame kind of issue will appear when we want to
+* I'm guessing the same kind of issue will appear when we want to
   support video. http://theora.org/[Theora] should be our first hand
-  choice, but...
+  choice, but needs to have a fallback.
 
 .JSON structure
 
@@ -102,7 +101,8 @@ stimuli. Let's define some terminology:
 
 ** a 'sample stimulus' is a question to be answered. For example, an
    image of an apple, where the task is to respond with the word
-   "apple". It may be any composite stimulus.
+   "apple". It may be any composite stimulus. We will also call this a
+   'prompt stimulus', since the word sample is confusing here.
 
 ** a 'comparison stimulus' is an answer. For exampe, the word "apple";
    usually presented next to other comparison stimuli. It may
@@ -198,10 +198,10 @@ star every time you reach below pmean = 0.9, 0.8, 0.7...
 === Themes ===
 Graphical and auditive themes in common for many games.
 
-Typsnittet som används för bokstavsbilderna är
-http://www.gnu.org/software/freefont/[GNU FreeFont Sans], som är
-licensierad med GNU GPL, men tillåter valfri licens för dokument där
-typsnittet används.
+The typeface used for letter images is
+http://www.gnu.org/software/freefont/[GNU FreeFont Sans], which is
+licenced with GNU GPL, but allows any licence to be used for documents
+where the typeface is used.
 
 == Game engines ==
 There is currently only the web game engine. A mobile version will be written
@@ -219,8 +219,13 @@ Audio on the web is hard to get right. We're using
 {SoundManager 2} which uses HTML5 audio or Flash. 
 
 {jsdoc} is used for documentation. (Ubuntu package: jsdoc-toolkit)
-{jasmine} (included) is used for unit testing.
+(Actually, it's not, and I'm not so sure about it. Seems inflexible. I
+think an explicit documenting system, like http://pdoc.org/[PDoc], is
+a better idea for a language like JavaScript. Google Closure Compiler,
+however, uses jsdoc tags for controlling optimization in detail. So
+I'm not sure what to do.)
 
+{jasmine} (included) is used for unit testing.
 
 SoundManager problem: What I'd like is if I could give it an ogg file
 and an mp3 file, and then it would use the ogg wherever possible,
