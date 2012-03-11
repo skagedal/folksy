@@ -15,4 +15,30 @@ def build():
 def clean():
     autoclean()
 
+def fromgcompris():
+    # Variables to modify
+    gcompris_version = '12.01'
+    files = ['awesome.ogg', 'congratulation.ogg', 'fantastic.ogg',
+             'good.ogg', 'great.ogg', 'perfect.ogg', 'super.ogg',
+             'waytogo.ogg']
+    langs = ['en', 'sv']
+
+    project = 'gcompris-' + gcompris_version
+    tgz_file = project + '.tar.gz'
+    url = 'http://sourceforge.net/projects/gcompris/files/%s/%s/download' % \
+          (gcompris_version, tgz_file)
+    unpack = '%s/boards/voices/' % project
+    if not path.isdir(project):
+        if not path.isfile(tgz_file):
+            download(url, tgz_file)
+        vcall(['tar', 'xf', tgz_file, unpack])
+    
+    for lang in langs:
+        mkpath(lang)
+        for file in files:
+            vcall(['cp', '%s/boards/voices/%s/misc/%s' % (project,
+                                                          lang, file),
+                   lang])
+                                                        
+
 main()

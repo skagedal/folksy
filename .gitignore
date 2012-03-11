@@ -5,7 +5,7 @@
 # fabricate
 .deps
 
-* Python
+# Python
 *.pyc
 
 # Emacs auto-save files

@@ -18,6 +18,7 @@
 
 from fabricate import *
 import sys, os, os.path as path, subprocess
+from distutils.dir_util import mkpath
 
 def in_dir(dir, fun, *args, **kwargs):
     """Execute the function `fun` in the directory `dir`, passing on
@@ -46,3 +47,11 @@ def subdirectories(dir = None):
         if path.isdir(path.join(dir, entry)):
             yield entry
 
+def vcall(lst, *args, **kwargs):
+    """ "Verbose call" """
+    print(" ".join(lst))
+    subprocess.call(lst, *args, **kwargs)
+
+
+def download(url, target):
+    print("TODO: download %s to %s (with wget, curl..l)" % (url, target))
