@@ -6,7 +6,7 @@ import glob
 sys.path = ['../../../..'] + sys.path
 from buildsupport import *
 
-sources = glob.glob('*.ogg')
+sources = glob.glob('*.ogg') + glob.glob('*/*.ogg')
 
 def build():
     for source in sources:
