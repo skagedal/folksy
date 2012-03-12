@@ -21,7 +21,7 @@
 The following environment variables are used:
 
 FOLKSY_GAMEPATH: Here's where we look for games [TODO: change this system to basic regular work-on-this-file]
-FOLKSY_THEMEPATH: Here's where we look for themes. 
+FOLKSY_MODULEPATH: Here's where we look for modules/themes. 
 FOLKSY_HREF_PREFIX: To put before common Folksy files in URL:s.
 
 Colon separated. (on Unix, semi-colon on Windows I guess.)
@@ -185,8 +185,8 @@ class Theme:
         kwords = { "prefix": self.folksy.href_prefix,
                    "theme": self.theme_id, 
                    "letter": unicodedata.name(letter).replace(" ", "_")}
-        json["image_src"] = "{prefix}themes/{theme}/letters/{letter}.png".format(**kwords)
-        json["image_select_src"] = "{prefix}themes/{theme}/letters/{letter}_select.png".format(**kwords)
+        json["image_src"] = "{prefix}modules/letters/{letter}.png".format(**kwords)
+        json["image_select_src"] = "{prefix}modules/letters/{letter}_select.png".format(**kwords)
         filename = kwords["letter"] + ".png"
         return json
         
@@ -423,7 +423,7 @@ class FolksyTool:
                 warning("%s: %s" % (e.filename, e.strerror))
 
     def get_default_theme(self):
-        return "sunset"
+        return "basic"
 
     def is_valid_theme(self, theme):
         return theme in self.themes

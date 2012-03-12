@@ -3,11 +3,11 @@
 
 import sys
 import glob, json
-sys.path = ['../../../..'] + sys.path
+sys.path = ['../..'] + sys.path
 from buildsupport import *
 
 
-sources = glob.glob('*.ogg') + glob.glob('*/*.ogg')
+sources = glob.glob('sound/*/*.ogg')
 
 IMAGES = [
     'cat.png', 
@@ -35,13 +35,12 @@ GCOMPRIS_VERSION = '12.01'
 def build():
     for source in sources:
         run('ffmpeg', '-y', '-i', source, path.splitext(source)[0] + '.mp3')
+    module()
 
 def clean():
     autoclean()
 
 def fromgcompris():
-    # Variables to modify
-
     project = 'gcompris-' + GCOMPRIS_VERSION
     tgz_file = project + '.tar.gz' 
     url = 'http://sourceforge.net/projects/gcompris/files/%s/%s/download' % \

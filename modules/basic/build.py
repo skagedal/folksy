@@ -5,4 +5,4 @@ import sys
 sys.path = ['../..'] + sys.path
 from buildsupport import *
 
-recurse("rewards/sound")
+# Nothing to do here.

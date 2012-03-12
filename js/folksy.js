@@ -237,7 +237,7 @@ folksy = (function () {
 	if (game._loadingAborted) return;
 	
 	for (var i = 0; i < game.animals.length; i++) {
-	    var filename = HREF_PREFIX + "themes/sunset/rewards/images/" + 
+	    var filename = HREF_PREFIX + "modules/cute-rewards/images/" + 
 		game.animals[i] + ".png";
 	    game.animalImages.push(loadImage(game, filename));
 	}
@@ -246,8 +246,8 @@ folksy = (function () {
 	    var s = game.soundFX[i];
 	    var sound = soundManager.createSound({
 		id: s,
-		url: [HREF_PREFIX + 'themes/sunset/rewards/sound/' + s + '.mp3',
-		      HREF_PREFIX + 'themes/sunset/rewards/sound/' + s + '.ogg'],
+		url: [HREF_PREFIX + 'modules/cute-rewards/sound/' + s + '.mp3',
+		      HREF_PREFIX + 'modules/cute-rewards/sound/' + s + '.ogg'],
 		autoLoad: true});
 	    game.soundFXaudios.push(sound);
 	}

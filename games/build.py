@@ -22,8 +22,8 @@ from buildsupport import *
 
 # We overwrite this, assuming we want to build the shipped games with
 # the shipped theme.
-themedir = path.abspath(path.join(path.pardir, 'themes'))
-os.environ["FOLKSY_THEMEPATH"] = themedir 
+moduledir = path.abspath(path.join(path.pardir, 'modules'))
+os.environ["FOLKSY_MODULEPATH"] = moduledir 
 
 subdirs = ["en_alphabet"]
 # subdirs = subdirectories() 
