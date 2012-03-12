@@ -18,106 +18,105 @@ description:
 items:
  - id: A_apple
    title: A is for apple
-   blurb: Two Fuji apples. In 1992, Washington apple growers harvested about 805,000 boxes of Fujis. Three years later, production had quadrupled to 3.5 million boxes.
-   source: http://commons.wikimedia.org/wiki/File:Fuji_apple.jpg
+   image: commons:Fuji_apple.jpg
+   sound: commons:A_is_for_apple.ogg
  - id: B_banana
    title: B is for banana
-   blurb: A banana.
-   source: http://commons.wikimedia.org/wiki/File:Banana_(white_background).jpg
+   image: commons:Banana_(white_background).jpg
+   sound: commons:B_is_for_banana.ogg
  - id: C_cat
    title: C is for cat
-   blurb: A cat in the black hills.
-   source: http://commons.wikimedia.org/wiki/File:Black_hills_cat-tochichi.jpg
+   image: commons:Black_hills_cat-tochichi.jpg
+   sound: commons:C_is_for_cat.ogg
  - id: D_duck
    title: D is for duck
-   blurb: 
-   source: http://commons.wikimedia.org/wiki/File:Coin-img_2219.jpg
+   image: commons:Coin-img_2219.jpg
+   sound: commons:D_is_for_duck.ogg
  - id: E_egg
    title: E is for egg
-   blurb: A Brown-headed Cowbird egg in an Eastern Phoebe nest.
-   source: http://commons.wikimedia.org/wiki/File:Cowbird_egg.JPG
+   image: commons:Cowbird_egg.JPG
+   sound: commons:E_is_for_egg.ogg
  - id: F_fish
    title: F is for fish
-   blurb: 
-   source: http://commons.wikimedia.org/wiki/File:Lemin_u0.gif
+   image: commons:Lemin_u0.gif
+   sound: commons:F_is_for_fish.ogg
  - id: G_gate
    title: G is for gate
-   blurb: "Hargimont, Belgium: the Jemeppe Castle (XVIth century) and its keep (XIIIth century)."
-   source: http://commons.wikimedia.org/wiki/File:Hargimont_051030_(5).JPG
+   image: commons:Hargimont_051030_(5).JPG
+   sound: commons:G_is_for_gate.ogg
  - id: H_horse
    title: H is for horse
-   blurb: A ten year old Oldenburger Stute.
-   source: http://commons.wikimedia.org/wiki/File:Bess2.jpg
+   image: commons:Bess2.jpg
+   sound: commons:H_is_for_horse.ogg
  - id: I_igloo
    title: I is for igloo
-   blurb: Made in Finland. 
-   source: http://commons.wikimedia.org/wiki/File:Igloo_outside.jpg
+   image: commons:Igloo_outside.jpg
+   sound: commons:I_is_for_igloo.ogg
  - id: J_jam
    title: J is for jam
-   blurb: 
-   source: http://commons.wikimedia.org/wiki/File:Confituur.JPG
+   image: commons:Confituur.JPG
+   sound: commons:J_is_for_jam.ogg
  - id: K_kangaroo
    title: K is for kangaroo
-   blurb: Taken at Disney's Animal Kingdom.
-   source: http://commons.wikimedia.org/wiki/File:Kangaroo1.jpg
+   image: commons:Kangaroo1.jpg
+   sound: commons:K_is_for_kangaroo.ogg
  - id: L_lion
    title: L is for lion
-   blurb: 
-   source: http://commons.wikimedia.org/wiki/File:Lion_zoo_antwerp_1280.jpg
+   image: commons:Lion-1.jpg
+   sound: commons:L_is_for_lion.ogg
  - id: M_mouse
    title: M is for mouse
-   blurb: 
-   source: http://commons.wikimedia.org/wiki/File:Apodemus_sylvaticus_bosmuis.jpg
+   image: commons:Apodemus_sylvaticus_bosmuis.jpg
+   sound: commons:M_is_for_mouse.ogg
  - id: N_nest
    title: N is for nest
-   blurb: 
-   source: http://commons.wikimedia.org/wiki/File:Hausrotschwanz_Brutpflege_2006-05-24_211.jpg
+   image: commons:Hausrotschwanz_Brutpflege_2006-05-24_211.jpg
+   sound: commons:N_is_for_nest.ogg
  - id: O_octopus
    title: O is for octopus
-   blurb: Close up of W. photogenicus, showing its distinctive colour patterns.
-   source: http://commons.wikimedia.org/wiki/File:Wonder_octopus.jpg
+   image: commons:Wonder_octopus.jpg
+   sound: commons:O_is_for_octopus.ogg
  - id: P_pig
    title: P is for pig
-   blurb: 
-   source: http://commons.wikimedia.org/wiki/File:Pig_USDA01c0116.jpg
+   image: commons:Pig_USDA01c0116.jpg
+   sound: commons:P_is_for_pig.ogg
  - id: Q_queen
    title: Q is for queen
-   blurb: 
-   source: http://commons.wikimedia.org/wiki/File:Queen_Victoria_1887.jpg
+   image: commons:Queen_Victoria_1887.jpg
+   sound: commons:Q_is_for_queen.ogg
  - id: R_road
    title: R is for road
-   blurb: 
-   source: http://commons.wikimedia.org/wiki/File:Road_in_Norway.jpg
+   image: commons:Road_in_Norway.jpg
+   sound: commons:R_is_for_road.ogg
  - id: S_sun
    title: S is for sun
-   blurb: 
-   source: http://commons.wikimedia.org/wiki/File:April_dawn.jpg
+   image: commons:April_dawn.jpg
+   sound: commons:S_is_for_sun.ogg
  - id: T_turtle
    title: T is for turtle
-   blurb: 
-   source: http://commons.wikimedia.org/wiki/File:Sea_Turtle.jpg
+   image: commons:Sea_Turtle.jpg
+   sound: commons:T_is_for_turtle.ogg
  - id: U_umbrella
    title: U is for umbrella
-   blurb: 
-   source: http://commons.wikimedia.org/wiki/File:Umbrella.png
+   image: commons:Umbrella.png
+   sound: commons:U_is_for_umbrella.ogg
  - id: V_volcano
    title: V is for volcano
-   blurb: 
-   source: http://commons.wikimedia.org/wiki/File:Augustine_Volcano_Jan_12_2006.jpg
+   image: commons:Augustine_Volcano_Jan_12_2006.jpg
+   sound: commons:V_is_for_volcano.ogg
  - id: W_window
    title: W is for window
-   blurb: 
-   source: http://commons.wikimedia.org/wiki/File:Gordijnen_aan_venster.JPG
+   image: commons:Gordijnen_aan_venster.JPG
+   sound: commons:W_is_for_window.ogg
  - id: X_xylophone
    title: X is for xylophone
-   blurb: 
-   source: http://commons.wikimedia.org/wiki/File:Kulintang_a_Kayo_01.jpg
+   image: commons:Kulintang_a_Kayo_01.jpg
+   sound: commons:X_is_for_xylophone.ogg
  - id: Y_yoyo
    title: Y is for yo-yo
-   blurb: 
-   source: http://commons.wikimedia.org/wiki/File:Wooden_yo-yo.jpg
+   image: commons:Wooden_yo-yo.jpg
+   sound: commons:Y_is_for_yoyo.ogg
  - id: Z_zebra
    title: Z is for zebra
-   blurb: 
-   source: http://commons.wikimedia.org/wiki/File:Zebra_rownikowa_Equus_burchelli_boehmi_RB3.jpg
-
+   image: commons:Zebra_rownikowa_Equus_burchelli_boehmi_RB3.jpg
+   sound: commons:Z_is_for_zebra.ogg
