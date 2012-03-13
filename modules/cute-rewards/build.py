@@ -54,18 +54,19 @@ def fromgcompris():
     for lang in LANGS:
         mkpath(lang)
         for file in SOUNDS:
-            vcall(['cp', '%s/boards/voices/%s/misc/%s' % (project,
-                                                          lang, file),
+            vcall(['cp', '%s/boards/voices/%s/misc/%s' % \
+                       (project, lang, file),
                    lang])
                                                         
 def _make_json(lang):
     json_rewards = {}
     def sound(file):
-        file_base = 'sounds/%s/%s' % (lang, path.splitext(file)[0])
+        file_base = 'modules/cute-rewards/sounds/%s/%s' % \
+            (lang, path.splitext(file)[0])
         return { 'sound_srcs': [file_base + '.ogg',
                                 file_base + '.mp3'] }
     def image(file):
-        return { 'image_src': 'images/' + file }
+        return { 'image_src': 'modules/cute-rewards/images/' + file }
     json_rewards['sounds'] = [sound(file) for file in SOUNDS]
     json_rewards['images'] = [image(file) for file in IMAGES]
     return { 'rewards': json_rewards }
