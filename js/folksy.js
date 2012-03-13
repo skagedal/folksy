@@ -123,12 +123,6 @@ folksy = (function () {
         this._gameDiv = gameDiv;
         if (!isElementOfType(gameDiv, 'div'))
             throw new TypeError('gameDiv argument is not a div');
-	// These things should come with the game.
-	this.animals = ["cat", "monkey", "panda", "penguin", 
-			"pig", "sheep", "walrus"];
-	this.animalImages = [];
-	this.soundFX = ["bra_jobbat", "ja_det_var_raett", "fel", "yippie"];
-	this.soundFXaudios = [];
     
 	// For showing progress
 	this._loadImagesCount = 0;
@@ -234,22 +228,24 @@ folksy = (function () {
     }
 
     function loadRewards(game) {
+	var i;
 	if (game._loadingAborted) return;
-	
-	for (var i = 0; i < game.animals.length; i++) {
-	    var filename = HREF_PREFIX + "modules/cute-rewards/images/" + 
-		game.animals[i] + ".png";
-	    game.animalImages.push(loadImage(game, filename));
-	}
 
-	for (var i in game.soundFX) {
-	    var s = game.soundFX[i];
-	    var sound = soundManager.createSound({
-		id: s,
-		url: [HREF_PREFIX + 'modules/cute-rewards/sound/' + s + '.mp3',
-		      HREF_PREFIX + 'modules/cute-rewards/sound/' + s + '.ogg'],
-		autoLoad: true});
-	    game.soundFXaudios.push(sound);
+	for (i = 0; i < game.rewards.images.length; i++) {
+	    var image = game.rewards.images[i];
+	    var filename = HREF_PREFIX + image.image_src;
+	    image.image = loadImage(game, filename);
+	}
+	for (i = 0; i < game.rewards.sounds.length; i++) {
+	    var sound = game.rewards.sounds[i];
+	    for (var j = 0; j < sound.sound_srcs.length; j++) {
+		sound.sound_srcs[j] = HREF_PREFIX + sound.sound_srcs[j];
+	    }
+	    sound.sound = soundManager.createSound({
+		id: sound.sound_srcs[0],
+		url: sound.sound_srcs,
+		autoLoad: true
+	    });
 	}
     }
 
@@ -272,16 +268,22 @@ folksy = (function () {
 	audio.play();
     }
 
+    function rewardImages(game) {
+	return util.pluck(game.rewards.images, 'image');
+    }
+
+    function rewardSounds(game) {
+	return util.pluck(game.rewards.sounds, 'sound');
+    }
+
     function positiveReinforcement(game) {
 	var reward = game.$reward;
 	reward.css({top: 212, left: 212, width: 0, height: 0, opacity: 1.0});
-	reward[0].src = util.pickOneRandom(game.animalImages).src;
+	reward[0].src = util.pickOneRandom(rewardImages(game)).src;
 	reward.show();
 	reward.animate({top: 62, left: 62, width: 300, height: 300}, 
 		       function() { 
 			   game._isInClickReward = true; 
-			   soundManager.play(util.pickOneRandom([
-			       "bra_jobbat", "ja_det_var_raett"]));
 		       });
 	$("#tip").fadeIn();
     }
@@ -299,7 +301,8 @@ folksy = (function () {
 	if (game._isInQuestion) {
 	    var uiCorrectImage = $(correctImage);
 	    game._isInQuestion = false;
-	    soundManager.play("yippie");
+	    playSound(util.pickOneRandom(rewardSounds(game)));
+//	    soundManager.play("yippie");
 	    game.$activeComparisons.forEach(function ($image) {
 		if ($image[0] !== correctImage)
 		    $image.fadeOut();
@@ -523,6 +526,7 @@ folksy = (function () {
 	    return;
 	}
 	this.stimulusSets = jsonData.stimulus_sets;
+	this.rewards = jsonData.rewards;
 	this.relations = jsonData.relations;
 	log("The name of the game: " + jsonData.name);
 

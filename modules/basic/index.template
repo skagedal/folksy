@@ -6,7 +6,7 @@
   ${prereqs}
   <script type="text/javascript">
     soundManager.url = '${href_prefix}swf/'
-    soundManager.debugMode = false;
+    soundManager.debugMode = true;
   </script>
   ${folksy}
   <link rel="stylesheet" type="text/css" media="screen" href="${href_prefix}css/reset.css" /> 
