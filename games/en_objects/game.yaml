@@ -2,7 +2,8 @@
 
 name: The Letter Game
 gametype: whatletter
-theme: sunset
+theme: basic
+modules: [cute-rewards, letters]
 
 items:
  - id: A_apple

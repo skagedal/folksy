@@ -2,7 +2,8 @@
 
 name: English Alphabet 
 gametype: whatletter
-theme: sunset
+theme: basic
+modules: [cute-rewards, letters]
 lang: en
 
 description: 

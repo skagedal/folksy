@@ -1,6 +1,7 @@
 name: Svenska alfabetet
 gametype: whatletter
-theme: sunset
+theme: basic
+modules: [letters, cute-rewards]
 lang: sv
 
 items:

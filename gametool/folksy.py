@@ -20,7 +20,8 @@
 """
 The following environment variables are used:
 
-FOLKSY_GAMEPATH: Here's where we look for games [TODO: change this system to basic regular work-on-this-file]
+FOLKSY_GAMEPATH: Here's where we look for games [TODO: change this
+system to basic regular work-on-this-file]
 FOLKSY_MODULEPATH: Here's where we look for modules/themes. 
 FOLKSY_HREF_PREFIX: To put before common Folksy files in URL:s.
 
@@ -55,6 +56,16 @@ FolksyOptions = {
     "sound_extensions": [".flac", ".wav", ".ogg", ".mp3"]
 }
 
+#
+# Various helpers
+#
+
+def merge_dicts(*args):
+    """Merge a bunch of dictionaries into one, later dicts overriding 
+    earlier. Example: 
+    merge_dicts({'a': 1, 'b': 3}, {'b': 5}) == {'a': 1, 'b': 5}
+    """
+    return reduce(lambda x,y: dict(x.items() + y.items()), args)
 
 #
 # Exceptions
@@ -123,7 +134,8 @@ class CopyBuildRule(BuildRule):
         shutil.copyfile(self.sources[0], self.target)
 
 class ImageBuildRule(BuildRule):
-    def __init__(self, game, sources, target, crop=None, scale=None, image=None):
+    def __init__(self, game, sources, target, 
+                 crop=None, scale=None, image=None):
         """`crop`, if given, should be a 4-tuple, (left, upper, right, lower)
         `resize`, if given, should be a 2-tuple, (width, height)"""
         BuildRule.__init__(self, game, sources, target)
@@ -171,25 +183,45 @@ class HtmlBuildRule(BuildRule):
         open(self.target, "w").write(fhtml.substitute(content).encode("utf-8"))
         debug("wrote html file")
 
-class Theme:
-    def __init__(self, _folksy, _theme_id, _path):
+class Module:
+    """A _module_ is a reusable piece of a Folksy game. One particular 
+    module is the _theme_."""
+    def __init__(self, _folksy, _module_id, _path):
         self.folksy = _folksy
-        self.theme_id = _theme_id
+        self.module_id = _module_id
         self.path = _path
         self.yaml = None
 
+    # FIXME - currently a hack; should be loaded like any module.
     def letter_json(self, letter):
         json = {}
         json["text"] = letter
         json["id"] = "letter_" + letter
         kwords = { "prefix": self.folksy.href_prefix,
-                   "theme": self.theme_id, 
+                   "module": self.module_id, 
                    "letter": unicodedata.name(letter).replace(" ", "_")}
-        json["image_src"] = "{prefix}modules/letters/{letter}.png".format(**kwords)
-        json["image_select_src"] = "{prefix}modules/letters/{letter}_select.png".format(**kwords)
+        json["image_src"] = \
+            "{prefix}modules/letters/{letter}.png".format(**kwords)
+        json["image_select_src"] = \
+            "{prefix}modules/letters/{letter}_select.png".format(**kwords)
         filename = kwords["letter"] + ".png"
         return json
-        
+
+    def load_json(self, lang = None):
+        """Load a json file associated with the module. First try a
+language specific file (if `lang` is specified), otherwise use module.json."""
+        def load_json_file(file):
+            try:
+                return json.load(open(file, "r"))
+            except IOError:
+                return None
+        json_obj = None
+        if lang is not None:
+            json_obj = load_json_file(path.join(self.path, lang + '.json'))
+        if json_obj is None:
+            json_obj = load_json_file(path.join(self.path, 'module.json'))
+        return json_obj
+
 class Game:
     def __init__(self, _folksy, _game_id, _path):
         self.folksy = _folksy
@@ -197,6 +229,13 @@ class Game:
         self.path = _path
         self.buildpath = path.join(self.path, "gamebuild")
         self.yaml = None        # not loaded
+
+    def load_modules(self):
+        if 'modules' in self.yaml:
+            for module in self.yaml['modules']:
+                module_json = self.folksy.modules[module].load_json(self.lang)
+                if module_json is not None:
+                    self.json = merge_dicts(module_json, self.json)
 
     def load(self):
         try:
@@ -220,7 +259,7 @@ class Game:
         if not self.folksy.is_valid_theme(themename):
             raise GameLoadError("not a valid %s theme: %s" % (self.gametype, 
                                                               themename))
-        self.theme = self.folksy.themes[themename]
+        self.theme = self.folksy.modules[themename]
 
         self.lang = self.yaml.get("lang", locale.getdefaultlocale()[0].split('_')[0].lower())
         # We could check if lang is valid with pycountry. Do we want to?
@@ -230,7 +269,7 @@ class Game:
         print ("path:         " + self.path)
         print ("name:         " + self.name)
         print ("gametype:     " + str(self.gametype))
-        print ("theme:        " + self.theme.theme_id)
+        print ("theme:        " + self.theme.module_id)
         print ("lang:         " + self.lang)
 
     def find_media_file(self, subdir, base, extensions):
@@ -304,15 +343,13 @@ class Game:
                 oggpath = path.join(self.buildpath, snd_dest_base + ".ogg")
                 mp3path = path.join(self.buildpath, snd_dest_base + ".mp3")
                 try:
-                    # debug("Build %s to %s and %s" % (snd_src_filepath, oggpath, mp3path))
                     SoundBuildRule(self, snd_src_filepath, oggpath).rebuild()
                     SoundBuildRule(self, snd_src_filepath, mp3path).rebuild()
                 except IOError as e:
-                    warning("%s: %s; skipping item" % (e.filename, e.strerror)) #fixme lousy error message
+                    warning("%s: %s; skipping item" % (e.filename, e.strerror))
+                    #fixme lousy error message
                     continue
 
-                #j_item["sound_ogg"] = snd_dest_base + ".ogg"
-                #j_item["sound_mp3"] = snd_dest_base + ".mp3"
                 j_item["sound_srcs"] = [snd_dest_base + ".ogg",
                                         snd_dest_base + ".mp3"]
             else:
@@ -320,7 +357,8 @@ class Game:
                 continue
 
             # Find letter, or deduce from id
-            j_item["text"] = unicode(y_item.get("letter", re.match("^([^_]*)", y_item["id"]).group(0)))
+            letter_from_id = re.match("^([^_]*)", y_item["id"]).group(0)
+            j_item["text"] = unicode(y_item.get("letter", letter_from_id))
             
             # All done with the item. Add it to JSON output.
             stimuli.append(j_item)
@@ -338,6 +376,8 @@ class Game:
         self.json['relations'] = [{"A": "faces", 
                                    "B": "letters", 
                                    "pairs": pairs}]
+
+        self.load_modules()
 
         # TODO: the pretty-printing (indent) should be settable,
         # production mode should be no pretty-print?
@@ -368,13 +408,13 @@ class GameType:
 class FolksyTool:
     gamepaths = []
     games = {}
-    themepaths = []
-    themes = {}
+    modulepaths = []
+    modules = {}
     gametypes = {}
 
     def __init__(self):
         self.setup_gamepaths()
-        self.setup_themepaths()
+        self.setup_modulepaths()
         self.setup_gametypes()
         self.href_prefix = os.environ.get("FOLKSY_HREF_PREFIX", "")
 
@@ -411,14 +451,14 @@ class FolksyTool:
             except OSError as e:
                 warning("%s: %s" % (e.filename, e.strerror))
 
-    def setup_themepaths(self):
-        self.themepaths += self.get_environ_path("FOLKSY_THEMEPATH")
+    def setup_modulepaths(self):
+        self.modulepaths += self.get_environ_path("FOLKSY_MODULEPATH")
 
-        for p in self.themepaths:
+        for p in self.modulepaths:
             try:
-                for theme in subdirectories(p):
-                    if not theme.startswith("."):
-                        self.themes[theme] = Theme(self, theme, path.join(p, theme))
+                for module in subdirectories(p):
+                    if not module.startswith("."):
+                        self.modules[module] = Module(self, module, path.join(p, module))
             except OSError as e:
                 warning("%s: %s" % (e.filename, e.strerror))
 
@@ -426,14 +466,14 @@ class FolksyTool:
         return "basic"
 
     def is_valid_theme(self, theme):
-        return theme in self.themes
+        return theme in self.modules
 
     def list_games(self):
         for name in self.games:
             print (name)
 
-    def list_themes(self):
-        for name in self.themes:
+    def list_modules(self):
+        for name in self.modules:
             print (name)
 
     def build_game(self, game_name):
@@ -502,8 +542,8 @@ class FolksyTool:
                 print ("HERE: list all commmands");
             elif (command == "list"):
                 self.list_games()
-            elif (command == "themes"):
-                self.list_themes()
+            elif (command == "modules"):
+                self.list_modules()
             elif (command == "build"):
                 if (len(args) > 0):
                     game = pop_first(args)
