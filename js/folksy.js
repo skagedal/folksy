@@ -21,8 +21,7 @@ folksy = (function () {
 
 // Constants
 
-    // Since all URLs should be specified in the game json anyway,
-    // let's use this hack for now.
+    // Temporary hack
     var HREF_PREFIX = "/simon/folksy/";
 
     var MAX_COMPARISON_STIMULI = 8;
@@ -265,6 +264,7 @@ folksy = (function () {
 
 
     function playSound(audio) {
+	soundManager.stopAll();
 	audio.play();
     }
 
@@ -285,6 +285,7 @@ folksy = (function () {
 		       function() { 
 			   game._isInClickReward = true; 
 		       });
+	playSound(util.pickOneRandom(rewardSounds(game)));
 	$("#tip").fadeIn();
     }
 
@@ -301,8 +302,6 @@ folksy = (function () {
 	if (game._isInQuestion) {
 	    var uiCorrectImage = $(correctImage);
 	    game._isInQuestion = false;
-	    playSound(util.pickOneRandom(rewardSounds(game)));
-//	    soundManager.play("yippie");
 	    game.$activeComparisons.forEach(function ($image) {
 		if ($image[0] !== correctImage)
 		    $image.fadeOut();
