@@ -550,6 +550,7 @@ folksy = (function () {
             soundManager.onready(function() {
 		createElements(game);
 		loadGameData(game);
+		$("#credits").append(jsonData.credits || '');
             });
 	});
 	

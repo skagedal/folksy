@@ -19,7 +19,9 @@
 	${description}
 	${runbutton}
     </div>
-    $game
+    ${game}
+    <div id="credits">
+    </div>
  </div>
 <!-- <footer><a href="README.html">Folkes Folk</a></footer> -->
  </body>
