@@ -238,8 +238,10 @@ class Game:
                     self.json = merge_dicts(module_json, self.json)
 
     def load(self):
+        """Load game.yaml file"""
         try:
-            self.yaml = yaml.load(open(path.join(self.path, "game.yaml")).read())
+            gameyaml = path.join(self.path, "game.yaml")
+            self.yaml = yaml.load(open(gameyaml).read())
         except IOError as e:
             raise GameLoadError("couldn't open game.yaml file: " + str(e))
         except yaml.YAMLError as e:
@@ -261,7 +263,8 @@ class Game:
                                                               themename))
         self.theme = self.folksy.modules[themename]
 
-        self.lang = self.yaml.get("lang", locale.getdefaultlocale()[0].split('_')[0].lower())
+        locale_lang = locale.getdefaultlocale()[0].split('_')[0].lower()
+        self.lang = self.yaml.get("lang", locale_lang)
         # We could check if lang is valid with pycountry. Do we want to?
 
     def show_info(self):
@@ -287,7 +290,84 @@ class Game:
     def get_path_indexhtml(self):
         return path.join(self.buildpath, "index.html")
 
+    def get_image_default_width(self):
+        return self.yaml.get('imagewidth', 500)
+
+    def fetch_media_file(self, source):
+        if source.startswith('commons:'):
+            title = source[len('commons:'):]
+            print('Fetch %s' % title)
+            return commons.fetch(title, width = self.get_image_default_width())
+        
+        return None, None
+
+    def build_item(self, y_item):
+        """Prepare media files for an item. y_item is the input from
+           YAML file. Return JSON."""
+        j_item = {}
+        try:
+            j_item["id"] = y_item["id"]
+        except KeyError:
+            warning("item without an id in YAML file; skipping")
+            return None
+
+        # If explicitly specified, fetch that resource. Otherwise,
+        # see if there's an image file in images/ with this id as name.
+        if 'image' in y_item:
+            source = y_item['image']
+            img_filename, img_credit = self.fetch_media_file(source)
+        else:
+            img_filename = self.find_media_file(
+                "images", y_item["id"], FolksyOptions["image_extensions"])
+
+        if img_filename is not None:
+            source_path = path.join(self.path, img_filename)
+            dest_path = path.join(self.buildpath, img_filename)
+            try:
+                # Should later use ImageBuildRule
+                CopyBuildRule(self, source_path, dest_path).rebuild()
+            except IOError as e:
+                warning("%s: %s; skipping item" % (e.filename, e.strerror)) 
+                #fixme lousy error message
+                return None
+            j_item["image_src"] = img_filename
+        else:
+            warning("no image file for item %s; skipping" % y_item["id"])
+            return None
+
+        # Find sound.
+        snd_filename = self.find_media_file("sounds", y_item["id"], 
+                                            FolksyOptions["sound_extensions"])
+        # debug(snd_filename)
+        if snd_filename is not None:
+            snd_src_filepath = path.join(self.path, snd_filename)
+            snd_dest_base = path.splitext(snd_filename)[0]
+            oggpath = path.join(self.buildpath, snd_dest_base + ".ogg")
+            mp3path = path.join(self.buildpath, snd_dest_base + ".mp3")
+            try:
+                SoundBuildRule(self, snd_src_filepath, oggpath).rebuild()
+                SoundBuildRule(self, snd_src_filepath, mp3path).rebuild()
+            except IOError as e:
+                warning("%s: %s; skipping item" % (e.filename, e.strerror))
+                #fixme lousy error message
+                return None
+
+            j_item["sound_srcs"] = [snd_dest_base + ".ogg",
+                                    snd_dest_base + ".mp3"]
+        else:
+            warning("no sound file for item %s; skipping" % y_item["id"])
+            return None
+
+        # Find letter, or deduce from id
+        letter_from_id = re.match("^([^_]*)", y_item["id"]).group(0)
+        j_item["text"] = unicode(y_item.get("letter", letter_from_id))
+
+        return j_item
+
     def build(self):
+        """Build the game. Prepare all the media files, create a json
+           file that describes the game and a index.html."""
+
         # This is the stuff that will get dumped to the json file.
         self.json = {}
 
@@ -305,64 +385,18 @@ class Game:
         self.json['lang'] = self.lang
 
         self.json['stimulus_sets'] = []
-        # Process items. This code is really specific for gametype == "whatletter".
-        # We'll see what happens.
+
+        # Process items. This code is really specific for gametype ==
+        # "whatletter".  We'll see what happens.
         self.json['items'] = []
         
         stimuli = []
         for y_item in self.yaml["items"]:
-            j_item = {}
-            try:
-                j_item["id"] = y_item["id"]
-            except KeyError:
-                warning("item without an id in YAML file; skipping")
-                continue
+            j_item = self.build_item(y_item)
+            if j_item is not None:
+                stimuli.append(j_item)
 
-            # Find image file. #fixme: if specified in YAML, use that!
-            img_filename = self.find_media_file("images", y_item["id"], FolksyOptions["image_extensions"])
-            if img_filename is not None:
-                img_src_filepath = path.join(self.path, img_filename)
-
-                try:
-                    # Should later use ImageBuildRule
-                    CopyBuildRule(self, img_src_filepath, path.join(self.buildpath, img_filename)).rebuild()
-                except IOError as e:
-                    warning("%s: %s; skipping item" % (e.filename, e.strerror)) #fixme lousy error message
-                    continue
-                j_item["image_src"] = img_filename
-            else:
-                warning("no image file for item %s; skipping" % y_item["id"])
-                continue
-            
-            # Find sound.
-            snd_filename = self.find_media_file("sounds", y_item["id"], FolksyOptions["sound_extensions"])
-            # debug(snd_filename)
-            if snd_filename is not None:
-                snd_src_filepath = path.join(self.path, snd_filename)
-                snd_dest_base = path.splitext(snd_filename)[0]
-                oggpath = path.join(self.buildpath, snd_dest_base + ".ogg")
-                mp3path = path.join(self.buildpath, snd_dest_base + ".mp3")
-                try:
-                    SoundBuildRule(self, snd_src_filepath, oggpath).rebuild()
-                    SoundBuildRule(self, snd_src_filepath, mp3path).rebuild()
-                except IOError as e:
-                    warning("%s: %s; skipping item" % (e.filename, e.strerror))
-                    #fixme lousy error message
-                    continue
-
-                j_item["sound_srcs"] = [snd_dest_base + ".ogg",
-                                        snd_dest_base + ".mp3"]
-            else:
-                warning("no sound file for item %s; skipping" % y_item["id"])
-                continue
-
-            # Find letter, or deduce from id
-            letter_from_id = re.match("^([^_]*)", y_item["id"]).group(0)
-            j_item["text"] = unicode(y_item.get("letter", letter_from_id))
-            
-            # All done with the item. Add it to JSON output.
-            stimuli.append(j_item)
-
+        # TODO: rename faces --> prompts
         self.json['stimulus_sets'].append({"stimuli": stimuli, "id": "faces"})
 
         # Letter images. From theme.
