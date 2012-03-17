@@ -40,7 +40,7 @@ from optparse import OptionParser
 mkpath = distutils.dir_util.mkpath
 
 # non-standard libraries
-import yaml
+import yaml, usecommons
 try:
     import PIL.Image
 except ImportError:
@@ -100,7 +100,7 @@ class BuildRule:
         of the list.
         """
         self.game = game
-        if (isinstance (sources, str)):
+        if (isinstance (sources, str) or isinstance(sources, unicode)):
             self.sources = [sources]
         else:
             self.sources = sources
@@ -229,6 +229,12 @@ class Game:
         self.path = _path
         self.buildpath = path.join(self.path, "gamebuild")
         self.yaml = None        # not loaded
+        self._commons = None
+
+    def commons(self):
+        if self._commons is None:
+            self._commons = usecommons.Commons()
+        return self._commons
 
     def load_modules(self):
         if 'modules' in self.yaml:
@@ -296,9 +302,14 @@ class Game:
     def fetch_media_file(self, source):
         if source.startswith('commons:'):
             title = source[len('commons:'):]
+            commons = self.commons()
             print('Fetch %s' % title)
-            return commons.fetch(title, width = self.get_image_default_width())
-        
+            cfile = commons.get(u'File:' + title,
+                                download = True,
+                                width = self.get_image_default_width())
+            return cfile.filename, cfile.attribution()
+        elif re.match('^https?:', source):
+            assert False, 'Fixme: Download'
         return None, None
 
     def build_item(self, y_item):
@@ -322,33 +333,42 @@ class Game:
 
         if img_filename is not None:
             source_path = path.join(self.path, img_filename)
-            dest_path = path.join(self.buildpath, img_filename)
+            dest = path.join('images', path.basename(img_filename))
+            dest_path = path.join(self.buildpath, dest)
+            debug('Copy %s to %s' % (source_path, dest_path))
             try:
                 # Should later use ImageBuildRule
                 CopyBuildRule(self, source_path, dest_path).rebuild()
             except IOError as e:
-                warning("%s: %s; skipping item" % (e.filename, e.strerror)) 
+                warning("image file %s: %s; skipping item" % \
+                            (e.filename, e.strerror)) 
                 #fixme lousy error message
                 return None
-            j_item["image_src"] = img_filename
+            j_item["image_src"] = dest
         else:
             warning("no image file for item %s; skipping" % y_item["id"])
             return None
 
         # Find sound.
-        snd_filename = self.find_media_file("sounds", y_item["id"], 
-                                            FolksyOptions["sound_extensions"])
-        # debug(snd_filename)
+        if 'sound' in y_item:
+            source = y_item['sound']
+            snd_filename, snd_credit = self.fetch_media_file(source)
+        else:
+            snd_filename = self.find_media_file(
+                "sounds", y_item["id"], FolksyOptions["sound_extensions"])
+
         if snd_filename is not None:
             snd_src_filepath = path.join(self.path, snd_filename)
-            snd_dest_base = path.splitext(snd_filename)[0]
+            dest = path.join('sounds', path.basename(snd_filename))
+            snd_dest_base = path.splitext(dest)[0]
             oggpath = path.join(self.buildpath, snd_dest_base + ".ogg")
             mp3path = path.join(self.buildpath, snd_dest_base + ".mp3")
             try:
                 SoundBuildRule(self, snd_src_filepath, oggpath).rebuild()
                 SoundBuildRule(self, snd_src_filepath, mp3path).rebuild()
             except IOError as e:
-                warning("%s: %s; skipping item" % (e.filename, e.strerror))
+                warning("sound file %s: %s; skipping item" % \
+                            (e.filename, e.strerror))
                 #fixme lousy error message
                 return None
 
@@ -492,7 +512,8 @@ class FolksyTool:
             try:
                 for module in subdirectories(p):
                     if not module.startswith("."):
-                        self.modules[module] = Module(self, module, path.join(p, module))
+                        self.modules[module] = Module(self, module, 
+                                                      path.join(p, module))
             except OSError as e:
                 warning("%s: %s" % (e.filename, e.strerror))
 
@@ -559,9 +580,11 @@ class FolksyTool:
         parser = OptionParser()
 
         #parser.add_option("-h", "--help", help="get help")
-        parser.add_option("-d", "--set-game-dir", help="set game directory to DIR",
+        parser.add_option("-d", "--set-game-dir", 
+                          help="set game directory to DIR",
                           dest="game_dir", metavar="DIR")
-        parser.add_option("--pretty-json", help="pretty-print outputted JSON", dest="pretty_json")
+        parser.add_option("--pretty-json", dest="pretty_json",
+                          help="pretty-print outputted JSON")
         # TODO: actually care about these options...
 
         (options, args) = parser.parse_args()
