@@ -67,6 +67,24 @@ def merge_dicts(*args):
     """
     return reduce(lambda x,y: dict(x.items() + y.items()), args)
 
+def _flatten_list(lst):
+    return sum(lst, [])
+
+def _extract_json_fields(json, field):
+    """Return a list of all dict fields named `field` and remove them from
+       the json."""
+    def recurse(json):
+        if isinstance(json, list):
+            return _flatten_list(map(recurse, json))
+        elif isinstance(json, dict):
+            ret = []
+            if field in json:
+                ret = [json[field]]
+                del json[field]
+            ret += _flatten_list(map(recurse, json.values()))
+            return ret
+        return []
+    return recurse(json)
 #
 # Exceptions
 #
@@ -324,12 +342,15 @@ class Game:
 
         # If explicitly specified, fetch that resource. Otherwise,
         # see if there's an image file in images/ with this id as name.
+        img_credit = ''
         if 'image' in y_item:
             source = y_item['image']
             img_filename, img_credit = self.fetch_media_file(source)
         else:
             img_filename = self.find_media_file(
                 "images", y_item["id"], FolksyOptions["image_extensions"])
+        if 'image_credit' in y_item:
+            img_credit = y_item['image_credit']
 
         if img_filename is not None:
             source_path = path.join(self.path, img_filename)
@@ -345,17 +366,21 @@ class Game:
                 #fixme lousy error message
                 return None
             j_item["image_src"] = dest
+            j_item['image_credit'] = (dest, img_credit)
         else:
             warning("no image file for item %s; skipping" % y_item["id"])
             return None
 
         # Find sound.
+        snd_credit = ''
         if 'sound' in y_item:
             source = y_item['sound']
             snd_filename, snd_credit = self.fetch_media_file(source)
         else:
             snd_filename = self.find_media_file(
                 "sounds", y_item["id"], FolksyOptions["sound_extensions"])
+        if 'sound_credit' in y_item:
+            snd_credit = y_item['sound_credit']
 
         if snd_filename is not None:
             snd_src_filepath = path.join(self.path, snd_filename)
@@ -374,6 +399,7 @@ class Game:
 
             j_item["sound_srcs"] = [snd_dest_base + ".ogg",
                                     snd_dest_base + ".mp3"]
+            j_item['sound_credit'] = (dest, snd_credit)
         else:
             warning("no sound file for item %s; skipping" % y_item["id"])
             return None
@@ -383,6 +409,22 @@ class Game:
         j_item["text"] = unicode(y_item.get("letter", letter_from_id))
 
         return j_item
+
+    def extract_credits(self, json):
+        def deflist(credits):
+            s = '<dl>\n'
+            for (filename, credit) in credits:
+                s += \
+                    ('  <dt class="filename">%s</dt>\n' + 
+                     '  <dd class="credit">%s</dd>\n') % (filename, credit)
+            s += '</dl>\n'
+            return s
+        credits = ''
+        image_credits = _extract_json_fields(json, 'image_credit')
+        sound_credits = _extract_json_fields(json, 'sound_credit')
+        credits += '<h3>Image credits</h3>\n' + deflist(image_credits)
+        credits += '<h3>Sound credits</h3>\n' + deflist(sound_credits)
+        return credits
 
     def build(self):
         """Build the game. Prepare all the media files, create a json
@@ -416,8 +458,11 @@ class Game:
             if j_item is not None:
                 stimuli.append(j_item)
 
+        credits = self.extract_credits(stimuli)
+
         # TODO: rename faces --> prompts
         self.json['stimulus_sets'].append({"stimuli": stimuli, "id": "faces"})
+        self.json['credits'] = credits
 
         # Letter images. From theme.
         letters = uniqify([s["text"] for s in stimuli])
