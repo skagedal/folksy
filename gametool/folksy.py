@@ -321,7 +321,6 @@ class Game:
         if source.startswith('commons:'):
             title = source[len('commons:'):]
             commons = self.commons()
-            print('Fetch %s' % title)
             cfile = commons.get(u'File:' + title,
                                 download = True,
                                 width = self.get_image_default_width())
@@ -356,7 +355,6 @@ class Game:
             source_path = path.join(self.path, img_filename)
             dest = path.join('images', path.basename(img_filename))
             dest_path = path.join(self.buildpath, dest)
-            debug('Copy %s to %s' % (source_path, dest_path))
             try:
                 # Should later use ImageBuildRule
                 CopyBuildRule(self, source_path, dest_path).rebuild()
@@ -412,18 +410,18 @@ class Game:
 
     def extract_credits(self, json):
         def deflist(credits):
-            s = '<dl>\n'
+            s = u'<dl>'
             for (filename, credit) in credits:
                 s += \
-                    ('  <dt class="filename">%s</dt>\n' + 
-                     '  <dd class="credit">%s</dd>\n') % (filename, credit)
-            s += '</dl>\n'
+                    (u'<dt class="filename">%s</dt>' +
+                     u'<dd class="credit">%s</dd>') % (filename, credit)
+            s += u'</dl>'
             return s
-        credits = ''
+        credits = u''
         image_credits = _extract_json_fields(json, 'image_credit')
         sound_credits = _extract_json_fields(json, 'sound_credit')
-        credits += '<h3>Image credits</h3>\n' + deflist(image_credits)
-        credits += '<h3>Sound credits</h3>\n' + deflist(sound_credits)
+        credits += u'<h3>Image credits</h3>\n' + deflist(image_credits)
+        credits += u'<h3>Sound credits</h3>\n' + deflist(sound_credits)
         return credits
 
     def build(self):
@@ -492,7 +490,6 @@ class Game:
                 template = path.join(self.theme.path, "index.template")
 
         if path.isfile(template):
-            debug("template file: " + template)
             HtmlBuildRule(self, template, self.get_path_indexhtml()).rebuild()
 
 class GameType:

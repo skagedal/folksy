@@ -185,7 +185,13 @@ folksy = (function () {
 	    }
 	});
 
-	// Enable "Run" button
+	// Prevent dragging
+	    $('img').on('dragstart', function(event) { 
+		event.preventDefault(); 
+	    });
+
+	// Hide load progress, enable "Run" button
+	$("#load_progress").hide();
 	$("#start_game").click(startGame.bind(null, game)).show();
     }
 
@@ -505,6 +511,7 @@ folksy = (function () {
     }
 
     function startGame(game) {
+	$("#credits").fadeOut();
 	$("#intro").slideUp("slow", function() { 
 	    $("#game").fadeIn("slow", nextQuestion.bind(null, game)); 	
 	});
@@ -518,6 +525,7 @@ folksy = (function () {
     
     Game.prototype.initWithJSON = function(jsonData) {
 	var game = this;
+	game.jsonData = jsonData;
 	if (jsonData.format > 1 ||
 	    jsonData.gametype != "whatletter" ||
 	    jsonData.gametype_format > 1) {
@@ -547,6 +555,7 @@ folksy = (function () {
 	});
 	
 	$(document).ready(function() {
+
             soundManager.onready(function() {
 		createElements(game);
 		loadGameData(game);

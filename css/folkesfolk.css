@@ -6,11 +6,16 @@ body {
     font-size: 13px;
 }
 
-h1 {
+h1, h2, h3 {
     margin: 1em 0px;
     font-family: Arial, Sans;
+}
+h1 {
     font-size: x-large;
     font-weight: bold;
+}
+h2, h3 {
+    font-size: large;
 }
 p {
     margin-bottom: 1em;
@@ -96,3 +101,21 @@ footer {
 #start_game {
     display: none;
 }
+
+#credits h3 {
+    color: green;
+}
+#credits {
+    background-color: #E1EDF2;
+    border: 1px solid #9F6000;
+    padding: 1em;
+}
+#credits dt {
+    margin-top: 5px;
+    font-family: fixed;
+}
+#credits dd {
+    margin-left: 1em;
+//    padding: 0 1em 0 0;
+}
+
