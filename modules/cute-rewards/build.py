@@ -36,6 +36,7 @@ def build():
     for source in sources:
         run('ffmpeg', '-y', '-i', source, path.splitext(source)[0] + '.mp3')
     module()
+    credits()
 
 def clean():
     autoclean()
@@ -57,7 +58,7 @@ def fromgcompris():
             vcall(['cp', '%s/boards/voices/%s/misc/%s' % \
                        (project, lang, file),
                    lang])
-                                                        
+                                                       
 def _make_json(lang):
     json_rewards = {}
     def sound(file):
@@ -74,5 +75,8 @@ def _make_json(lang):
 def module():
     for lang in LANGS:
         json.dump(_make_json(lang), open(lang + '.json', 'w'), indent = 4)
+
+def credits():
+    run("bash", "-c", "python credits.py > en_credits.html")
 
 main()
