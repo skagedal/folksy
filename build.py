@@ -20,6 +20,17 @@ from buildsupport import *
 
 subdirs = ["doc", "games", "modules"]
 
-for subdir in subdirs:
-    recurse(subdir)
+def build():
+    for subdir in subdirs:
+        recurse(subdir, "build")
+    
+def upload():
+    build()
+    if not "RSYNC_DIR" in buildsettings:
+        print "Set RSYNC_DIR in buildsettings.py."
+        return(1)
+    vcall(['rsync', '-av', '--files-from=FILES', '.', 
+           buildsettings["RSYNC_DIR"]])
+    recurse("games", "upload")
 
+main()

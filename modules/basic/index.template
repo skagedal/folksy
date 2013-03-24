@@ -10,7 +10,7 @@
   </script>
   ${folksy}
   <link rel="stylesheet" type="text/css" media="screen" href="${href_prefix}css/reset.css" /> 
-  <link rel="stylesheet" type="text/css" media="screen" href="${href_prefix}css/folkesfolk.css" />
+  <link rel="stylesheet" type="text/css" media="screen" href="${href_prefix}css/folksy.css" />
  </head>
  <body>
   <div id="container">
@@ -23,6 +23,5 @@
     <div id="credits">
     </div>
  </div>
-<!-- <footer><a href="README.html">Folkes Folk</a></footer> -->
  </body>
 </html>

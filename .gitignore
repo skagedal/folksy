@@ -13,3 +13,6 @@
 
 # Dunno what these are!?
 .\#*
+
+# Local settings
+buildsettings.py

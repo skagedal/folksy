@@ -42,4 +42,13 @@ def semiclean():
     for subdir in subdirs:
         call_in_dir(subdir, [folksy, "semiclean"])
 
+def upload():
+    build()
+    if not "RSYNC_DIR" in buildsettings:
+        print "Set RSYNC_DIR in buildsettings.py."
+        return(1)
+    for subdir in subdirs:
+        vcall(['rsync', '-av', path.join(subdir, "gamebuild/"),
+               buildsettings["RSYNC_DIR"] + "/" + subdir])
+
 main()
