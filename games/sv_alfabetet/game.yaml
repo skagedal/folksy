@@ -7,31 +7,90 @@ lang: sv
 items:
  - id: 
    title: A som i anka
+   image: commons:Coin-img_2219.jpg
+ - id:
    title: B som i banan
+   image: commons:Banana_(white_background).jpg
+ - id:
    title: C som i citron
+   image: commons:Lemon.jpg
+ - id:
    title: D som i dator
+   image: commons:Science_museum_025_adjusted.jpg
+ - id:
    title: E som i elefant
+   image: commons:African_Elephant_8.jpg
+ - id:
    title: F som i fisk
+   image: commons:Lemin_u0.gif
+ - id:
    title: G som i gris
+   image: commons:Pig_USDA01c0116.jpg
+ - id:
    title: H som i häst
+   image: commons:Bess2.jpg
+ - id:
    title: I som i igloo
+   image: commons:Igloo_outside.jpg
+ - id:
    title: J som i jordgubbe
+   image: commons:FraiseFruitPhoto.jpg
+ - id:
    title: K som i katt
-   title: L som i lejon, lampa
+   image: commons:Black_hills_cat-tochichi.jpg
+ - id:
+   title: L som i lejon
+   image: commons:Lion-1.jpg
+ - id:
    title: M som i mus
+   image: commons:Apodemus_sylvaticus_bosmuis.jpg
+ - id:
    title: N som i nyckel
+   image: commons:Standard-lock-key.jpg
+ - id:
    title: O som i orm
+   image: commons:Big_Sur_Snake.JPG
+ - id:
    title: P som i paraply
+   image: commons:Umbrella.png
+ - id:
    title: Q som i quorn
+   image: commons:Quorn-different-forms.jpg
+ - id:
    title: R som i ros
+   image: commons:Tea_rose_hybrid_and_bud.JPG
+ - id:
    title: S som i sol
+   image: commons:April_dawn.jpg
+ - id:
    title: T som i telefon
+   image: commons:Dialog_1966_grau.jpg
+ - id:
    title: U som i uggla
+   image: commons:Sperbereule1a.jpg
+ - id:
    title: V som i väg
+   image: commons:Road_in_Norway.jpg
+ - id:
    title: W som i wienerbröd
+   image: commons:Glazed_apple_Danish.jpg
+ - id:
    title: X som i xylofon
+   image: commons:Kulintang_a_Kayo_01.jpg
+ - id:
    title: Y som i yxa
+   image: commons:Axt_zum_spalten1.jpg
+ - id:
    title: Z som i zebra
+   image: commons:Zebra_rownikowa_Equus_burchelli_boehmi_RB3.jpg
+ - id:
    title: Å som i åsna
+   image: commons:Donkey_1_arp_750px.jpg
+ - id:
    title: Ä som i äpple 
-   title: Ö som i ödla, öra
+   sound: 
+   image: commons:Fuji_apple.jpg
+ - id:
+   title: Ö som i ödla
+   image: commons:Bartagame_fcm.jpg
+   
