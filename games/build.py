@@ -25,7 +25,7 @@ from buildsupport import *
 moduledir = path.abspath(path.join(path.pardir, 'modules'))
 os.environ["FOLKSY_MODULEPATH"] = moduledir 
 
-subdirs = ["en_alphabet"]
+subdirs = ["en_alphabet", "sv_alfabetet"]
 # subdirs = subdirectories() 
 
 folksy = "../../gametool/folksy.py"
