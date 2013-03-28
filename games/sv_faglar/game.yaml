@@ -1,0 +1,75 @@
+# http://sv.wikipedia.org/wiki/Wikipedia:Projekt_svenska_f%C3%A5glar/Bed%C3%B6mning_av_artiklar_med_de_vanligaste_svenska_f%C3%A5glarna
+
+name: Svenska fåglar
+gametype: matchtitle
+theme: basic
+modules: [cute-rewards]
+lang: sv
+
+items:
+ - id: Skaggdopping
+   title: Skäggdopping
+   image: commons:Podiceps_cristatus_2_(Marek_Szczepanek).jpg
+ - id: Storskarv
+   title: Storskarv
+   image: commons:Phalacrocorax_carbo_Austins_Ferry_2.jpg
+ - id: Gragas
+   title: Grågås
+   image: commons:Greylag-Goose.jpg
+ - id: Fiskgjuse
+   title: Fiskgjuse
+   image: commons:OspreyNASA.jpg
+ - id: Fasan
+   title: Fasan
+   image: commons:Phasianus_colchicus_2_tom_(Lukasz_Lukasik).jpg
+ - id: Strandskata
+   title: Strandskata
+   image: commons:Haematopus_ostralegus_He.jpg
+ - id: Karrsnappa
+   title: Kärrsnäppa
+   image: commons:Calidris-alpina-001_edit.jpg
+ - id: Ljungpipare
+   title: Ljungpipare
+   image: commons:Pluvierdore1.jpg
+ - id: Brushane
+   title: Brushane
+   image: commons:Philomachus_pugnax.jpg
+ - id: Fiskmas
+   title: Fiskmås
+   image: commons:Larus_canus_Common_Gull_in_Norway.jpg
+ - id: Ringduva
+   title: Ringduva
+   image: commons:Common_Wood_Pigeon.jpg
+   #sound: commons:Columba_palumbus_birdsong.ogg
+ - id: Koltrast
+   title: Koltrast
+   image: commons:Solsort.jpg
+   #sound: Turdus_merula_male_song_at_dawn(20s).ogg
+ - id: Lovsangare
+   title: Lövsångare
+   image: commons:Flickr_-_Rainbirder_-_Willow_Warbler_(Phylloscopus_trochilus).jpg
+ - id: Gransangare
+   title: Gransångare
+   image: commons:Common_Chiffchaff-_Bhopal_I_IMG_0605.jpg
+ - id: Blames
+   title: Blåmes
+   image: commons:ParusCaeruleus.jpg
+ - id: Kaja
+   title: Kaja
+   image: commons:Jackdaw_-_up_close_and_personal_(552502080).jpg
+ - id: Skata
+   title: Skata
+   image: commons:01-Magpie.jpg
+ - id: Stare
+   title: Stare
+   image: commons:Common_starling_in_london.jpg
+ - id: Grasparv
+   title: Gråsparv
+   image: commons:House_sparrowII.jpg
+ - id: Bofink
+   title: Bofink
+   image: commons:Fringilla_coelebs_(chaffinch),_male.jpg
+   #sound: commons:Buchfinkerp.ogg
+ - id: Grasiska
+   title: Gråsiska
+   image: commons:Carduelis_flammea_2.jpg
