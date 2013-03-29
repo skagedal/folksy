@@ -4,10 +4,8 @@ Simon Kågedal Reimer <simon@kagedal.org>
 
 .Priority 
 * Fix up before publication of en_alphabet:
-** English "rewards" sounds
-** GitHub project page
 ** Link from game to project page; maybe a nice http://www.cssstickyfooter.com/[sticky footer]?
-** Include copyright/credits text on game info page; generate from gametool
+** Include copyright/credits text from themes
 
 
 .General
