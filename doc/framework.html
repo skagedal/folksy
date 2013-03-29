@@ -773,9 +773,8 @@ JPEG should be used for photographic images. PNG should be used for
 <li>
 <p>
 <strong>Future:</strong> GIF <strong>might</strong> be usable for simple animations (although
-    looping through PNGs with code might work just as well?). I really
-    hope SVG will be a core format some day, but I guess the web isn&#8217;t
-    ready yet&#8230;
+    looping through PNGs with code might work just as well?). I hope
+    to also provide SVG support soon.
 </p>
 </li>
 </ul></div>
@@ -799,9 +798,9 @@ I&#8217;d like more specification here on what bitrate, sample rate
 </li>
 <li>
 <p>
-I&#8217;m guessing the saame kind of issue will appear when we want to
+I&#8217;m guessing the same kind of issue will appear when we want to
   support video. <a href="http://theora.org/">Theora</a> should be our first hand
-  choice, but&#8230;
+  choice, but needs to have a fallback.
 </p>
 </li>
 </ul></div>
@@ -922,7 +921,8 @@ a <em>cue stimulus</em> is a cue for what the task at hand is,
 <p>
 a <em>sample stimulus</em> is a question to be answered. For example, an
    image of an apple, where the task is to respond with the word
-   "apple". It may be any composite stimulus.
+   "apple". It may be any composite stimulus. We will also call this a
+   <em>prompt stimulus</em>, since the word sample is confusing here.
 </p>
 </li>
 <li>
@@ -1013,10 +1013,10 @@ star every time you reach below pmean = 0.9, 0.8, 0.7&#8230;</p></div>
 <div class="sect2">
 <h3 id="_themes">Themes</h3>
 <div class="paragraph"><p>Graphical and auditive themes in common for many games.</p></div>
-<div class="paragraph"><p>Typsnittet som används för bokstavsbilderna är
-<a href="http://www.gnu.org/software/freefont/">GNU FreeFont Sans</a>, som är
-licensierad med GNU GPL, men tillåter valfri licens för dokument där
-typsnittet används.</p></div>
+<div class="paragraph"><p>The typeface used for letter images is
+<a href="http://www.gnu.org/software/freefont/">GNU FreeFont Sans</a>, which is
+licenced with GNU GPL, but allows any licence to be used for documents
+where the typeface is used.</p></div>
 </div>
 </div>
 </div>
@@ -1031,7 +1031,12 @@ next.</p></div>
 Audio on the web is hard to get right. We&#8217;re using
 {SoundManager 2} which uses HTML5 audio or Flash.</p></div>
 <div class="paragraph"><p><a href="http://code.google.com/p/jsdoc-toolkit/">jsdoc-toolkit</a> is used for documentation. (Ubuntu package: jsdoc-toolkit)
-<a href="http://pivotal.github.com/jasmine/">Jasmine</a> (included) is used for unit testing.</p></div>
+(Actually, it&#8217;s not, and I&#8217;m not so sure about it. Seems inflexible. I
+think an explicit documenting system, like <a href="http://pdoc.org/">PDoc</a>, is
+a better idea for a language like JavaScript. Google Closure Compiler,
+however, uses jsdoc tags for controlling optimization in detail. So
+I&#8217;m not sure what to do.)</p></div>
+<div class="paragraph"><p><a href="http://pivotal.github.com/jasmine/">Jasmine</a> (included) is used for unit testing.</p></div>
 <div class="paragraph"><p>SoundManager problem: What I&#8217;d like is if I could give it an ogg file
 and an mp3 file, and then it would use the ogg wherever possible,
 otherwise use mp3. I therefore don&#8217;t want either mp3 or ogg to be
@@ -1207,7 +1212,7 @@ that need to be translated.</p></div>
 <div id="footnotes"><hr /></div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2012-03-01 09:23:41 CET
+Last updated 2013-03-29 22:20:56 CET
 </div>
 </div>
 </body>
