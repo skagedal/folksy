@@ -15,6 +15,24 @@
 //   along with Folksy.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+// jQuery plugin: make images undraggable and unselectable
+
+(function($){
+    $.fn.disableDragAndSelect = function() {
+	return this
+	    .on('dragstart', function(event) {
+		event.preventDefault();
+	    })
+	    .css({
+		"-moz-user-select": "none",
+		"-khtml-user-select": "none",
+		"-webkit-user-select": "none",
+		"-ms-user-select": "none",
+		"user-select": "none"
+	    })
+	    .attr("unselectable", "on"); // old IE
+    };
+})(jQuery);
 // Module
 
 folksy = (function () {
@@ -184,11 +202,6 @@ folksy = (function () {
 		stim.height = stim.image.height;
 	    }
 	});
-
-	// Prevent dragging
-	    $('img').on('dragstart', function(event) { 
-		event.preventDefault(); 
-	    });
 
 	// Hide load progress, enable "Run" button
 	$("#load_progress").hide();
@@ -415,7 +428,9 @@ folksy = (function () {
         game.$prompt = $('<img />').css({
 	    'display': 'none',
 	    'z-index': '1',
-	    'position': 'absolute'});
+	    'position': 'absolute'})
+	    .disableDragAndSelect();
+
 	game.$comparisons = [];
 	for (var i = 0; i < MAX_COMPARISON_STIMULI; i++) {
 	    game.$comparisons[i] = $('<img />')
@@ -424,6 +439,7 @@ folksy = (function () {
 		    'z-index': '1',
 		    'position': 'absolute',
 		    'cursor': 'pointer'})
+		.disableDragAndSelect()
 		.click(clickComparisonImage)
 		.hover(hoverComparisonImageIn, hoverComparisonImageOut)
 		.data('game', game);
@@ -437,6 +453,7 @@ folksy = (function () {
 		'z-index': '2',
 		'position': 'absolute',
 		'cursor': 'pointer'})
+	    .disableDragAndSelect()
 	    .click(clickReward.bind(null, game));
 	game.$gameDiv = $(game._gameDiv);
 	game.$gameDiv.append(game.$prompt,
