@@ -338,14 +338,18 @@ folksy = (function () {
 			positiveReinforcement(game);
 		    });
 		});
-
-	    log("Whoohooo!");
 	}
     }
 
-    function incorrectAnswer(game) {
+    function incorrectAnswer(game, clickedImage) {
 	if (game._isInQuestion) {
-	    // soundManager.play('fel');
+	    var stimulus = $(clickedImage).data('stimulus');
+	    game.alreadyTried.push(stimulus.fullID);
+	    $(clickedImage).animate({
+		opacity: 0,
+		transform: "translate(20px, 70px) rotate(20deg) scale(0.1)"
+	    }, function() { $(this).hide(); });
+	    layoutGame(game);
 	}
     }
 
@@ -356,7 +360,7 @@ folksy = (function () {
 	if (game.logic.respond(stimulus.fullID) == gamelogic.CORRECT) {
 	    correctAnswer(game, this);
 	} else {
-	    incorrectAnswer(game);
+	    incorrectAnswer(game, this);
 	}
     }
 
@@ -465,11 +469,15 @@ folksy = (function () {
     function placeJQuery(x, y, width, height) {
 	layout.PlaceableBox.prototype.place.call(this, x, y, width, height);
 	console.log("Placing object at ", x, y, width, height);
-	this.data.css({left: x,
-		       top: y,
-		       width: width,
-		       height: height});
-
+	this.data
+	    .css({opacity: 1.0,
+		  transform: ""})
+	    .show()
+	    .animate({left: x,
+			   top: y,
+			   width: width,
+			   height: height});
+	
     }
 
     // Connect a jQuery'd image and a stimulus and a put it in a 
@@ -500,9 +508,13 @@ folksy = (function () {
 	// Set up comparison stimuli
 	comparisonBoxes = [];
 	for (var i = 0; i < game.comparisonStimuli.length; i++) {
-	    comparisonBoxes.push(connectAndBoxStimulus(
-		game.$comparisons[i],
-		game.comparisonStimuli[i]));
+	    var stimulus = game.comparisonStimuli[i];
+	    var fullID = stimulus.fullID;
+	    if (game.alreadyTried.indexOf(fullID) === -1) {
+		comparisonBoxes.push(connectAndBoxStimulus(
+		    game.$comparisons[i],
+		    game.comparisonStimuli[i]));
+	    }
 	}
 	game.$activeComparisons = 
 	    game.$comparisons.slice(0, game.comparisonStimuli.length);
@@ -517,6 +529,7 @@ folksy = (function () {
 
 	game.promptStimulus = getStimulusByFullId(game, next[0]);
 	game.comparisonStimuli = getStimuliByFullId(game, next[1]);
+	game.alreadyTried = [];
 
 	if (game.promptStimulus.hasOwnProperty('sound'))
 	    playSound(game.promptStimulus.sound);
@@ -569,7 +582,7 @@ folksy = (function () {
 	var pairs = getRelationPairs(this.relations[0]);
 
 	this.logic = new gamelogic.SimpleGameLogic(setA, setB, pairs, {
-	    // comparison_stimuli: 4
+	    comparison_stimuli: 4
 	});
 	
 	$(document).ready(function() {
