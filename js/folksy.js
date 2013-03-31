@@ -94,16 +94,29 @@ folksy = (function () {
     }
     var F_ = getResource;	
     
+// Sound
+
     function setupSoundManager() {
-	soundManager.useHTML5Audio = true;
+	// createjs.Sound.registerPlugins([createjs.WebAudioPlugin, createjs.FlashPlugin]);
     }
+
+    function createSound(uniqueId, sources) {
+	return createjs.Sound.registerSound(sources.join("|"), uniqueId);
+	// returns a "details" object. has id as "id".
+    }
+
+    function playSound(sound) {
+	createjs.Sound.stop();
+	createjs.Sound.play(sound.id);
+    }
+
+
 
 // Module helpers
 
     var _debugMode = true;
     function setDebugMode(b) {
 	_debugMode = Boolean(b);
-	//soundManager.debugMode = _debugMode;
     }
     
     function log(s) {
@@ -227,11 +240,7 @@ folksy = (function () {
         loadIm("imageSelect", "image_select_src");
     
         if(stimulus.hasOwnProperty("sound_srcs")) {
-            stimulus.sound = soundManager.createSound({
-                id: stimulus.id,
-                url: stimulus.sound_srcs,
-                autoLoad: true
-            });
+            stimulus.sound = createSound(stimulus.id, stimulus.sound_srcs);
         }
     }
 
@@ -259,11 +268,8 @@ folksy = (function () {
 	    for (var j = 0; j < sound.sound_srcs.length; j++) {
 		sound.sound_srcs[j] = HREF_PREFIX + sound.sound_srcs[j];
 	    }
-	    sound.sound = soundManager.createSound({
-		id: sound.sound_srcs[0],
-		url: sound.sound_srcs,
-		autoLoad: true
-	    });
+	    sound.sound = createSound(sound.sound_srcs[0], sound.sound_srcs);
+
 	}
     }
 
@@ -281,11 +287,6 @@ folksy = (function () {
 	game._imageRequestsSent = true;
     }
 
-
-    function playSound(audio) {
-	soundManager.stopAll();
-	audio.play();
-    }
 
     function rewardImages(game) {
 	return util.pluck(game.rewards.images, 'image');
@@ -344,7 +345,7 @@ folksy = (function () {
 
     function incorrectAnswer(game) {
 	if (game._isInQuestion) {
-	    soundManager.play('fel');
+	    // soundManager.play('fel');
 	}
     }
 
@@ -572,12 +573,9 @@ folksy = (function () {
 	});
 	
 	$(document).ready(function() {
-
-            soundManager.onready(function() {
-		createElements(game);
-		loadGameData(game);
-		$("#credits").append(jsonData.credits || '');
-            });
+	    createElements(game);
+	    loadGameData(game);
+	    $("#credits").append(jsonData.credits || '');
 	});
 	
     }
