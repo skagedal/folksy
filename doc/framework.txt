@@ -210,13 +210,14 @@ next.
 === The web game engine ===
 
 :jQuery:		http://jquery.com/[jQuery]
-:SoundManager 2:	http://www.schillmania.com/projects/soundmanager2/[SoundManager 2]
+:jQuery.transform:	https://github.com/louisremi/jquery.transform.js[jquery.transform]
+:SoundJS:		http://www.createjs.com/SoundJS
 :jsdoc:			http://code.google.com/p/jsdoc-toolkit/[jsdoc-toolkit]
 :jasmine:		http://pivotal.github.com/jasmine/[Jasmine]
 
 The game engine for the web is written in JavaScript using {jQuery}.
 Audio on the web is hard to get right. We're using 
-{SoundManager 2} which uses HTML5 audio or Flash. 
+{SoundJS} which uses HTML5 audio or Flash. 
 
 {jsdoc} is used for documentation. (Ubuntu package: jsdoc-toolkit)
 (Actually, it's not, and I'm not so sure about it. Seems inflexible. I
@@ -226,6 +227,9 @@ however, uses jsdoc tags for controlling optimization in detail. So
 I'm not sure what to do.)
 
 {jasmine} (included) is used for unit testing.
+
+{jquery.transform} is a nice plugin to allow animations of CSS
+transforms such as rotations.
 
 SoundManager problem: What I'd like is if I could give it an ogg file
 and an mp3 file, and then it would use the ogg wherever possible,
@@ -244,6 +248,8 @@ _required_. But SoundManager forces this. This doesn't work:
         }
     };
 
+Update: Now using SoundJS instead of SoundManager2, haven't tested it 
+thoroughly in many browsers though!
 
 * http://dev.w3.org/html5/spec/Overview.html#the-audio-element[W3 HTML5 spec for audio] -- http://www.whatwg.org/specs/web-apps/current-work/multipage/the-video-element.html#the-audio-element[WHATWG spec]
 * type for ogg is type='audio/ogg; codecs=vorbis' (http://tools.ietf.org/html/rfc4281[spec for codes]

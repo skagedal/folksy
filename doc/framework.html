@@ -1029,7 +1029,7 @@ next.</p></div>
 <h3 id="_the_web_game_engine">The web game engine</h3>
 <div class="paragraph"><p>The game engine for the web is written in JavaScript using <a href="http://jquery.com/">jQuery</a>.
 Audio on the web is hard to get right. We&#8217;re using
-{SoundManager 2} which uses HTML5 audio or Flash.</p></div>
+<a href="http://www.createjs.com/SoundJS">http://www.createjs.com/SoundJS</a> which uses HTML5 audio or Flash.</p></div>
 <div class="paragraph"><p><a href="http://code.google.com/p/jsdoc-toolkit/">jsdoc-toolkit</a> is used for documentation. (Ubuntu package: jsdoc-toolkit)
 (Actually, it&#8217;s not, and I&#8217;m not so sure about it. Seems inflexible. I
 think an explicit documenting system, like <a href="http://pdoc.org/">PDoc</a>, is
@@ -1037,6 +1037,8 @@ a better idea for a language like JavaScript. Google Closure Compiler,
 however, uses jsdoc tags for controlling optimization in detail. So
 I&#8217;m not sure what to do.)</p></div>
 <div class="paragraph"><p><a href="http://pivotal.github.com/jasmine/">Jasmine</a> (included) is used for unit testing.</p></div>
+<div class="paragraph"><p>{jquery.transform} is a nice plugin to allow animations of CSS
+transforms such as rotations.</p></div>
 <div class="paragraph"><p>SoundManager problem: What I&#8217;d like is if I could give it an ogg file
 and an mp3 file, and then it would use the ogg wherever possible,
 otherwise use mp3. I therefore don&#8217;t want either mp3 or ogg to be
@@ -1055,6 +1057,8 @@ soundManager.audioFormats = {
     }
 };</tt></pre>
 </div></div>
+<div class="paragraph"><p>Update: Now using SoundJS instead of SoundManager2, haven&#8217;t tested it
+thoroughly in many browsers though!</p></div>
 <div class="ulist"><ul>
 <li>
 <p>
@@ -1212,7 +1216,7 @@ that need to be translated.</p></div>
 <div id="footnotes"><hr /></div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2013-03-29 22:30:52 CET
+Last updated 2013-03-31 23:26:39 CEST
 </div>
 </div>
 </body>
