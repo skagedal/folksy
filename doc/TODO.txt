@@ -4,10 +4,8 @@ Simon Kågedal Reimer <simon@kagedal.org>
 
 .Priority 
 * Fix up before publication of en_alphabet:
-** English "rewards" sounds
-** GitHub project page
-** Link from game to project page; maybe a nice http://www.cssstickyfooter.com/[sticky footer]?
-** Include copyright/credits text on game info page; generate from gametool
+** Link from game to project page
+** Include copyright/credits text from themes
 
 
 .General
@@ -16,9 +14,8 @@ Simon Kågedal Reimer <simon@kagedal.org>
 * This is how I should use jsdoc: http://code.google.com/p/jsdoc-toolkit/wiki/FAQ#Documenting_the_module_pattern
 
 .Game engine
-* Allow use of keyboard
+* Allow use of keyboard for letters
 * Instead of failing completely on load error of an image, degrade (?) gracefully. If all images fail, fail. If some images fail, tell user, but play anyway.
-* On wrong answer, remove item
 * Android game engine
 * iPhone/iPad game engine
 * Native desktop game engines 

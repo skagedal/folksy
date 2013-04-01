@@ -15,6 +15,24 @@
 //   along with Folksy.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+// jQuery plugin: make images undraggable and unselectable
+
+(function($){
+    $.fn.disableDragAndSelect = function() {
+	return this
+	    .on('dragstart', function(event) {
+		event.preventDefault();
+	    })
+	    .css({
+		"-moz-user-select": "none",
+		"-khtml-user-select": "none",
+		"-webkit-user-select": "none",
+		"-ms-user-select": "none",
+		"user-select": "none"
+	    })
+	    .attr("unselectable", "on"); // old IE
+    };
+})(jQuery);
 // Module
 
 folksy = (function () {
@@ -76,16 +94,29 @@ folksy = (function () {
     }
     var F_ = getResource;	
     
+// Sound
+
     function setupSoundManager() {
-	soundManager.useHTML5Audio = true;
+	// createjs.Sound.registerPlugins([createjs.WebAudioPlugin, createjs.FlashPlugin]);
     }
+
+    function createSound(uniqueId, sources) {
+	return createjs.Sound.registerSound(sources.join("|"), uniqueId);
+	// returns a "details" object. has id as "id".
+    }
+
+    function playSound(sound) {
+	createjs.Sound.stop();
+	createjs.Sound.play(sound.id);
+    }
+
+
 
 // Module helpers
 
     var _debugMode = true;
     function setDebugMode(b) {
 	_debugMode = Boolean(b);
-	//soundManager.debugMode = _debugMode;
     }
     
     function log(s) {
@@ -185,11 +216,6 @@ folksy = (function () {
 	    }
 	});
 
-	// Prevent dragging
-	    $('img').on('dragstart', function(event) { 
-		event.preventDefault(); 
-	    });
-
 	// Hide load progress, enable "Run" button
 	$("#load_progress").hide();
 	$("#start_game").click(startGame.bind(null, game)).show();
@@ -214,11 +240,7 @@ folksy = (function () {
         loadIm("imageSelect", "image_select_src");
     
         if(stimulus.hasOwnProperty("sound_srcs")) {
-            stimulus.sound = soundManager.createSound({
-                id: stimulus.id,
-                url: stimulus.sound_srcs,
-                autoLoad: true
-            });
+            stimulus.sound = createSound(stimulus.id, stimulus.sound_srcs);
         }
     }
 
@@ -246,11 +268,8 @@ folksy = (function () {
 	    for (var j = 0; j < sound.sound_srcs.length; j++) {
 		sound.sound_srcs[j] = HREF_PREFIX + sound.sound_srcs[j];
 	    }
-	    sound.sound = soundManager.createSound({
-		id: sound.sound_srcs[0],
-		url: sound.sound_srcs,
-		autoLoad: true
-	    });
+	    sound.sound = createSound(sound.sound_srcs[0], sound.sound_srcs);
+
 	}
     }
 
@@ -268,11 +287,6 @@ folksy = (function () {
 	game._imageRequestsSent = true;
     }
 
-
-    function playSound(audio) {
-	soundManager.stopAll();
-	audio.play();
-    }
 
     function rewardImages(game) {
 	return util.pluck(game.rewards.images, 'image');
@@ -324,14 +338,18 @@ folksy = (function () {
 			positiveReinforcement(game);
 		    });
 		});
-
-	    log("Whoohooo!");
 	}
     }
 
-    function incorrectAnswer(game) {
+    function incorrectAnswer(game, clickedImage) {
 	if (game._isInQuestion) {
-	    soundManager.play('fel');
+	    var stimulus = $(clickedImage).data('stimulus');
+	    game.alreadyTried.push(stimulus.fullID);
+	    $(clickedImage).animate({
+		opacity: 0,
+		transform: "translate(20px, 70px) rotate(20deg) scale(0.1)"
+	    }, function() { $(this).hide(); });
+	    layoutGame(game);
 	}
     }
 
@@ -342,7 +360,7 @@ folksy = (function () {
 	if (game.logic.respond(stimulus.fullID) == gamelogic.CORRECT) {
 	    correctAnswer(game, this);
 	} else {
-	    incorrectAnswer(game);
+	    incorrectAnswer(game, this);
 	}
     }
 
@@ -415,7 +433,9 @@ folksy = (function () {
         game.$prompt = $('<img />').css({
 	    'display': 'none',
 	    'z-index': '1',
-	    'position': 'absolute'});
+	    'position': 'absolute'})
+	    .disableDragAndSelect();
+
 	game.$comparisons = [];
 	for (var i = 0; i < MAX_COMPARISON_STIMULI; i++) {
 	    game.$comparisons[i] = $('<img />')
@@ -424,6 +444,7 @@ folksy = (function () {
 		    'z-index': '1',
 		    'position': 'absolute',
 		    'cursor': 'pointer'})
+		.disableDragAndSelect()
 		.click(clickComparisonImage)
 		.hover(hoverComparisonImageIn, hoverComparisonImageOut)
 		.data('game', game);
@@ -437,6 +458,7 @@ folksy = (function () {
 		'z-index': '2',
 		'position': 'absolute',
 		'cursor': 'pointer'})
+	    .disableDragAndSelect()
 	    .click(clickReward.bind(null, game));
 	game.$gameDiv = $(game._gameDiv);
 	game.$gameDiv.append(game.$prompt,
@@ -447,11 +469,15 @@ folksy = (function () {
     function placeJQuery(x, y, width, height) {
 	layout.PlaceableBox.prototype.place.call(this, x, y, width, height);
 	console.log("Placing object at ", x, y, width, height);
-	this.data.css({left: x,
-		       top: y,
-		       width: width,
-		       height: height});
-
+	this.data
+	    .css({opacity: 1.0,
+		  transform: ""})
+	    .show()
+	    .animate({left: x,
+			   top: y,
+			   width: width,
+			   height: height});
+	
     }
 
     // Connect a jQuery'd image and a stimulus and a put it in a 
@@ -482,9 +508,13 @@ folksy = (function () {
 	// Set up comparison stimuli
 	comparisonBoxes = [];
 	for (var i = 0; i < game.comparisonStimuli.length; i++) {
-	    comparisonBoxes.push(connectAndBoxStimulus(
-		game.$comparisons[i],
-		game.comparisonStimuli[i]));
+	    var stimulus = game.comparisonStimuli[i];
+	    var fullID = stimulus.fullID;
+	    if (game.alreadyTried.indexOf(fullID) === -1) {
+		comparisonBoxes.push(connectAndBoxStimulus(
+		    game.$comparisons[i],
+		    game.comparisonStimuli[i]));
+	    }
 	}
 	game.$activeComparisons = 
 	    game.$comparisons.slice(0, game.comparisonStimuli.length);
@@ -499,6 +529,7 @@ folksy = (function () {
 
 	game.promptStimulus = getStimulusByFullId(game, next[0]);
 	game.comparisonStimuli = getStimuliByFullId(game, next[1]);
+	game.alreadyTried = [];
 
 	if (game.promptStimulus.hasOwnProperty('sound'))
 	    playSound(game.promptStimulus.sound);
@@ -551,16 +582,13 @@ folksy = (function () {
 	var pairs = getRelationPairs(this.relations[0]);
 
 	this.logic = new gamelogic.SimpleGameLogic(setA, setB, pairs, {
-	    // comparison_stimuli: 4
+	    comparison_stimuli: 4
 	});
 	
 	$(document).ready(function() {
-
-            soundManager.onready(function() {
-		createElements(game);
-		loadGameData(game);
-		$("#credits").append(jsonData.credits || '');
-            });
+	    createElements(game);
+	    loadGameData(game);
+	    $("#credits").append(jsonData.credits || '');
 	});
 	
     }
