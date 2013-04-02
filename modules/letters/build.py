@@ -5,4 +5,7 @@ import sys
 sys.path = ['../..'] + sys.path
 from buildsupport import *
 
-# Nothing to do here.
+def build():
+    run("../../gametool/makeletters.py")
+
+main()

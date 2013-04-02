@@ -44,7 +44,7 @@ items:
  - id: M_mus
    title: M som i mus
    image: commons:Apodemus_sylvaticus_bosmuis.jpg
- - id: N_nyckel.wav
+ - id: N_nyckel
    title: N som i nyckel
    image: commons:Standard-lock-key.jpg
  - id: O_orm
@@ -86,10 +86,12 @@ items:
  - id: AA_aasna
    title: Å som i åsna
    image: commons:Donkey_1_arp_750px.jpg
+   letter: Å
  - id: AE_aepple
    title: Ä som i äpple 
    image: commons:Fuji_apple.jpg
- - id: OE_oedla.wav
+   letter: Ä
+ - id: OE_oedla
    title: Ö som i ödla
    image: commons:Bartagame_fcm.jpg
-   
+   letter: Ö
