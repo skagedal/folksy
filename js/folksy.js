@@ -349,7 +349,7 @@ folksy = (function () {
 		opacity: 0,
 		transform: "translate(20px, 70px) rotate(20deg) scale(0.1)"
 	    }, function() { $(this).hide(); });
-	    layoutGame(game);
+	    layoutGame(game, true);
 	}
     }
 
@@ -466,44 +466,51 @@ folksy = (function () {
 			     game.$reward);
     }
 
-    function placeJQuery(x, y, width, height) {
-	layout.PlaceableBox.prototype.place.call(this, x, y, width, height);
-	console.log("Placing object at ", x, y, width, height);
-	this.data
-	    .css({opacity: 1.0,
-		  transform: ""})
-	    .show()
-	    .animate({left: x,
-			   top: y,
-			   width: width,
-			   height: height});
-	
+    // method is either "css" or "animate"
+    function placeWithMethod(method) {
+	return (function(x, y, width, height) {
+	    layout.PlaceableBox.prototype.place.call(this, x, y, 
+						     width, height);
+	    this.data
+		.css({opacity: 1.0,
+		      transform: ""})
+		.show()
+	        [method]({left: x,
+			  top: y,
+			  width: width,
+			  height: height});
+	});
     }
+    var placeWithCSS = placeWithMethod("css");
+    var placeWithAnimate = placeWithMethod("animate");
 
     // Connect a jQuery'd image and a stimulus and a put it in a 
     // placeable box. 
-    function connectAndBoxStimulus($img, stimulus) {
+    function connectAndBoxStimulus($img, stimulus, animate) {
 	var box;
 	$img[0].src = stimulus.image.src;
 	$img.data('stimulus', stimulus);
 	box = new layout.PlaceableBox(stimulus.width,
 				      stimulus.height,
 				      $img);
-	box.place = placeJQuery;
+	box.place = animate ? placeWithAnimate : placeWithCSS;
 	return box;
     }
 
     // Run whenever we need to redo layout, on new question, on window resize...
-    function layoutGame(game) {
+    function layoutGame(game, animate) {
 	var gameBox, promptBox, comparisonBoxes;
 	var gameWidth = game.$gameDiv.width();
 	var gameHeight = game.$gameDiv.height();
+	if (typeof(animate) === "undefined")
+	    animate = false;
 
 	gameBox = new layout.Box(0, 0, gameWidth, gameHeight);
 
 	// Set up prompt stimulus
 	promptBox = connectAndBoxStimulus(game.$prompt,
-					  game.promptStimulus);
+					  game.promptStimulus,
+					  animate);
 	
 	// Set up comparison stimuli
 	comparisonBoxes = [];
@@ -513,7 +520,8 @@ folksy = (function () {
 	    if (game.alreadyTried.indexOf(fullID) === -1) {
 		comparisonBoxes.push(connectAndBoxStimulus(
 		    game.$comparisons[i],
-		    game.comparisonStimuli[i]));
+		    game.comparisonStimuli[i],
+		    animate));
 	    }
 	}
 	game.$activeComparisons = 
