@@ -99,7 +99,10 @@ folksy = (function () {
     function setupSoundManager() {
 	// createjs.WebAudioPlugin
 	createjs.FlashPlugin.BASE_PATH = "../swf/"
-	createjs.Sound.registerPlugins([createjs.FlashPlugin]);
+	createjs.Sound.registerPlugins([
+	    createjs.WebAudioPlugin, 
+	    createjs.HTMLAudioPlugin,
+	    createjs.FlashPlugin]);
     }
 
     function createSound(uniqueId, sources) {
