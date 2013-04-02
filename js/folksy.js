@@ -347,10 +347,14 @@ folksy = (function () {
 	if (game._isInQuestion) {
 	    var stimulus = $(clickedImage).data('stimulus');
 	    game.alreadyTried.push(stimulus.fullID);
-	    $(clickedImage).animate({
-		opacity: 0,
-		transform: "translate(20px, 70px) rotate(20deg) scale(0.1)"
-	    }, function() { $(this).hide(); });
+	    $(clickedImage)
+		.css({
+		    "z-index": 5
+		})
+		.animate({
+		    opacity: 0,
+		    transform: "translate(20px, 70px) rotate(20deg) scale(0.1)"
+		}, function() { $(this).hide(); });
 	    layoutGame(game, true);
 	}
     }
@@ -434,7 +438,7 @@ folksy = (function () {
 	console.log("Creating elements.");
         game.$prompt = $('<img />').css({
 	    'display': 'none',
-	    'z-index': '1',
+	    'z-index': '10',
 	    'position': 'absolute'})
 	    .disableDragAndSelect();
 
@@ -443,7 +447,7 @@ folksy = (function () {
 	    game.$comparisons[i] = $('<img />')
 		.css({
 		    'display': 'none',
-		    'z-index': '1',
+		    'z-index': '10',
 		    'position': 'absolute',
 		    'cursor': 'pointer'})
 		.disableDragAndSelect()
@@ -457,7 +461,7 @@ folksy = (function () {
 	game.$reward = $('<img />')
 	    .css({
 		'display': 'none',
-		'z-index': '2',
+		'z-index': '20',
 		'position': 'absolute',
 		'cursor': 'pointer'})
 	    .disableDragAndSelect()
@@ -475,7 +479,8 @@ folksy = (function () {
 						     width, height);
 	    this.data
 		.css({opacity: 1.0,
-		      transform: ""})
+		      transform: "",
+		      "z-index": 10})
 		.show()
 	        [method]({left: x,
 			  top: y,
