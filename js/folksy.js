@@ -1,3 +1,4 @@
+// -*- mode: js2; j2-basic-offset: 4 -*-
 //
 //   This file is part of Folksy, a framework for educational games.
 //
@@ -16,16 +17,16 @@
 //
 
 // DOM globals
-/*global Image: false */
+/*global Image */
 
 // Other vendor globals
-/*global createjs: false, jQuery: false, $: false, sprintf: false */
+/*global createjs, jQuery, $, sprintf */
 
 // Other Folksy modules
-/*global util: false, gamelogic: false, layout: false */
+/*global util, gamelogic, layout */
 
 // This module
-/*global folksy: true */
+/*global folksy */
 
 //
 // jQuery plugin: make images undraggable and unselectable

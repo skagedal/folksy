@@ -18,7 +18,7 @@
 "use strict";
 
 // Requirements: only util.js
-/*global util: false */
+/*global util */
 
 
 /** @namespace Layout functions. */

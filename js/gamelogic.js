@@ -1,10 +1,10 @@
 // Game logic Module
 
 // Other Folksy modules
-/*global util: false */
+/*global util */
 
 // This module
-/*global gamelogic: true */
+/*global gamelogic */
 
 gamelogic = (function () {
     var constants = {
