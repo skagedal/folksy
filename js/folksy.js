@@ -15,8 +15,9 @@
 //   along with Folksy.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+//
 // jQuery plugin: make images undraggable and unselectable
-
+//
 (function($){
     $.fn.disableDragAndSelect = function() {
 	return this
@@ -33,18 +34,20 @@
 	    .attr("unselectable", "on"); // old IE
     };
 })(jQuery);
-// Module
 
+//
+// The main folksy module
+//
 folksy = (function () {
 
-// Constants
+    // Constants
 
     // Temporary hack
     var HREF_PREFIX = "/simon/folksy/";
 
     var MAX_COMPARISON_STIMULI = 8;
 
-// Internationalization
+    // Internationalization
 
     var RESOURCES = {
 	'en': {
@@ -60,7 +63,7 @@ folksy = (function () {
 	    // Fallback language for as of yet untranslated entries
 	    '_FALLBACK_': 'en'
 	}
-    }
+    };
     
     var resources;
 
@@ -384,7 +387,7 @@ folksy = (function () {
     }
 
     function setupComparisonImage(game, index, stimulus) {
-	$.data(image, 'stimulus', stimulus)
+	$.data(image, 'stimulus', stimulus);
     }
 
     function setFullStimulusIdentifiers(stimulusSet) {
@@ -572,6 +575,7 @@ folksy = (function () {
 	$("#info").append('<div class="error">' + s + '</div>');
     }
     
+    // Loads a game from JSON data that describes the resources.
     Game.prototype.initWithJSON = function(jsonData) {
 	var game = this;
 	game.jsonData = jsonData;
@@ -609,8 +613,10 @@ folksy = (function () {
 	    $("#credits").append(jsonData.credits || '');
 	});
 	
-    }
+    };
 
+    // Loads a game. `url` is a an URL pointing to a JSON file
+    // with the game description.
     Game.prototype.initWithURL = function(url) {
 	log("initWithURL: " + url);
 
@@ -625,7 +631,7 @@ folksy = (function () {
 		});
 	    
 	});
-    }
+    };
 
     // Module exports
     return {
