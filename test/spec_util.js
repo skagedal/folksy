@@ -31,3 +31,14 @@ describe("util.mergeObjects", function () {
 	   expect(obj.c).toEqual("C");
        });
 });
+
+describe("util.getExtension", function () {
+    it("should return the lower-cased extension of a filename", function () {
+	expect(util.getExtension("foo.bar")).toEqual("bar");
+	expect(util.getExtension("test://long/silly.string.ext")).toEqual("ext");
+	expect(util.getExtension("foo.BAZ")).toEqual("baz");
+    });
+    it("should return the empty string when there is no extension", function () {
+	expect(util.getExtension("foobar")).toEqual("");
+    });
+});

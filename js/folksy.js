@@ -106,11 +106,26 @@ folksy = (function () {
 	    createjs.WebAudioPlugin, 
 	    createjs.HTMLAudioPlugin /*,
 	    createjs.FlashPlugin */]);
+        createjs.Sound.alternateExtensions = ["mp3"];
     }
 
+    // Loads a sound resource. "sources" is a list of sources.  We're now
+    // using SoundJS, which does not allow multiple alternate sources,
+    // so we find the ogg resource if available and set up soundjs to
+    // fallback on mp3 file with the same name but different extension.
+    //
+    // Returns a "details" object. has id as "id".
     function createSound(uniqueId, sources) {
-	return createjs.Sound.registerSound(sources.join("|"), uniqueId);
-	// returns a "details" object. has id as "id".
+	if (sources.length < 1) {
+	    log("createSound: no sources given");
+	    return null;
+	};
+	var src = sources[0], i;
+	for (i = 1; i < sources.length; i++) {
+	    if (util.getExtension(sources[i]) === "ogg")
+		src = sources[i];
+	}
+	return createjs.Sound.registerSound(src, uniqueId);
     }
 
     function playSound(sound) {
@@ -281,6 +296,7 @@ folksy = (function () {
 	}
     }
 
+    // Starts loading of all the game data
     function loadGameData(game) {
 	if (game._loadingAborted) return;
 

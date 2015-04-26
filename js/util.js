@@ -137,13 +137,13 @@ var util = (function () {
     function equalityChecker(a) {
 	return function (b) {
 	    return (a === b); 
-	}
+	};
     }
 
     function inequalityChecker(a) {
 	return function (b) {
 	    return (a !== b); 
-	}
+	};
     }
 
     function sum(array) {
@@ -169,7 +169,7 @@ var util = (function () {
     function plucker(key) {
 	return function(obj) {
 	    return obj[key];
-	}
+	};
     }
 
     function pluck(array, key) {
@@ -191,7 +191,7 @@ var util = (function () {
      * with lower argument indices overriding those with higher indices.
      */
     function mergeObjects(args) {
-	var newObj = {}
+	var newObj = {};
 	for (var i = arguments.length - 1; i >= 0; i--) {
 	    var obj = arguments[i];
 	    for (var key in obj) {
@@ -258,6 +258,16 @@ var util = (function () {
 	return obj === void 0;
     };
 
+    // Get lower-cased filename extension, or the empty string
+    // if none exists.
+    function getExtension(s) {
+	var pointIndex = s.lastIndexOf('.');
+	if (pointIndex > -1) {
+	    return s.substr(pointIndex + 1).toLowerCase();
+	}
+	return "";
+    }
+
     // Module exports
     return {
 	shuffleInPlace: shuffleInPlace,
@@ -284,7 +294,8 @@ var util = (function () {
 	isBoolean: isBoolean,
 	isRegExp: isRegExp,
 	isNull: isNull,
-	isUndefined: isUndefined
+	isUndefined: isUndefined,
+	getExtension: getExtension
     };
 
 })();
