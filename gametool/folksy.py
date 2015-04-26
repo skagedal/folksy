@@ -34,9 +34,9 @@ FolksyConfig = {
 
 # Want this to keep working with both Python 2.6 and Python 2.7.
 
-import sys, os, os.path as path, subprocess, json, locale, re
+import sys, os, os.path as path, subprocess, json, locale, re, argparse
 import distutils.dir_util, unicodedata, shutil
-from optparse import OptionParser
+
 mkpath = distutils.dir_util.mkpath
 
 # non-standard libraries
@@ -631,45 +631,38 @@ class FolksyTool:
         return True
 
     def main(self):
-        parser = OptionParser()
+        parser = argparse.ArgumentParser()
+        subparsers = parser.add_subparsers(title='subcommands')
 
-        #parser.add_option("-h", "--help", help="get help")
-        parser.add_option("-d", "--set-game-dir", 
-                          help="set game directory to DIR",
-                          dest="game_dir", metavar="DIR")
-        parser.add_option("--pretty-json", dest="pretty_json",
-                          help="pretty-print outputted JSON")
-        # TODO: actually care about these options...
+        def simple_cmd(cmd, help, func):
+            p = subparsers.add_parser(cmd, help=help)
+            p.set_defaults(simple_func=func)
+            return p
 
-        (options, args) = parser.parse_args()
+        simple_cmd("list", "List all games", self.list_games)
+        simple_cmd("modules", "List all modules", self.list_modules)
+        simple_cmd("clean", "Clean up", self.clean)
+        simple_cmd("semiclean", "Semi-clean up", self.semiclean)
+
+        def cmd_build(args):
+            if args.game is None:
+                self.build_game_cwd()
+            else:
+                self.build_game(args.game)
+        parser_build = subparsers.add_parser("build",
+                                             help="Build a game")
+        parser_build.set_defaults(func = cmd_build)
+        parser_build.add_argument("game", nargs="?", default=None)
+
+        args = parser.parse_args()
 
         if not self.configure():
             return
 
-        if (len(args) > 0):
-            command = pop_first(args)
-
-            if (command == "help"):
-                print ("HERE: list all commmands");
-            elif (command == "list"):
-                self.list_games()
-            elif (command == "modules"):
-                self.list_modules()
-            elif (command == "build"):
-                if (len(args) > 0):
-                    game = pop_first(args)
-                    self.build_game(game)
-                else:
-                    self.build_game_cwd()
-            elif (command == "clean"):
-                self.clean()
-            elif (command == "semiclean"):
-                self.semiclean()
-            else:
-                print ("Unknown command: " + command)
-        else:
-            print ("Nothing to do. :-(");
-
+        try:
+            args.func(args)
+        except AttributeError:
+            args.simple_func()
 
 #
 # Utility functions.
