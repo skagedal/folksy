@@ -172,6 +172,22 @@ class ImageBuildRule(BuildRule):
             self.image.resize(self.scale)
         image.save(self.target)
 
+def to_vorbis(input_file, output_file):
+    args = ["-y",
+            "-i", input_file,
+            "-acodec", "libvorbis",
+            output_file]
+
+    for ffmpeg_variant in "ffmpeg", "avconv":
+        try:
+            subprocess.call([ffmpeg_variant] + args)
+            return
+        except OSError as e:
+            if e.errno == os.errno.ENOENT:
+                continue
+            raise
+    raise GameLoadError("no ffmpeg of avconv available")
+
 class SoundBuildRule(BuildRule):
     def __init__(self, game, sources, target):
         BuildRule.__init__(self, game, sources, target)
@@ -181,11 +197,7 @@ class SoundBuildRule(BuildRule):
         if (get_ext(self.sources[0]).lower() == target_ext):
             shutil.copyfile(self.sources[0], self.target)
         else:
-            subprocess.call(["ffmpeg", 
-                             "-y",                    # overwrite output file
-                             "-i", self.sources[0],   # set input file
-                             "-acodec", "libvorbis",  # FIXME!
-                             self.target])
+            to_vorbis (self.sources[0], self.target)
 
 class HtmlBuildRule(BuildRule):
     """Build a index.html from a template file"""
