@@ -1,4 +1,3 @@
-// -*- mode: js2; j2-basic-offset: 4 -*-
 //
 //   This file is part of Folksy, a framework for educational games.
 //
