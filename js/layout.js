@@ -18,6 +18,8 @@
 "use strict";
 
 // Requirements: only util.js
+/*global util: false */
+
 
 /** @namespace Layout functions. */
 
@@ -110,22 +112,22 @@ var layout = (function () {
    
     Row.prototype.recalc = function () {
 	this.weight = util.sum(util.pluck(this.children, 'weight'));
-    }
+    };
     Row.prototype.addChild = function (child) {
         this.children.push(child);
         this.recalc();
-    }
+    };
     Row.prototype.numChildren = function () {
         return this.children.length;
-    }
+    };
     Row.prototype.getChildrenWidth = function () {
 	this.recalc();
         // should assert that height is set...
         return this.weight * this.height;
-    }
+    };
     Row.prototype.shuffleChildren = function () {
         util.shuffleInPlace(this.children);
-    }
+    };
 
     function objToString(obj) {
 	return String(obj.weight);
@@ -133,7 +135,7 @@ var layout = (function () {
 
     Row.prototype.toStr = function () {
 	return "[" + this.children.map(objToString).join(", ") + "]";
-    }
+    };
 
     function rowsToString(rows) {
 	return "[" + 

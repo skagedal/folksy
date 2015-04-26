@@ -15,6 +15,18 @@
 //   along with Folksy.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+// DOM globals
+/*global Image: false */
+
+// Other vendor globals
+/*global createjs: false, jQuery: false, $: false, sprintf: false */
+
+// Other Folksy modules
+/*global util: false, gamelogic: false, layout: false */
+
+// This module
+/*global folksy: true */
+
 //
 // jQuery plugin: make images undraggable and unselectable
 //

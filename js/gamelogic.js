@@ -1,4 +1,10 @@
-// Module
+// Game logic Module
+
+// Other Folksy modules
+/*global util: false */
+
+// This module
+/*global gamelogic: true */
 
 gamelogic = (function () {
     var constants = {
@@ -95,11 +101,11 @@ gamelogic = (function () {
     GameLogic.prototype.next = function () {
 	this.pickRelationPair();
 	this.pickComparisonStimuli();
-    }
+    };
 
     GameLogic.prototype.getSampleStimulus = function () {
 	return this.currentPair.stimulusA;
-    }
+    };
 
     GameLogic.prototype.pickComparisonStimuli = function () { 
     };
@@ -132,7 +138,7 @@ gamelogic = (function () {
 	}
         // Ever increasing, used to keep track of which round we're in.
         this.currentTrial = -1;
-    }
+    };
 
     // Calculate how many comparison stimuli to show this trial.
     function numComparisonStimuli(logic) {
@@ -154,21 +160,21 @@ gamelogic = (function () {
 	    otherStimuli, numComparisonStimuli(this) - 1);
 	comparisonStimuli.push(targetStimulus);
 	return [sampleStimulus, comparisonStimuli];
-    }
+    };
 
     SimpleGameLogic.prototype.respond = function (stimulus) {
 	if (stimulus === this.currentPair[1])
 	    return constants.CORRECT;
 	else 
 	    return constants.INCORRECT;
-    }
+    };
 
     // Exports from module "gamelogic"
     return util.mergeObjects(
 	constants, 
 	{
 	    GameLogic: GameLogic,
-	    SimpleGameLogic: SimpleGameLogic,
+	    SimpleGameLogic: SimpleGameLogic
 	}
     );
 
