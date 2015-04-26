@@ -414,10 +414,6 @@ folksy = (function () {
 	this.src = stimulus.image.src;
     }
 
-    function setupComparisonImage(game, index, stimulus) {
-	$.data(image, 'stimulus', stimulus);
-    }
-
     function setFullStimulusIdentifiers(stimulusSet) {
 	stimulusSet.stimuli.forEach(function (stim) {
 	    stim.fullID = stimulusSet.id + ":" + stim.id;
@@ -610,7 +606,7 @@ folksy = (function () {
 	if (jsonData.format > 1 ||
 	    jsonData.gametype != "whatletter" ||
 	    jsonData.gametype_format > 1) {
-	    this.showError(F_(error_format));
+	    this.showError(F_("error_format"));
 	    return;
 	}
 	this.stimulusSets = jsonData.stimulus_sets;
@@ -622,7 +618,7 @@ folksy = (function () {
 	initResources(jsonData.lang || "en");
 
 	if (this.stimulusSets.length !== 2 || this.relations.length !== 1) {
-	    this.showError(F_(error_format));
+	    this.showError(F_("error_format"));
 	    return;
 	}	    
 

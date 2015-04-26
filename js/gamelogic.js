@@ -111,7 +111,7 @@ gamelogic = (function () {
     };
 
     GameLogic.prototype.respond = function (stimulus) {
-	return isCorrect;
+	return false;
     };
 
     // Simple game logic
