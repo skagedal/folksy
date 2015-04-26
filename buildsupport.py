@@ -63,4 +63,4 @@ def vcall(lst, *args, **kwargs):
 
 
 def download(url, target):
-    print("TODO: download %s to %s (with wget, curl..l)" % (url, target))
+    raise Exception("can't download files yet; download %s to %s" % (url, target))

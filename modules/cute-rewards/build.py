@@ -29,7 +29,7 @@ SOUNDS = [
     'super.ogg',
     'waytogo.ogg'
 ]
-GCOMPRIS_VERSION = '12.01'
+GCOMPRIS_VERSION = '12.11'
 
 
 def build():
@@ -43,7 +43,7 @@ def clean():
 
 def fromgcompris():
     project = 'gcompris-' + GCOMPRIS_VERSION
-    tgz_file = project + '.tar.gz' 
+    tgz_file = project + '.tar.bz2' 
     url = 'http://sourceforge.net/projects/gcompris/files/%s/%s/download' % \
           (GCOMPRIS_VERSION, tgz_file)
     unpack = '%s/boards/voices/' % project
