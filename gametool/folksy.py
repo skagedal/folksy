@@ -217,7 +217,6 @@ class HtmlBuildRule(BuildRule):
         fhtml = FolksyHtml(self.game.lang, gamevars)
         content = unicode(open(self.sources[0], "r").read(), "utf-8")
         open(self.target, "w").write(fhtml.substitute(content).encode("utf-8"))
-        debug("wrote html file")
 
 class Module:
     """A _module_ is a reusable piece of a Folksy game. One particular 

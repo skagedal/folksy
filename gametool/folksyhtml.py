@@ -32,13 +32,13 @@ langs = {
     }
         
 prereqs_js = [
-    "${href_prefix}js/firebug-fallback.js",
-    "${href_prefix}js/sprintf-0.7-beta1.js",
+    "${href_prefix}js/vendor/firebug-fallback.js",
+    "${href_prefix}js/vendor/sprintf-0.7-beta1.js",
     "https://code.createjs.com/soundjs-0.6.0.min.js",
     # "${href_prefix}js/soundjs.flashplugin-0.4.0.min.js",
     "https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js",
-    "${href_prefix}js/es5-shim.js",
-    "${href_prefix}js/jquery.transform2d.js"]
+    "${href_prefix}js/vendor/es5-shim.js",
+    "${href_prefix}js/vendor/jquery.transform2d.js"]
 
 folksy_js = [
     "${href_prefix}js/util.js",
