@@ -329,13 +329,13 @@ class Game:
     def get_image_default_width(self):
         return self.yaml.get('imagewidth', 500)
 
-    def fetch_media_file(self, source):
+    def fetch_media_file(self, source, image=False):
         if source.startswith('commons:'):
             title = source[len('commons:'):]
             commons = self.commons()
             cfile = commons.get(u'File:' + title,
                                 download = True,
-                                width = self.get_image_default_width())
+                                width = self.get_image_default_width() if image else None)
             return cfile.filename, cfile.attribution()
         elif re.match('^https?:', source):
             assert False, 'Fixme: Download'
@@ -356,7 +356,7 @@ class Game:
         img_credit = ''
         if 'image' in y_item:
             source = y_item['image']
-            img_filename, img_credit = self.fetch_media_file(source)
+            img_filename, img_credit = self.fetch_media_file(source, image=True)
         else:
             img_filename = self.find_media_file(
                 "images", y_item["id"], FolksyOptions["image_extensions"])
