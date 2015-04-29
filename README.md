@@ -28,14 +28,6 @@ Install these Ubuntu packages:
 * python-iso8601
 * libav-tools (or ffmpeg, if available)
 
-Then install the `usecommons` package from git:
-
-    git clone https://github.com/skagedal/usecommons.git
-    cd usecommons
-    python ./setup.py install
-    # add --user to install as user site-package; see --help
-    # for other installation options.
-
 Then run build.py.
 
 Simon Kågedal Reimer <simon@kagedal.org>
