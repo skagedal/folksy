@@ -381,7 +381,9 @@ class Game:
             warning("no image file for item %s; skipping" % y_item["id"])
             return None
 
-        # Find sound.
+        # A sound file is either specified as a commons path or an URL.
+        # If none is specified, we look for a sound file with the same name
+        # as the id.
         snd_credit = ''
         if 'sound' in y_item:
             source = y_item['sound']
